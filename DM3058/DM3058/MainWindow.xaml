@@ -1,0 +1,25 @@
+﻿<Window x:Class="DM3058.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DM3058"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Loaded="OnLoaded">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:MainWindow.SetModeCommand}" Executed="ExecutedSetModeCommand" CanExecute="CanExecuteSetModeCommand" />
+    </Window.CommandBindings>
+    <Grid >
+        <StackPanel>
+            <TextBlock  Text="DMM Reading"/>
+            <TextBlock Name="txtReading" Text="No Reading" FontSize="48"/>
+            <RadioButton Content="DCV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCV" GroupName="mode" IsChecked="True"/>
+            <RadioButton Content="ACV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACV" GroupName="mode"/>
+            <RadioButton Content="DCI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCI" GroupName="mode"/>
+            <RadioButton Content="ACI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACI" GroupName="mode"/>
+            <RadioButton Content="OHM" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="OHM" GroupName="mode"/>
+            <ToggleButton Name="btnRun" Content="Run" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" />
+        </StackPanel>
+
+    </Grid>
+</Window>
