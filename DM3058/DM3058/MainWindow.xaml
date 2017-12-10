@@ -5,21 +5,70 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DM3058"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Loaded="OnLoaded">
+        Title="DM3058 Display Utility" MinWidth="500" Loaded="OnLoaded" SizeToContent="WidthAndHeight">
+    <Window.Resources>
+        <Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                        <Grid>
+                            <Rectangle Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" />
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,10,10,10"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True" >
+                                <Setter Property="Background" Value="Gray" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Grid>
+                            <Rectangle Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" />
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,10,10,10"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="Tomato" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="False" >
+                                <Setter Property="Background" Value="MediumSeaGreen" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static local:MainWindow.SetModeCommand}" Executed="ExecutedSetModeCommand" CanExecute="CanExecuteSetModeCommand" />
     </Window.CommandBindings>
-    <Grid >
-        <StackPanel>
-            <TextBlock  Text="DMM Reading"/>
-            <TextBlock Name="txtReading" Text="No Reading" FontSize="48"/>
-            <RadioButton Content="DCV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCV" GroupName="mode" IsChecked="True"/>
-            <RadioButton Content="ACV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACV" GroupName="mode"/>
-            <RadioButton Content="DCI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCI" GroupName="mode"/>
-            <RadioButton Content="ACI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACI" GroupName="mode"/>
-            <RadioButton Content="OHM" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="OHM" GroupName="mode"/>
-            <ToggleButton Name="btnRun" Content="Run" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" />
-        </StackPanel>
-
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="DMM Reading" FontStyle="Italic" FontSize="16" FontFamily="Segoe UI Semibold"/>
+        <TextBlock Grid.Row="1" Name="txtReading" Text="No Reading" FontSize="72" Margin="10,10,10,10"/>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <RadioButton Content="DCV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCV" GroupName="mode" IsChecked="True" Style="{DynamicResource RadioButtonStyle}" />
+                <RadioButton Content="ACV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACV" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" />
+                <RadioButton Content="DCI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCI" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" />
+                <RadioButton Content="ACI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACI" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" />
+                <RadioButton Content="OHM" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="OHM" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" />
+            </StackPanel>
+            <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="100" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Background="MediumSeaGreen" Style="{DynamicResource ToggleButtonStyle}"/>
+        </Grid>
     </Grid>
 </Window>
