@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("DM3058")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Tony Goodhew")]
 [assembly: AssemblyProduct("DM3058")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
