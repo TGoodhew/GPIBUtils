@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>multimeter_aSv_icon.ico</ApplicationIcon>
+    <ApplicationIcon>multimeter.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -109,15 +109,10 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Attributions.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="multimeter_aSv_icon.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="multimeter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="multimeter.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
