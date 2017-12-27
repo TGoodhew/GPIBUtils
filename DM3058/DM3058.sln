@@ -5,16 +5,37 @@ VisualStudioVersion = 15.0.27205.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DM3058", "DM3058\DM3058.csproj", "{23FD7B91-EBB9-4F7F-B505-A1410E65B779}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DMM3058UtilitySetup", "DMM3058UtilitySetup\DMM3058UtilitySetup.vdproj", "{0C1248F2-B3E7-4350-A347-B0985312C2BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Debug|x64.Build.0 = Debug|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Debug|x86.Build.0 = Debug|Any CPU
 		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|x64.ActiveCfg = Release|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|x64.Build.0 = Release|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|x86.ActiveCfg = Release|Any CPU
+		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|x86.Build.0 = Release|Any CPU
+		{0C1248F2-B3E7-4350-A347-B0985312C2BB}.Debug|Any CPU.ActiveCfg = Debug
+		{0C1248F2-B3E7-4350-A347-B0985312C2BB}.Debug|Any CPU.Build.0 = Debug
+		{0C1248F2-B3E7-4350-A347-B0985312C2BB}.Debug|x64.ActiveCfg = Debug
+		{0C1248F2-B3E7-4350-A347-B0985312C2BB}.Debug|x86.ActiveCfg = Debug
+		{0C1248F2-B3E7-4350-A347-B0985312C2BB}.Release|Any CPU.ActiveCfg = Release
+		{0C1248F2-B3E7-4350-A347-B0985312C2BB}.Release|x64.ActiveCfg = Release
+		{0C1248F2-B3E7-4350-A347-B0985312C2BB}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

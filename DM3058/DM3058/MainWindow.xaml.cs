@@ -157,7 +157,7 @@ namespace DM3058
                     Symbol = "R";
                     break;
             }
-            txtReading.Text = ToEngineeringFormat.Convert(Convert.ToDouble(ReadCommand(CurrentCommand))) + Symbol;
+            txtReading.Text = ToEngineeringFormat.Convert(Convert.ToDouble(ReadCommand(CurrentCommand)),6,Symbol);
         }
     }
 }
