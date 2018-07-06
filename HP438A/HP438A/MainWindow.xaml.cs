@@ -34,10 +34,14 @@ namespace HP438A
         private string CurrentCommand;
         private Mode CurrentChannel;
         private IEventManager Srq;
+        private List<RadioButton> radioButtons;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            // Get the radiobuttons for the mode group
+            radioButtons = ModeButtons.Children.OfType<RadioButton>().ToList<RadioButton>();
 
             CommandBinding SetModeCommandBinding = new CommandBinding(SetModeCommand, ExecutedSetModeCommand, CanExecuteSetModeCommand);
             this.CommandBindings.Add(SetModeCommandBinding);
@@ -45,6 +49,10 @@ namespace HP438A
             Initialize438();
             SetMode("CHA");
             CurrentChannel = Mode.CHA;
+
+            // Setup the event handler for SRQ (primarily for CAL & ZERO)
+            Srq = (IEventManager)PWRMeter.IO;
+            Srq.InstallHandler(EventType.EVENT_SERVICE_REQ, this);
 
             InitializeTimer();
         }
@@ -56,8 +64,8 @@ namespace HP438A
             PWRMeter.IO.Timeout = 20000;
             PWRMeter.IO.Clear();
 
-            // PReset, CaL100, ENter, LoG, TRigger3
-            SendCommand("PRCSLGTR3");
+            // PReset, CaL100, ENter, LoG, TRigger2
+            SendCommand("PRCSLGTR0 ");
         }
 
         private void InitializeTimer()
@@ -119,12 +127,12 @@ namespace HP438A
             {
                 case "CHA":
                     CurrentMode = Mode.CHA;
-                    CurrentCommand = "AP";
+                    CurrentCommand = "APTR2";
                     CurrentChannel = Mode.CHA;
                     break;
                 case "CHB":
                     CurrentMode = Mode.CHB;
-                    CurrentCommand = "BP";
+                    CurrentCommand = "BPTR2";
                     CurrentChannel = Mode.CHB;
                     break;
                 case "ZER":
@@ -134,10 +142,8 @@ namespace HP438A
                     // so that resolves to a 0x02 byte which can be put in a 
                     // string using the unicode escape
                     SendCommand("@1\u0002"); 
-                                             
-                    // Setup the event handler for SRQ (primarily for CAL & ZERO)
-                    Srq = (IEventManager)PWRMeter.IO;
-                    Srq.InstallHandler(EventType.EVENT_SERVICE_REQ, this);
+              
+                    // Enable the handler to respond to the SRQ
                     Srq.EnableEvent(EventType.EVENT_SERVICE_REQ, EventMechanism.EVENT_HNDLR);
 
                     // Zero the meter
@@ -197,6 +203,13 @@ namespace HP438A
                     //TODO: Watch for Log/Lin setting to determine whether to use engineering notation
                     //txtReading.Text = ToEngineeringFormat.Convert(Convert.ToDouble(ReadCommand(CurrentCommand)), 6, Symbol);
                     var reading = Convert.ToDouble(ReadCommand(CurrentCommand));
+
+                    // If there is a reading Log/Lin error the the returned value is
+                    // very large (9E+40). Skip updating the UI if that is the case.
+                    if (reading > 8E+40)
+                        break;
+
+                    // Setup the appended symbol
                     Symbol = " dBm";
                     txtReading.Text = reading.ToString("F") + Symbol;
                     break;
@@ -219,16 +232,15 @@ namespace HP438A
             {
                 case Mode.ZER:
                 case Mode.CAL:
-                    SetMode(CurrentChannel);
-                    var radioButtons = ModeButtons.Children.OfType<RadioButton>();
-                    foreach (var radioButton in radioButtons)
-                    {
-                        if (radioButton.IsChecked ?? false)
-                        {
-                            var name = radioButton.Name;
-                            var index = radioButtons.ToList().IndexOf(radioButton);
-                        }
-                    }
+                    // Clear the status byte
+                    SendCommand("CS");
+
+                    // Update the UI and mode
+                    System.Windows.Application.Current.Dispatcher.Invoke(delegate {
+                        txtReading.Text = "Complete";
+                        radioButtons.Find(x => x.Content.ToString() == "CHA").IsChecked = true;
+                        SetMode(CurrentChannel);
+                    });
                     break;
                 default:
                     break;
