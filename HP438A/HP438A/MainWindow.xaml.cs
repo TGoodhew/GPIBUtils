@@ -17,21 +17,23 @@ using System.Windows.Threading;
 
 namespace HP438A
 {
-    enum Mode { CHA, CHB, CAL, ADJ, SWR };
+    enum Mode { CHA, CHB, ZER, CAL, ADJ, SWR };
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IEventHandler
     {
         public static RoutedCommand SetModeCommand = new RoutedCommand();
 
-        private string PWRMeterAddress = @"";
+        private string PWRMeterAddress = @"GPIB1::13::INSTR";
         private ResourceManager ResMgr = new ResourceManager();
         private FormattedIO488 PWRMeter = new FormattedIO488();
         private DispatcherTimer ReadTimer;
         private Mode CurrentMode;
         private string CurrentCommand;
+        private Mode CurrentChannel;
+        private IEventManager Srq;
 
         public MainWindow()
         {
@@ -42,6 +44,7 @@ namespace HP438A
 
             Initialize438();
             SetMode("CHA");
+            CurrentChannel = Mode.CHA;
 
             InitializeTimer();
         }
@@ -53,8 +56,8 @@ namespace HP438A
             PWRMeter.IO.Timeout = 20000;
             PWRMeter.IO.Clear();
 
-            // PReset, ZEro, CaL100, ENter, LoG, TRigger3
-            SendCommand("PRZECL100ENLGTR3");
+            // PReset, CaL100, ENter, LoG, TRigger3
+            SendCommand("PRCSLGTR3");
         }
 
         private void InitializeTimer()
@@ -83,6 +86,33 @@ namespace HP438A
             SetMode(btnClicked.CommandParameter.ToString());
         }
 
+        private void SetMode(Mode targetMode)
+        {
+            switch (targetMode)
+            {
+                case Mode.CHA:
+                    SetMode("CHA");
+                    break;
+                case Mode.CHB:
+                    SetMode("CHB");
+                    break;
+                case Mode.ZER:
+                    SetMode("ZER");
+                    break;
+                case Mode.CAL:
+                    SetMode("CAL");
+                    break;
+                case Mode.ADJ:
+                    SetMode("ADJ");
+                    break;
+                case Mode.SWR:
+                    SetMode("SWR");
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void SetMode(string mode)
         {
             switch (mode)
@@ -90,10 +120,28 @@ namespace HP438A
                 case "CHA":
                     CurrentMode = Mode.CHA;
                     CurrentCommand = "AP";
+                    CurrentChannel = Mode.CHA;
                     break;
                 case "CHB":
                     CurrentMode = Mode.CHB;
                     CurrentCommand = "BP";
+                    CurrentChannel = Mode.CHB;
+                    break;
+                case "ZER":
+                    CurrentMode = Mode.ZER;
+                    //Set the SRQ Mask
+                    // The Cal/Zero mask is bit 2 (bit 1 if zero referencing) 
+                    // so that resolves to a 0x02 byte which can be put in a 
+                    // string using the unicode escape
+                    SendCommand("@1\u0002"); 
+                                             
+                    // Setup the event handler for SRQ (primarily for CAL & ZERO)
+                    Srq = (IEventManager)PWRMeter.IO;
+                    Srq.InstallHandler(EventType.EVENT_SERVICE_REQ, this);
+                    Srq.EnableEvent(EventType.EVENT_SERVICE_REQ, EventMechanism.EVENT_HNDLR);
+
+                    // Zero the meter
+                    CurrentCommand = "ZE";
                     break;
                 case "CAL":
                     CurrentMode = Mode.CAL;
@@ -114,6 +162,7 @@ namespace HP438A
 
         private void SendCommand(string Command)
         {
+            //TODO: Fix condition when read returns an error string
             PWRMeter.WriteString(Command, true);
         }
 
@@ -144,17 +193,46 @@ namespace HP438A
             {
                 case Mode.CHA:
                 case Mode.CHB:
-                    Symbol = "dBm";
+                    //TODO: Add support for Log/Lin
+                    //TODO: Watch for Log/Lin setting to determine whether to use engineering notation
+                    //txtReading.Text = ToEngineeringFormat.Convert(Convert.ToDouble(ReadCommand(CurrentCommand)), 6, Symbol);
+                    var reading = Convert.ToDouble(ReadCommand(CurrentCommand));
+                    Symbol = " dBm";
+                    txtReading.Text = reading.ToString("F") + Symbol;
+                    break;
+                case Mode.ZER:
+                    txtReading.Text = "Zeroing";
                     break;
                 case Mode.CAL:
                 case Mode.ADJ:
                     Symbol = "";
                     break;
                 case Mode.SWR:
-                    Symbol = "SWR";
+                    Symbol = " SWR";
                     break;
             }
-            txtReading.Text = ToEngineeringFormat.Convert(Convert.ToDouble(ReadCommand(CurrentCommand)), 6, Symbol);
+        }
+
+        void IEventHandler.HandleEvent(IEventManager vi, IEvent @event, int userHandle)
+        {
+            switch (CurrentMode)
+            {
+                case Mode.ZER:
+                case Mode.CAL:
+                    SetMode(CurrentChannel);
+                    var radioButtons = ModeButtons.Children.OfType<RadioButton>();
+                    foreach (var radioButton in radioButtons)
+                    {
+                        if (radioButton.IsChecked ?? false)
+                        {
+                            var name = radioButton.Name;
+                            var index = radioButtons.ToList().IndexOf(radioButton);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

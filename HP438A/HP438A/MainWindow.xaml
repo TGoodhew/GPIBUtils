@@ -22,12 +22,13 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <RadioButton Content="CHA" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCV" GroupName="mode" IsChecked="True" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
-                <RadioButton Content="CHB" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACV" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
-                <RadioButton Content="CAL" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="DCI" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
-                <RadioButton Content="ADJ" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACI" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
-                <RadioButton Content="SWR" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="OHM" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
+            <StackPanel Name="ModeButtons" Grid.Column="0" Orientation="Horizontal">
+                <RadioButton Content="CHA" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="CHA" GroupName="mode" IsChecked="True" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
+                <RadioButton Content="CHB" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="CHB" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
+                <RadioButton Content="ZER" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ZER" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
+                <RadioButton Content="CAL" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="CAL" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
+                <RadioButton Content="ADJ" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ADJ" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
+                <RadioButton Content="SWR" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="SWR" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
             </StackPanel>
             <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="400" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Background="MediumSeaGreen" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
         </Grid>
