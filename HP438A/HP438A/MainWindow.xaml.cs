@@ -27,8 +27,8 @@ namespace HP438A
         public static RoutedCommand SetModeCommand = new RoutedCommand();
 
         private string PWRMeterAddress = @"GPIB1::13::INSTR";
-        private ResourceManager ResMgr = new ResourceManager();
-        private FormattedIO488 PWRMeter = new FormattedIO488();
+        private ResourceManager ResMgr;
+        private FormattedIO488 PWRMeter;
         private DispatcherTimer ReadTimer;
         private Mode CurrentMode;
         private string CurrentCommand;
@@ -48,6 +48,9 @@ namespace HP438A
 
             try
             {
+                ResMgr = new ResourceManager();
+                PWRMeter = new FormattedIO488();
+
                 Initialize438();
                 SetMode("CHA");
                 CurrentChannel = Mode.CHA;
@@ -149,8 +152,8 @@ namespace HP438A
                     // The Cal/Zero mask is bit 2 (bit 1 if zero referencing) 
                     // so that resolves to a 0x02 byte which can be put in a 
                     // string using the unicode escape
-                    SendCommand("@1\u0002"); 
-              
+                    SendCommand("@1\u0002");
+
                     // Enable the handler to respond to the SRQ
                     Srq.EnableEvent(EventType.EVENT_SERVICE_REQ, EventMechanism.EVENT_HNDLR);
 
@@ -244,7 +247,8 @@ namespace HP438A
                     SendCommand("CS");
 
                     // Update the UI and mode
-                    System.Windows.Application.Current.Dispatcher.Invoke(delegate {
+                    System.Windows.Application.Current.Dispatcher.Invoke(delegate
+                    {
                         txtReading.Text = "Complete";
                         radioButtons.Find(x => x.Content.ToString() == "CHA").IsChecked = true;
                         SetMode(CurrentChannel);

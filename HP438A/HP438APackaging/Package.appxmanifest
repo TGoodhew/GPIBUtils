@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" IgnorableNamespaces="uap mp rescap">
-  <Identity Name="21148TonyGoodhew.438APowerMeterUtility" Publisher="CN=B6E0E7A4-D2D1-429F-BE93-10C98499B3CD" Version="1.1.3.0" />
+  <Identity Name="21148TonyGoodhew.438APowerMeterUtility" Publisher="CN=B6E0E7A4-D2D1-429F-BE93-10C98499B3CD" Version="1.1.4.0" />
   <Properties>
     <DisplayName>438A Power Meter Utility</DisplayName>
     <PublisherDisplayName>TonyGoodhew</PublisherDisplayName>
