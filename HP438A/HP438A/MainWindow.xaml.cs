@@ -46,15 +46,23 @@ namespace HP438A
             CommandBinding SetModeCommandBinding = new CommandBinding(SetModeCommand, ExecutedSetModeCommand, CanExecuteSetModeCommand);
             this.CommandBindings.Add(SetModeCommandBinding);
 
-            Initialize438();
-            SetMode("CHA");
-            CurrentChannel = Mode.CHA;
+            try
+            {
+                Initialize438();
+                SetMode("CHA");
+                CurrentChannel = Mode.CHA;
 
-            // Setup the event handler for SRQ (primarily for CAL & ZERO)
-            Srq = (IEventManager)PWRMeter.IO;
-            Srq.InstallHandler(EventType.EVENT_SERVICE_REQ, this);
+                // Setup the event handler for SRQ (primarily for CAL & ZERO)
+                Srq = (IEventManager)PWRMeter.IO;
+                Srq.InstallHandler(EventType.EVENT_SERVICE_REQ, this);
 
-            InitializeTimer();
+                InitializeTimer();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please ensure that the Keysight IO Libraries are installed\nand configured correctly\n\n" + ex.Message, "438A Power Meter Application Error");
+                System.Windows.Application.Current.Shutdown();
+            }
         }
 
         private void Initialize438()
