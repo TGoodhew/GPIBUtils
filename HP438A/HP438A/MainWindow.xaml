@@ -38,7 +38,7 @@
                     <RadioButton Content="ADJ" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ADJ" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
                     <RadioButton Content="SWR" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="SWR" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
                 </StackPanel>
-                <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="400" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Background="MediumSeaGreen" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
+                <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Background="MediumSeaGreen" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
             </Grid>
         </Grid>
     </StackPanel>
