@@ -12,10 +12,11 @@ namespace CmdTestHarness
     {
         public static bool BPause { get; set; }
 
-        private static SemaphoreSlim signal = new SemaphoreSlim(0, 1);
+        private static SemaphoreSlim signal = new SemaphoreSlim(0, 1);        
 
         static void Main(string[] args)
         {
+            
 
             string PWRMeterAddress = @"GPIB0::9::INSTR";
 

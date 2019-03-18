@@ -17,7 +17,8 @@ using System.Windows.Threading;
 
 namespace HP438A
 {
-    enum Mode { CHA, CHB, ZER, CAL, ADJ, SWR };
+    // TODO: Consider removing
+    // enum Mode { CHA, CHB, ZER, CAL, ADJ, SWR };
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -29,6 +30,13 @@ namespace HP438A
         public MainWindow()
         {
             InitializeComponent();
+
+            PwrSensor sensor = new PwrSensor();
+
+            sensor.CalFactorTable.Add(5000000000, 97.1);
+            sensor.CalFactorTable.Add(6000000000, 96.7);
+
+            var result = sensor.GetCalFactorForFrequency(6000000000);
         }
 
         private void ExecutedSetModeCommand(object sender, ExecutedRoutedEventArgs e)
