@@ -20,6 +20,8 @@ namespace HP8340BOutputTest
     /// </summary>
     public partial class MainWindow : Window
     {
+        private HP8902A hP8902 = new HP8902A();
+
         public static RoutedCommand settingsCmd = new RoutedCommand();
 
         public MainWindow()
@@ -44,5 +46,11 @@ namespace HP8340BOutputTest
                 e.CanExecute = false;
             }
         }
+
+        private void ConnectButton_Click(object sender, RoutedEventArgs e)
+        {
+            hP8902.Connect();
+        }
+
     }
 }

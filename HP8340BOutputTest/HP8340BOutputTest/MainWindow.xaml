@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HP8340BOutputTest"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="HP 8340B Output Test" Height="450" Width="800">
     <Window.Resources>
         <Style x:Key="RadioButtonStyle" TargetType="RadioButton">
             <Setter Property="Template">
@@ -42,7 +42,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <RadioButton Content="Connect" Command="{x:Static local:MainWindow.settingsCmd}" CommandParameter="CON" GroupName="settings" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
+                <Button Content="Connect" FontSize="36" Click="ConnectButton_Click" />
                 <RadioButton Content="Calibrate" Command="{x:Static local:MainWindow.settingsCmd}" CommandParameter="CAL" GroupName="settings" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
                 <RadioButton Content="Measure" Command="{x:Static local:MainWindow.settingsCmd}" CommandParameter="MEA" GroupName="settings" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
             </StackPanel>

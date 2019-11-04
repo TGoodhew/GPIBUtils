@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8340BOutputTest", "HP8340BOutputTest\HP8340BOutputTest.csproj", "{E8684DC6-0FB6-43B4-AD67-129EEED27D6F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8340BOutputTest", "HP8340BOutputTest\HP8340BOutputTest.csproj", "{A60058B9-ED65-4273-B511-2D1A0D07E609}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E8684DC6-0FB6-43B4-AD67-129EEED27D6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8684DC6-0FB6-43B4-AD67-129EEED27D6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8684DC6-0FB6-43B4-AD67-129EEED27D6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8684DC6-0FB6-43B4-AD67-129EEED27D6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A60058B9-ED65-4273-B511-2D1A0D07E609}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A60058B9-ED65-4273-B511-2D1A0D07E609}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A60058B9-ED65-4273-B511-2D1A0D07E609}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A60058B9-ED65-4273-B511-2D1A0D07E609}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {ABCCED2F-5FC0-4C54-AA26-6A458BBD9FDD}
+		SolutionGuid = {A9556FCE-6AAD-4779-954A-486E66877FF1}
 	EndGlobalSection
 EndGlobal
