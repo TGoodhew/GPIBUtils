@@ -60,7 +60,7 @@ namespace _3325BDCOffsetTest
             FormattedIO488 THDMeter = new FormattedIO488();
             FormattedIO488 SigGen = new FormattedIO488();
             string PassFailResult;
-            int NumMeasurements = 0;
+            //int NumMeasurements = 0;
 
             // Test Values
             VoltageValue[] TestVoltages =
