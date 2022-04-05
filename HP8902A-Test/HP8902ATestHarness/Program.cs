@@ -19,7 +19,7 @@ namespace HP8902ATestHarness
 
             Console.WriteLine("AM Modulation {0}", measuringReceiver.MeasureAMModulationPercent());
 
-            Console.WriteLine("AM Modulation Frequency {0}", measuringReceiver.MeasureAMModulationFrequency());
+            Console.WriteLine("Modulation Frequency {0}", measuringReceiver.MeasureModulationFrequency());
 
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();

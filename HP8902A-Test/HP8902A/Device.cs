@@ -92,7 +92,7 @@ namespace HP8902A
             return ReadSciValue();
         }
 
-        public double MeasureAMModulationFrequency()
+        public double MeasureModulationFrequency()
         {
             // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
             SendCommand("S1ATT1");
