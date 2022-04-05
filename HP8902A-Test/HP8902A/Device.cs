@@ -6,9 +6,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ivi.Visa.FormattedIO;
 using NationalInstruments.Visa;
+using Ivi.Visa;
 
 namespace HP8902A
 {
+    [Flags]
+    public enum SRQMaskFlags : short
+    {
+        /* Bit 7 - Always 0
+         * Bit 6 - Asserted whenever there is an SRQ
+         * Bit 5 - Re/Uncalibrated
+         * Bit 4 - Frequency Offset Mode Changed
+         * Bit 3 - Limit Exceeded
+         * Bit 2 - Instrument Error
+         * Bit 1 - HP-IB Code Error (always set in the SRQ Mask)
+         * Bit 0 - Data Ready
+        */
+        DataReady = 0x01,
+        InstrumentError = 0x04,
+        LimitExceeded = 0x08,
+        FrequencyOffsetModeChanged = 0x10,
+        UnOrRecalibrated = 0x20
+    }
+
     public class Device
     {
         public string gpibAddress { get; }
@@ -23,9 +43,12 @@ namespace HP8902A
             gpibAddress = GPIBAddress;
 
             gpibSession = (GpibSession)resManager.Open(gpibAddress);
+            gpibSession.TimeoutMilliseconds = 20000; // Set the timeout to be 20s to handle 1HZ resolution
             gpibSession.TerminationCharacterEnabled = true;
 
             gpibSession.Clear();
+
+            gpibSession.ServiceRequest += SRQHandler;
 
             // Send an instrument preset
             SendCommand("IP");
@@ -46,14 +69,16 @@ namespace HP8902A
             return 0;
         }
 
-        public double MeasureFrequency()
+        public double MeasureFrequencyError(double measurementFreq)
         {
-            // Set to frequnecy mode (M5) and trigger hold (T1)
-            SendCommand("M5T1");
+            // Set to Target Frequency (HZ), Frequency Error Mode (S5), and Trigger Hold (T1)
+            SendCommand(String.Format("{0}HZS5T1", measurementFreq));
+
+            // Set the RF Frequency Resoloution to 1 HZ (SP7.4)
+            SendCommand("7.4SP");
 
             // Enable SRQ to wait till data is complete (SP22.3)
             SendCommand("22.3SP");
-            gpibSession.ServiceRequest += SRQDataReady;
 
             // Trigger measurement with settling (T3)
             SendCommand("T3");
@@ -61,22 +86,59 @@ namespace HP8902A
             // Wait for the data to be available
             srqWait.Wait();
 
-            // Clear the SRQ Mask and EventHandler
+            // Clear the SRQ Mask
             SendCommand("22.0SP");
-            gpibSession.ServiceRequest -= SRQDataReady;
+
+            return ReadFrequency();
+        }
+
+        public double MeasureFrequency()
+        {
+            // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
+            SendCommand("M5ATT1");
+
+            // Set the RF Frequency Resoloution to 1 HZ (SP7.4)
+            SendCommand("7.4SP");
+
+            // Enable SRQ to wait till data is complete (SP22.3)
+            SendCommand("22.3SP");
+
+            // Trigger measurement with settling (T3)
+            SendCommand("T3");
+
+            // Wait for the data to be available
+            srqWait.Wait();
+
+            // Clear the SRQ Mask
+            SendCommand("22.0SP");
 
             return ReadFrequency();
         }
 
         private double ReadFrequency()
         {
-            // The frequency is read in engineering notation as Hz
+            // The frequency is read in scientific notation as Hz
             gpibSession.FormattedIO.Scanf<double>("%e", out double result);
             return result;
         }
 
-        private void SRQDataReady(object sender, Ivi.Visa.VisaEventArgs e)
+        private void SRQHandler(object sender, Ivi.Visa.VisaEventArgs e)
         {
+            /* Status Byte Bit Values
+             * Bit 7 - Always 0
+             * Bit 6 - Asserted whenever there is an SRQ
+             * Bit 5 - Re/Uncalibrated
+             * Bit 4 - Frequency Offset Mode Changed
+             * Bit 3 - Limit Exceeded
+             * Bit 2 - Instrument Error
+             * Bit 1 - HP-IB Code Error (always set in the SRQ Mask)
+             * Bit 0 - Data Ready
+            */
+
+            // Read the Status Byte but discard for now
+            _ = gpibSession.ReadStatusByte();
+
+            // Assume Data Ready and release the semaphore for now
             srqWait.Release();
         }
 

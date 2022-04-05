@@ -16,6 +16,14 @@ namespace HP8902ATestHarness
             HP8902A.Device measuringReceiver = new Device(@"GPIB0::14::INSTR");
 
             returnValue = measuringReceiver.MeasureFrequency();
+
+            Console.WriteLine("Frequency value {0}",returnValue);
+
+            returnValue = measuringReceiver.MeasureFrequencyError(123000000);
+            Console.WriteLine("Frequency error {0}",returnValue);
+
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
         }
     }
 }
