@@ -68,8 +68,57 @@ namespace HP8902A
 
             return 0;
         }
+        public double MeasurePhaseModulationRadian()
+        {
+            // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
+            SendCommand("M3ATT1");
 
-        public double MeasureFMModulationFrequency()
+            // Set the RF Frequency Resoloution to 1 HZ (SP7.4)
+            SendCommand("7.4SP");
+
+            // Enable SRQ to wait till data is complete (SP22.3)
+            SendCommand("22.3SP");
+
+            // Trigger measurement with settling (T3)
+            SendCommand("T3");
+
+            // Wait for the data to be available
+            srqWait.Wait();
+
+            // Clear the SRQ Mask
+            SendCommand("22.0SP");
+
+            return ReadSciValue();
+        }
+
+        public double MeasurePhaseModulationDegree()
+        {
+            // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
+            SendCommand("M3ATT1");
+
+            // Set the RF Frequency Resoloution to 1 HZ (SP7.4)
+            SendCommand("7.4SP");
+
+            // Enable SRQ to wait till data is complete (SP22.3)
+            SendCommand("22.3SP");
+
+            // Scale reading by 1.745 to get degrees
+            SendCommand("1.745R1");
+
+            // Trigger measurement with settling (T3)
+            SendCommand("T3");
+
+            // Wait for the data to be available
+            srqWait.Wait();
+
+            // Clear the SRQ Mask
+            SendCommand("22.0SP");
+
+            return ReadSciValue();
+        }
+
+
+        public double MeasureFMModulationDeviation()
         {
             // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
             SendCommand("M2ATT1");
