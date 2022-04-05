@@ -11,16 +11,15 @@ namespace HP8902ATestHarness
     {
         static void Main(string[] args)
         {
-            double returnValue;
-
             HP8902A.Device measuringReceiver = new Device(@"GPIB0::14::INSTR");
 
-            returnValue = measuringReceiver.MeasureFrequency();
+            Console.WriteLine("Frequency value {0}", measuringReceiver.MeasureFrequency());
 
-            Console.WriteLine("Frequency value {0}",returnValue);
+            Console.WriteLine("Frequency error {0}", measuringReceiver.MeasureFrequencyError(123000000));
 
-            returnValue = measuringReceiver.MeasureFrequencyError(123000000);
-            Console.WriteLine("Frequency error {0}",returnValue);
+            Console.WriteLine("AM Modulation {0}", measuringReceiver.MeasureAMModulationPercent());
+
+            Console.WriteLine("AM Modulation Frequency {0}", measuringReceiver.MeasureAMModulationFrequency());
 
             Console.WriteLine("Press any key to exit.");
             Console.ReadKey();

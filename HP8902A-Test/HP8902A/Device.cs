@@ -69,6 +69,52 @@ namespace HP8902A
             return 0;
         }
 
+        public double MeasureAMModulationPercent()
+        {
+            // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
+            SendCommand("M1ATT1");
+
+            // Set the RF Frequency Resoloution to 1 HZ (SP7.4)
+            SendCommand("7.4SP");
+
+            // Enable SRQ to wait till data is complete (SP22.3)
+            SendCommand("22.3SP");
+
+            // Trigger measurement with settling (T3)
+            SendCommand("T3");
+
+            // Wait for the data to be available
+            srqWait.Wait();
+
+            // Clear the SRQ Mask
+            SendCommand("22.0SP");
+
+            return ReadSciValue();
+        }
+
+        public double MeasureAMModulationFrequency()
+        {
+            // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
+            SendCommand("S1ATT1");
+
+            // Set the RF Frequency Resoloution to 1 HZ (SP7.4)
+            SendCommand("7.4SP");
+
+            // Enable SRQ to wait till data is complete (SP22.3)
+            SendCommand("22.3SP");
+
+            // Trigger measurement with settling (T3)
+            SendCommand("T3");
+
+            // Wait for the data to be available
+            srqWait.Wait();
+
+            // Clear the SRQ Mask
+            SendCommand("22.0SP");
+
+            return ReadSciValue();
+        }
+
         public double MeasureFrequencyError(double measurementFreq)
         {
             // Set to Target Frequency (HZ), Frequency Error Mode (S5), and Trigger Hold (T1)
@@ -89,7 +135,7 @@ namespace HP8902A
             // Clear the SRQ Mask
             SendCommand("22.0SP");
 
-            return ReadFrequency();
+            return ReadSciValue();
         }
 
         public double MeasureFrequency()
@@ -112,10 +158,10 @@ namespace HP8902A
             // Clear the SRQ Mask
             SendCommand("22.0SP");
 
-            return ReadFrequency();
+            return ReadSciValue();
         }
 
-        private double ReadFrequency()
+        private double ReadSciValue()
         {
             // The frequency is read in scientific notation as Hz
             gpibSession.FormattedIO.Scanf<double>("%e", out double result);
