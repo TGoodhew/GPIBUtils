@@ -15,9 +15,10 @@ namespace HP8902ATestHarness
 
             Console.WriteLine("Frequency value {0}", measuringReceiver.MeasureFrequency());
 
-            Console.WriteLine("Frequency error {0}", measuringReceiver.MeasureFrequencyError(123000000));
+            Console.WriteLine("Frequency error {0}", measuringReceiver.MeasureFrequencyError(10000000));
 
-            Console.WriteLine("AM Modulation {0}", measuringReceiver.MeasureAMModulationPercent());
+            Console.WriteLine("AM Modulation % {0}", measuringReceiver.MeasureAMModulationPercent());
+            Console.WriteLine("FM Modulation Frequency {0}", measuringReceiver.MeasureFMModulationFrequency());
 
             Console.WriteLine("Modulation Frequency {0}", measuringReceiver.MeasureModulationFrequency());
 
