@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8673B-Test", "HP8673B-Test\HP8673B-Test.csproj", "{985FC65B-7400-4D5A-87A1-A5BE85AB4B1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8673B", "..\HP8673B\HP8673B.csproj", "{DC540208-4B37-4728-9DAF-63D21565E945}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{985FC65B-7400-4D5A-87A1-A5BE85AB4B1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{985FC65B-7400-4D5A-87A1-A5BE85AB4B1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{985FC65B-7400-4D5A-87A1-A5BE85AB4B1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{985FC65B-7400-4D5A-87A1-A5BE85AB4B1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC540208-4B37-4728-9DAF-63D21565E945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC540208-4B37-4728-9DAF-63D21565E945}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC540208-4B37-4728-9DAF-63D21565E945}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC540208-4B37-4728-9DAF-63D21565E945}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5708DA9C-FC08-4FC0-AF01-0AA721F68D0F}
+	EndGlobalSection
+EndGlobal
