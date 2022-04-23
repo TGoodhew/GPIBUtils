@@ -349,8 +349,7 @@ namespace HP8902A
             */
 
             // Read the Status Byte but discard for now
-            //_ = gpibSession.ReadStatusByte();
-            var temp = gpibSession.ReadStatusByte();
+            _ = gpibSession.ReadStatusByte();
 
             // Assume Data Ready and release the semaphore for now
             srqWait.Release();
