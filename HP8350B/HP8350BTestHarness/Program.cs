@@ -55,7 +55,7 @@ namespace HP8350BTestHarness
                 Measure(signalGenerator, frequencyCounter, powerMeter, frequency, 3, true);
             }
 
-            Prompt("Press any key to exit.");
+            Prompt("Test completed.\nPress any key to exit.");
         }
 
         private static void Prompt(string message)
@@ -63,8 +63,9 @@ namespace HP8350BTestHarness
             // Set the console color to green
             Console.ForegroundColor = ConsoleColor.Green;
 
-            // Write the message and wait for a keypress
+            // Write the message, beep and wait for a keypress
             Console.WriteLine("\n"+message+"\n");
+            Console.Beep();
             Console.ReadKey();
 
             // Reset the console color
