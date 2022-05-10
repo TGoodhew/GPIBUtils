@@ -50,7 +50,7 @@ namespace HP8350BTestHarness
             Prompt("Connect the signal generator to channel 3.\nPress any key to continue");
 
             // Loop through 225 MHz and above frequencies till 2.4GHz in 5MHz steps
-            for (int frequency = 1225; frequency < 2405; frequency += 5)
+            for (int frequency = 225; frequency < 2405; frequency += 5)
             {
                 Measure(signalGenerator, frequencyCounter, powerMeter, frequency, 3, true);
             }
