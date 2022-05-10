@@ -15,6 +15,10 @@ namespace ToEngineeringFormatRework
             result = String.Format("{0}", ToEngineeringFormat.Convert(2100, 4, "Hz"));
 
             Prompt(result);
+
+            result = String.Format("{0}", ToEngineeringFormat.Convert(2100, 4, "Hz", true));
+
+            Prompt(result);
         }
 
         private static void Prompt(string message)
