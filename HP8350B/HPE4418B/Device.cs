@@ -36,6 +36,55 @@ namespace HPE4418B
             SendCommand("*ESE 0");
         }
 
+        public void ZeroAndCalibrateSensor()
+        {
+            // Setup the SRQ mask for an operation complete message (SRE 32 ESE 1)
+            SendCommand(@"*ESE 1");
+            SendCommand(@"*SRE 32");
+
+            // Initiate a calibration sequence (Zero & Cal)
+            SendCommand(@":CAL1:ALL");
+
+            // Tell the unit to signal for operation complete
+            SendCommand(@"*OPC");
+
+            // Wait for the read to complete
+            srqWait.Wait();
+
+            // Clear the SRQ mask
+            SendCommand(@"*SRE 0");
+            SendCommand(@"*ESE 0");
+        }
+
+        public double MeasurePower(int frequency)
+        {
+            double result;
+
+            // Set the measurement frequency
+            SendCommand(String.Format(":FREQ {0}MHZ", frequency));
+
+            // Setup the SRQ mask for an operation complete message (SRE 32 ESE 1)
+            SendCommand(@"*ESE 1");
+            SendCommand(@"*SRE 32");
+
+            // Read the data
+            SendCommand(@":CONF1;:INIT;*OPC");
+
+            // Wait for the read to complete
+            srqWait.Wait();
+
+            // Get the data
+            SendCommand(@"Fetch?");
+            
+            result = ReadSciValue();
+
+            // Clear the SRQ setup
+            SendCommand(@"*ESE 0");
+            SendCommand(@"*SRE 0");
+
+            return result;
+        }
+
         private void SendCommand(string command)
         {
             gpibSession.FormattedIO.WriteLine(command);
