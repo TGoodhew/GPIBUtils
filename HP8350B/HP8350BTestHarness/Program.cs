@@ -37,7 +37,7 @@ namespace HP8350BTestHarness
 
             powerMeter.ZeroAndCalibrateSensor();
 
-            //// Connect the power meter to the test setup
+            // Connect the power meter to the test setup
             Prompt("Connect the power sensor to the DUT and the counter to Channel 1.\nPress any key to continue");
 
             // Loop through sub 225 MHz frequencies from 10 MHz in 5MHz steps
@@ -88,10 +88,10 @@ namespace HP8350BTestHarness
                 Console.ForegroundColor = ConsoleColor.Red;
 
             // Display the results
-            Console.WriteLine("Set Frequency is {0, -20} \tActual frequency is {1, -22} \tPower is {2}",
+            Console.WriteLine("Set Frequency is {0, -15} \tActual frequency is {1, -15} \tPower is {2}",
                 ToEngineeringFormat.Convert(totalFreq, 4, "Hz"),
-                ToEngineeringFormat.Convert(measuredFreq, 4, "Hz"),
-                ToEngineeringFormat.Convert(measuredPower, 4, "dBm"));
+                ToEngineeringFormat.Convert(measuredFreq, 3, "Hz", true),
+                ToEngineeringFormat.Convert(measuredPower, 3, "dBm", true));
 
             // Reset the write color to white
             Console.ForegroundColor = ConsoleColor.White;

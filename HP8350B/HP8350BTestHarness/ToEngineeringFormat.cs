@@ -21,8 +21,10 @@ namespace HP8350BTestHarness
         // But when significant_digits is less than 3 the output may be in scientific notation
         //
         // units: what the number is a measure of, like "Hz", "Farads", "Tesla", etc.
-        public static string Convert(double number, Int16 significant_digits = 3, string units = "")
+        public static string Convert(double number, Int16 significant_digits = 3, string units = "", bool fixedFormat = false)
         {
+            string format_str;
+
             double scale = Math.Log10(Math.Abs(number));
             if (scale < 0.0)
                 scale += -3.0;
@@ -39,7 +41,11 @@ namespace HP8350BTestHarness
             if (significant_digits > 15)
                 significant_digits = 15;
 
-            string format_str = "G" + significant_digits.ToString();
+            if (fixedFormat)
+                format_str = "F" + significant_digits.ToString();
+            else
+                format_str = "G" + significant_digits.ToString();
+
             string converted_str = base_num.ToString(format_str) + prefix_str + units;
 
             return (converted_str);
