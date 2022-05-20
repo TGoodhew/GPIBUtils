@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30406.217
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8902ATestHarness", "HP8902ATestHarness\HP8902ATestHarness.csproj", "{144AC76E-5543-4292-8CBF-018063527F98}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8902A", "HP8902A\HP8902A.csproj", "{BF76C5B0-4520-4C0B-BC3D-EE4A2BE4335D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8673B", "HP8673B\HP8673B.csproj", "{75FAEFB9-2306-4FD7-A3B7-E6F0B453D9E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8673B-Test", "HP8673B-Test\HP8673B-Test.csproj", "{C891D889-EC0A-4C5F-B8B4-1FEEDAE8B5AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{BF76C5B0-4520-4C0B-BC3D-EE4A2BE4335D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF76C5B0-4520-4C0B-BC3D-EE4A2BE4335D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF76C5B0-4520-4C0B-BC3D-EE4A2BE4335D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75FAEFB9-2306-4FD7-A3B7-E6F0B453D9E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75FAEFB9-2306-4FD7-A3B7-E6F0B453D9E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75FAEFB9-2306-4FD7-A3B7-E6F0B453D9E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75FAEFB9-2306-4FD7-A3B7-E6F0B453D9E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C891D889-EC0A-4C5F-B8B4-1FEEDAE8B5AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C891D889-EC0A-4C5F-B8B4-1FEEDAE8B5AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C891D889-EC0A-4C5F-B8B4-1FEEDAE8B5AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C891D889-EC0A-4C5F-B8B4-1FEEDAE8B5AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
