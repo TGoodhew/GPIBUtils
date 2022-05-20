@@ -102,7 +102,7 @@ namespace HP8673B
 
         private void SendCommand(string command)
         {
-            lastCommand = command;
+            lastCommand = command; 
             gpibSession.FormattedIO.WriteLine(command);
         }
 
