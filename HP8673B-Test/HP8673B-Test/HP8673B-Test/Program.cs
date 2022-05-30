@@ -17,6 +17,14 @@ namespace HP8673B_Test
             Console.ForegroundColor = ConsoleColor.White;
             Console.BufferHeight = 500;
 
+            signalGenerator.EnableRFOutput(false);
+
+            Prompt("Power Off");
+
+            signalGenerator.EnableRFOutput(true);
+
+            Prompt("Power On");
+
             var currentFrequency = signalGenerator.SetCWFrequency(16000000000);
 
             Prompt("Actual Frequency: " + currentFrequency);

@@ -100,6 +100,14 @@ namespace HP8673B
             SendCommand(String.Format("LE{0}DM", power));
         }
 
+        public void EnableRFOutput(bool output)
+        {
+            if (!output)
+                SendCommand("RF0");
+            else
+                SendCommand("RF1");
+        }
+
         private void SendCommand(string command)
         {
             lastCommand = command; 
