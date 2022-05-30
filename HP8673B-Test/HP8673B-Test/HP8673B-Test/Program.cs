@@ -23,7 +23,11 @@ namespace HP8673B_Test
 
             signalGenerator.SetPowerLevel(-56.78);
 
+            Prompt("Power set: -56.78");
+
             signalGenerator.SetPowerLevel(-16.78);
+
+            Prompt("Power set: -16.78");
 
             currentFrequency = signalGenerator.SetCWFrequency(19500000000);
 
