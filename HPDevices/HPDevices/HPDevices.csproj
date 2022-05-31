@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{96794714-0D08-4228-9F16-1DABC6262033}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HPDevices</RootNamespace>
+    <AssemblyName>HPDevices</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HP53131A\HP53131A.csproj">
+      <Project>{f97b1e86-ae55-4fe7-b871-f6c7de310f46}</Project>
+      <Name>HP53131A</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HP8350B\HP8350B.csproj">
+      <Project>{91cffa7f-edf4-4ed2-9646-ec8bb57462fb}</Project>
+      <Name>HP8350B</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HP8673B\HP8673B.csproj">
+      <Project>{dc540208-4b37-4728-9daf-63d21565e945}</Project>
+      <Name>HP8673B</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HP8902A\HP8902A.csproj">
+      <Project>{bf76c5b0-4520-4c0b-bc3d-ee4a2be4335d}</Project>
+      <Name>HP8902A</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HPE4418B\HPE4418B.csproj">
+      <Project>{96ab99cb-d3df-47a8-867c-e772fb4f6126}</Project>
+      <Name>HPE4418B</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
