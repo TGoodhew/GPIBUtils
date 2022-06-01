@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8673BTestApp", "HP8673BTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP8902ATestApp", "HP8902ATestApp\HP8902ATestApp.csproj", "{144AC76E-5543-4292-8CBF-018063527F98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAppCommon", "TestAppCommon\TestAppCommon.csproj", "{8CF8E44A-D55B-4755-AC18-FE3089365BD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{144AC76E-5543-4292-8CBF-018063527F98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{144AC76E-5543-4292-8CBF-018063527F98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{144AC76E-5543-4292-8CBF-018063527F98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CF8E44A-D55B-4755-AC18-FE3089365BD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CF8E44A-D55B-4755-AC18-FE3089365BD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CF8E44A-D55B-4755-AC18-FE3089365BD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CF8E44A-D55B-4755-AC18-FE3089365BD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

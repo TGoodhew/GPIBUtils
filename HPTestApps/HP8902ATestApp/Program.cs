@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.IO;
 using HPDevices.HP8902A;
+using TestAppCommon;
 
 namespace HP8902ATestApp
 {
@@ -13,6 +14,11 @@ namespace HP8902ATestApp
     {
         static void Main(string[] args)
         {
+            // Setup the console
+            Output.SetupConsole();
+
+            // Create the sensor tables for the integrated sensor heads (11792A & 11722A)
+
             // HP 11792A Table
             List<CalibrationFactor> calibrationFactors92A = new List<CalibrationFactor>();
 
@@ -39,7 +45,7 @@ namespace HP8902ATestApp
             string jsonString = JsonSerializer.Serialize(calibrationFactors92A);
             File.WriteAllText(fileName, jsonString);
 
-            // HP 11792A Table
+            // HP 11722A Table
             List<CalibrationFactor> calibrationFactors22A = new List<CalibrationFactor>();
 
             calibrationFactors22A.Add(new CalibrationFactor(0.05, 98.0));
@@ -62,43 +68,49 @@ namespace HP8902ATestApp
             fileName = "CalFactors22A.json";
             jsonString = JsonSerializer.Serialize(calibrationFactors22A);
             File.WriteAllText(fileName, jsonString);
-
-            
+                        
             HPDevices.HP8902A.Device measuringReceiver = new Device(@"GPIB0::14::INSTR");
 
-            // Frequency Tests
-            //Console.WriteLine("Frequency value {0}Hz", measuringReceiver.MeasureFrequency());
+            // Basic functional checks
+            Output.Heading("HP 8902A Basic Functional Checks", true);
+            Output.Information("These checks confirm basic functionality of the HP 8902A. Manual control of the signal generator is required.");
 
-            //Console.WriteLine("Frequency error {0}Hz", measuringReceiver.MeasureFrequencyError(10000000));
+            // RF Power Calibration Check
+            Output.Prompt("Connect sensor to RF calibrator");
 
-            //Console.WriteLine("AM Modulation {0}%", measuringReceiver.MeasureAMModulationPercent());
-            
-            //Console.WriteLine("FM Modulation Deviation {0}Hz", measuringReceiver.MeasureFMModulationDeviation());
-
-            //Console.WriteLine("Phase Modulation Angle {0}Rad", measuringReceiver.MeasurePhaseModulationRadian());
-            //Console.WriteLine("Phase Modulation Angle {0}Deg", measuringReceiver.MeasurePhaseModulationDegree());
-
-            //Console.WriteLine("Modulation Frequency {0}Hz", measuringReceiver.MeasureModulationFrequency());
-
-            // RF Power Tests
-            Console.WriteLine("Loading Calibration Factors");
-
-            Console.WriteLine("Frequency Offset Table");
+            // Load the calibration tables
+            Output.Information("Loading the calibration tables");
+            measuringReceiver.LoadCalibrationFactors("CalFactors22A.json", false);
             measuringReceiver.LoadCalibrationFactors("CalFactors92A.json", true);
 
-            Console.WriteLine("Base Table");
-            measuringReceiver.LoadCalibrationFactors("CalFactors22A.json", false);
-
             // Zero the sensor
-            Console.WriteLine("Zeroing Sensor");
+            Output.Information("Zeroing sensor");
             measuringReceiver.ZeroPowerSensor();
 
-            // Calibrate the power sensor
-            Console.WriteLine("Calibrating Sensor");
+            // Calibrate the sensor
+            Output.Information("Calibrating sensor");
             measuringReceiver.CalibratePowerSensor();
 
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
+            // Connect the signal generator and set it to -10dBm
+            Output.Prompt("Connect the sensor to the signal generator. Set the signal generator to 100MHz and -10dBm");
+
+
+            Output.Prompt("Press any key to exit.");
         }
     }
 }
+
+
+// Frequency Tests
+//Console.WriteLine("Frequency value {0}Hz", measuringReceiver.MeasureFrequency());
+
+//Console.WriteLine("Frequency error {0}Hz", measuringReceiver.MeasureFrequencyError(10000000));
+
+//Console.WriteLine("AM Modulation {0}%", measuringReceiver.MeasureAMModulationPercent());
+
+//Console.WriteLine("FM Modulation Deviation {0}Hz", measuringReceiver.MeasureFMModulationDeviation());
+
+//Console.WriteLine("Phase Modulation Angle {0}Rad", measuringReceiver.MeasurePhaseModulationRadian());
+//Console.WriteLine("Phase Modulation Angle {0}Deg", measuringReceiver.MeasurePhaseModulationDegree());
+
+//Console.WriteLine("Modulation Frequency {0}Hz", measuringReceiver.MeasureModulationFrequency());
