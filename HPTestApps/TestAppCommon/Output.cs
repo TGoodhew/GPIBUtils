@@ -24,13 +24,13 @@ namespace TestAppCommon
             Console.Beep();
             Console.ReadKey();
 
-            // Reset the console color
+            // Reset the console color to the base white
             Console.ForegroundColor = ConsoleColor.White;
         }
 
         public static void Heading (string message, bool beep=false)
         {
-            // Set the console color to green
+            // Set the console color to blue
             Console.ForegroundColor = ConsoleColor.Blue;
 
             // Write the message and beep if requested
@@ -38,13 +38,13 @@ namespace TestAppCommon
             if (beep)
                 Console.Beep();
 
-            // Reset the console color
+            // Reset the console color to the base white
             Console.ForegroundColor = ConsoleColor.White;
         }
 
         public static void Information(string message)
         {
-            // Set the console color to green
+            // Set the console color to white (already base color so no need to reset)
             Console.ForegroundColor = ConsoleColor.White;
 
             // Write the message
