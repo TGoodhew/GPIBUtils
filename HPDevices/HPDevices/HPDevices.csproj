@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="E4418B.cs" />
+    <Compile Include="HP5351A.cs" />
     <Compile Include="HP53131A.cs" />
     <Compile Include="HP8350B.cs" />
     <Compile Include="HP8673B.cs" />
