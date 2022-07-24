@@ -57,10 +57,10 @@ namespace HPDevices
             gpibSession.ServiceRequest += SRQHandler;
 
             // Ensure the the SRQ mask is 0
-            SendCommand("RM0");
+            SendCommand("SRQMASK,0");
 
             // Send an instrument preset
-            SendCommand("IP");
+            SendCommand("INIT");
         }
 
         private void SendCommand(string command)
