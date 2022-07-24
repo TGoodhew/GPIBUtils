@@ -17,6 +17,20 @@ namespace HP5351ATestApp
             // Setup the console
             Output.SetupConsole();
 
+            // Start the test process
+            Output.Heading("HP 5351A Test Application");
+            Output.Information("This app tests basic features of the HP 5351A device class");
+
+            // Check the Oven status
+            Output.Prompt("Oven status is: " + frequencyCounter.GetOvenStatus());
+
+            // Check the Reference status
+            Output.Prompt("Reference status is: " + frequencyCounter.GetReferenceStatus());
+
+            // Set sample to Hold
+            frequencyCounter.SetSampleHold();
+            Output.Prompt("Confirm that the sample hold is on");
+            
             // Pause before exiting
             Output.Prompt("Exiting");
 

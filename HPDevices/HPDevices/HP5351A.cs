@@ -63,10 +63,41 @@ namespace HPDevices.HP5351A
             SendCommand("INIT");
         }
 
+        public string GetOvenStatus()
+        {
+            SendCommand("OVEN?");
+
+            return ReadStringValue();
+        }
+
+        public string GetReferenceStatus()
+        {
+            SendCommand("REF?");
+
+            return ReadStringValue();
+        }
+
+        public void SetSampleHold()
+        {
+            SendCommand("SAMPLE,HOLD");
+        }
+
+        public void SetSampleFast()
+        {
+            SendCommand("SAMPLE,FAST");
+        }
+
         private void SendCommand(string command)
         {
             lastCommand = command;
             gpibSession.FormattedIO.WriteLine(command);
+        }
+
+        private string ReadStringValue()
+        {
+            gpibSession.FormattedIO.Scanf<string>("%s", out string result);
+
+            return result;
         }
 
         private double ReadSciValue()
