@@ -9,7 +9,7 @@ using Ivi.Visa;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 
-namespace HPDevices
+namespace HPDevices.HP5351A
 {
     [Flags]
     public enum SRQMaskFlags : short
