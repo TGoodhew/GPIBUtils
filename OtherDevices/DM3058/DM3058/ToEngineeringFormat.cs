@@ -29,6 +29,14 @@ namespace DM3058
 
             // The + 0.001 here makes sure that we use the proper scale range by pushing the calculated range just a bit.
             Int16 power = (Int16)((scale / 3) + 0.001);
+
+            // For this conversion the maxiumum number can't exceed 10^12 so limit the "power" to 10^12
+            // if also can't be lower that 10^-24 so limit it there as well
+            if (power.CompareTo(-8) < 0)
+                power = -8;
+            if (power.CompareTo(4) > 0)
+                power = 4;
+
             string prefix_str = prefix_const[power + 8];
             double scale_factor = Math.Pow(10.0, (double)power * 3.0);
             double base_num = number / scale_factor;
