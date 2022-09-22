@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27205.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DM3058", "DM3058\DM3058.csproj", "{23FD7B91-EBB9-4F7F-B505-A1410E65B779}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DM3058 Setup", "DM3058 Setup\DM3058 Setup.vdproj", "{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DM3058Setup", "DM3058Setup\DM3058Setup.vdproj", "{CE18732A-36D4-43DB-A56C-49A500561EEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,14 +29,13 @@ Global
 		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|x64.Build.0 = Release|Any CPU
 		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|x86.ActiveCfg = Release|Any CPU
 		{23FD7B91-EBB9-4F7F-B505-A1410E65B779}.Release|x86.Build.0 = Release|Any CPU
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Debug|Any CPU.ActiveCfg = Debug
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Debug|Any CPU.Build.0 = Debug
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Debug|x64.ActiveCfg = Debug
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Debug|x86.ActiveCfg = Debug
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Release|Any CPU.ActiveCfg = Release
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Release|Any CPU.Build.0 = Release
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Release|x64.ActiveCfg = Release
-		{6C3BD0A8-6DFC-4580-82BC-038BB9AF4B1C}.Release|x86.ActiveCfg = Release
+		{CE18732A-36D4-43DB-A56C-49A500561EEE}.Debug|Any CPU.ActiveCfg = Debug
+		{CE18732A-36D4-43DB-A56C-49A500561EEE}.Debug|Any CPU.Build.0 = Debug
+		{CE18732A-36D4-43DB-A56C-49A500561EEE}.Debug|x64.ActiveCfg = Debug
+		{CE18732A-36D4-43DB-A56C-49A500561EEE}.Debug|x86.ActiveCfg = Debug
+		{CE18732A-36D4-43DB-A56C-49A500561EEE}.Release|Any CPU.ActiveCfg = Release
+		{CE18732A-36D4-43DB-A56C-49A500561EEE}.Release|x64.ActiveCfg = Release
+		{CE18732A-36D4-43DB-A56C-49A500561EEE}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
