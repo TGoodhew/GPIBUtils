@@ -31,7 +31,8 @@ namespace DM3058
             Int16 power = (Int16)((scale / 3) + 0.001);
 
             // For this conversion the maxiumum number can't exceed 10^12 so limit the "power" to 10^12
-            // if also can't be lower that 10^-24 so limit it there as well
+            // if also can't be lower that 10^-24 so limit it there as well - The code here is actually 
+            // designed for a general case rather than int16 but it was a cut and paste
             if (power.CompareTo(-8) < 0)
                 power = -8;
             if (power.CompareTo(4) > 0)
