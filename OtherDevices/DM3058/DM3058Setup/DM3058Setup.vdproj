@@ -34,18 +34,12 @@
         "Entry"
         {
         "MsmKey" = "8:_6F268DBF7CE7EE88BE238A4858E29A69"
-        "OwnerKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
+        "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_6F268DBF7CE7EE88BE238A4858E29A69"
-        "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_747F3CD1197000C174AEFAC979B7EDAF"
         "OwnerKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -53,6 +47,12 @@
         {
         "MsmKey" = "8:_747F3CD1197000C174AEFAC979B7EDAF"
         "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_747F3CD1197000C174AEFAC979B7EDAF"
+        "OwnerKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -69,12 +69,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
-        "OwnerKey" = "8:_1445E4C9F2D773C0D2F066A13B70970C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E17851B081C93C25B2BFAB1D9DEE8476"
         "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
         "MsmSig" = "8:_UNDEFINED"
@@ -82,13 +76,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5C181DD933C7D12CBBFFC0CD59DFF0D8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
+        "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -106,19 +94,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_E17851B081C93C25B2BFAB1D9DEE8476"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_1445E4C9F2D773C0D2F066A13B70970C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5C181DD933C7D12CBBFFC0CD59DFF0D8"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -171,6 +165,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -227,7 +229,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -258,7 +260,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -289,7 +291,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -320,7 +322,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -351,7 +353,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -451,14 +453,14 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
-        "Manufacturer" = "8:Default Company Name"
+        "Manufacturer" = "8:The Schnauzer Group LLC"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:DM3058Setup"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Default Company Name"
+        "ARPCONTACT" = "8:The Schnauzer Group LLC"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:"
+        "ARPCOMMENTS" = "8:Simple Windows application for controlling the Rigol DM3058"
         "ARPURLINFOABOUT" = "8:"
         "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
@@ -563,6 +565,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_CE17663B13E347D1BADD07922D093B49"
+            {
+            "Name" = "8:Shortcut to Primary output from DM3058 (Active)"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
+            "Folder" = "8:_9F52B951809A414CA95E748DE2E4BD0A"
+            "WorkingFolder" = "8:_8211D1B695BD4E4B8BD72688783C2E29"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {

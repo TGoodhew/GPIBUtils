@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DM3058")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("DM3058 Controller")]
+[assembly: AssemblyDescription("A simple Windows application to control the Rigol DM3058")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Tony Goodhew")]
+[assembly: AssemblyCompany("The Schnauzer Group LLC")]
 [assembly: AssemblyProduct("DM3058")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
