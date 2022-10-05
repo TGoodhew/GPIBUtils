@@ -51,11 +51,13 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="DMM Reading" FontStyle="Italic" FontSize="32" FontFamily="Segoe UI Semibold"/>
-        <TextBlock Grid.Row="1" Name="txtReading" Text="No Reading" FontSize="144" Margin="10,10,10,10"/>
+        <Viewbox Grid.Row="1">
+            <TextBlock Grid.Row="1" Name="txtReading" Text="No Reading" FontSize="144" Margin="10,10,10,10"/>
+        </Viewbox>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -68,7 +70,7 @@
                 <RadioButton Content="ACI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="ACI" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
                 <RadioButton Content="OHM" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="OHM" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
             </StackPanel>
-            <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="400" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Background="MediumSeaGreen" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
+            <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="400" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
         </Grid>
     </Grid>
 </Window>

@@ -69,6 +69,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
+        "OwnerKey" = "8:_1445E4C9F2D773C0D2F066A13B70970C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E17851B081C93C25B2BFAB1D9DEE8476"
         "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
         "MsmSig" = "8:_UNDEFINED"
@@ -172,6 +178,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -445,7 +459,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DM3058Setup"
         "ProductCode" = "8:{F15F5F14-E69C-4508-8F54-7891FD01D3AF}"
-        "PackageCode" = "8:{EF7A6347-C322-44EA-85F1-C27F3F4DE92C}"
+        "PackageCode" = "8:{BD61EB04-CD95-4462-874D-BC83D1470BD0}"
         "UpgradeCode" = "8:{53549825-7A5D-4000-9093-B973762CCEE1}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
