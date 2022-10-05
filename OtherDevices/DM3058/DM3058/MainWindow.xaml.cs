@@ -156,7 +156,7 @@ namespace DM3058
                     Symbol = "A";
                     break;
                 case Mode.OHM:
-                    Symbol = "R";
+                    Symbol = "Ω";
                     break;
             }
             txtReading.Text = ToEngineeringFormat.Convert(Convert.ToDouble(ReadCommand(CurrentCommand)),6,Symbol);

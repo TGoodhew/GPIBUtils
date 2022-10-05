@@ -12,7 +12,7 @@ namespace DM3058
     {
 
         // Used in adding the units to the return string
-        private static string[] prefix_const = { " y", " z", " a", " f", " p", " n", " u", " m", " ", " k", " M", " G", " T" };
+        private static string[] prefix_const = { " y", " z", " a", " f", " p", " n", " µ", " m", " ", " k", " M", " G", " T" };
 
         // number: The number to convert.
         // 
