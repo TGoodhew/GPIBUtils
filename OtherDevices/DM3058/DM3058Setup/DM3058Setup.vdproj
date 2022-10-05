@@ -69,12 +69,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9BF181CBDF743802E7C8B683AF0D223E"
-        "OwnerKey" = "8:_1445E4C9F2D773C0D2F066A13B70970C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E17851B081C93C25B2BFAB1D9DEE8476"
         "OwnerKey" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
         "MsmSig" = "8:_UNDEFINED"
@@ -457,7 +451,7 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:DM3058Setup"
+        "ProductName" = "8:DM3058 Display Utility"
         "ProductCode" = "8:{F15F5F14-E69C-4508-8F54-7891FD01D3AF}"
         "PackageCode" = "8:{BD61EB04-CD95-4462-874D-BC83D1470BD0}"
         "UpgradeCode" = "8:{53549825-7A5D-4000-9093-B973762CCEE1}"
@@ -470,7 +464,7 @@
         "Manufacturer" = "8:The Schnauzer Group LLC"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:DM3058Setup"
+        "Title" = "8:DM3058 Display Utility"
         "Subject" = "8:"
         "ARPCONTACT" = "8:The Schnauzer Group LLC"
         "Keywords" = "8:"
@@ -579,18 +573,18 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_CE17663B13E347D1BADD07922D093B49"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_BE3631C05B7543609DFF63681D10AD48"
             {
-            "Name" = "8:Shortcut to Primary output from DM3058 (Active)"
+            "Name" = "8:DM3058 Display Utility"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
+            "IconIndex" = "3:32512"
             "Transitive" = "11:FALSE"
             "Target" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
             "Folder" = "8:_9F52B951809A414CA95E748DE2E4BD0A"
             "WorkingFolder" = "8:_8211D1B695BD4E4B8BD72688783C2E29"
-            "Icon" = "8:"
+            "Icon" = "8:_9669AFBF6DE54C2BBAFDCE91A885A779"
             "Feature" = "8:"
             }
         }
