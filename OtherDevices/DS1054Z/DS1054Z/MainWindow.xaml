@@ -11,8 +11,21 @@
         <local:VisibilityToCheckedConverter x:Key="VisibilityToCheckedConverter"/>
     </Window.Resources>
     <Grid>
-        <d3:Chart Name="plotter" LegendVisibility="Hidden" Grid.Row="1">
-            <d3:LineGraph x:Name="linegraph" Description="Waveform" Stroke="Blue" StrokeThickness="3" />
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <d3:Chart Name="plotter" LegendVisibility="Hidden" Grid.Row="0">
+            <Grid Name="traces" />
         </d3:Chart>
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
+            <ToggleButton x:Name="Channel1" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 1" Background="Yellow" Checked="Channel1_Checked" Unchecked="Channel1_Unchecked" />
+            <ToggleButton x:Name="Channel2" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 2" Background="Cyan"/>
+            <ToggleButton x:Name="Channel3" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 3" Background="Violet"/>
+            <ToggleButton x:Name="Channel4" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 4" Background="Blue" Foreground="White"/>
+            <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Auto" Content="Auto" Click="Auto_Click" />
+            <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Single" Content="Single" Click="Single_Click" />
+            <ToggleButton x:Name="RunStop" Style="{DynamicResource RunStopButtonStyle}"  Content="Run/Stop" Checked="RunStop_Checked" Unchecked="RunStop_Unchecked" />
+        </StackPanel>
     </Grid>
 </Window>
