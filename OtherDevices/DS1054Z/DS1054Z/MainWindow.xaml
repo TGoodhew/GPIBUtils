@@ -16,7 +16,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <d3:Chart Name="plotter" LegendVisibility="Hidden" Grid.Row="0">
-            <Grid Name="traces" />
+            <Grid x:Name="traces">
+            </Grid>
         </d3:Chart>
         <StackPanel Orientation="Horizontal" Grid.Row="1">
             <ToggleButton x:Name="Channel1" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 1" Background="Yellow" Checked="Channel1_Checked" Unchecked="Channel1_Unchecked" />

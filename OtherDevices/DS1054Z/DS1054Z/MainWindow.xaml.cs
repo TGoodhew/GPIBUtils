@@ -33,13 +33,20 @@ namespace DS1054Z
         private ResourceManager ResMgr = new ResourceManager();
         private TcpipSession TcpipSession;
         private Thread UpdateDisplayThread;
-        private bool[] ChannelEnabled = new bool[4] {false, false, false, false};
+        private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
+        private LineGraph[] ChannelTraces = new LineGraph[4];
 
         public MainWindow()
         {
             InitializeComponent();
             InitializeComms();
             InitializeScope();
+
+            for (int i = 0; i < 4; i++)
+            {
+                ChannelTraces[i] = new LineGraph();
+                //traces.Children.Add(ChannelTraces[i]);
+            }
         }
 
         private void InitializeComms()
@@ -118,7 +125,7 @@ namespace DS1054Z
                     if (ChannelEnabled[channelNumber])
                     {
                         preamble = GetWaveformPreamble();
-                        SendCommand(":WAVeform:SOURce CHANnel"+ (channelNumber-1));
+                        SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber - 1));
                         SendCommand(":WAVeform:DATA?");
                         byte[] byteArray = GetByteData();
 
@@ -129,15 +136,12 @@ namespace DS1054Z
                         {
                             try
                             {
-                                //BUG: This will add too many trace lines to the grid - Need to move it out of the running thread - Refactor away!
-                                var linegraph = new LineGraph();
-                                traces.Children.Add(linegraph);
                                 plotter.PlotHeight = 255;
                                 plotter.PlotOriginY = 0;
                                 plotter.PlotOriginX = x[0];
                                 plotter.PlotWidth = x[1198] * 2;
 
-                                linegraph.Plot(x, byteArray.Skip(12).Take(byteArray.Length - 13).ToArray());
+                                ChannelTraces[channelNumber].Plot(x, byteArray.Skip(12).Take(byteArray.Length - 13).ToArray());
                             }
                             catch (System.ArgumentException ex)
                             {
@@ -176,14 +180,54 @@ namespace DS1054Z
             RunStop.IsChecked = false;
         }
 
+        //TODO: Turn these into a group of buttons
+        //TODO: Use visibility rather than adding and subtracting the traces
         private void Channel1_Checked(object sender, RoutedEventArgs e)
         {
-            ChannelEnabled[0]=true;
+            traces.Children.Add(ChannelTraces[0]);
+            ChannelEnabled[0] = true;
         }
 
         private void Channel1_Unchecked(object sender, RoutedEventArgs e)
         {
-            ChannelEnabled[0]=false;
+            traces.Children.Remove(ChannelTraces[0]);
+            ChannelEnabled[0] = false;
+        }
+
+        private void Channel2_Checked(object sender, RoutedEventArgs e)
+        {
+            traces.Children.Add(ChannelTraces[1]);
+            ChannelEnabled[1] = true;
+        }
+
+        private void Channel2_Unchecked(object sender, RoutedEventArgs e)
+        {
+            traces.Children.Remove(ChannelTraces[1]);
+            ChannelEnabled[1] = false;
+        }
+
+        private void Channel3_Checked(object sender, RoutedEventArgs e)
+        {
+            traces.Children.Add(ChannelTraces[2]);
+            ChannelEnabled[2] = true;
+        }
+
+        private void Channel3_Unchecked(object sender, RoutedEventArgs e)
+        {
+            traces.Children.Remove(ChannelTraces[2]);
+            ChannelEnabled[2] = false;
+        }
+
+        private void Channel4_Checked(object sender, RoutedEventArgs e)
+        {
+            traces.Children.Add(ChannelTraces[3]);
+            ChannelEnabled[3] = true;
+        }
+
+        private void Channel4_Unchecked(object sender, RoutedEventArgs e)
+        {
+            traces.Children.Remove(ChannelTraces[3]);
+            ChannelEnabled[3] = false;
         }
     }
 
