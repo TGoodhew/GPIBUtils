@@ -64,10 +64,15 @@ namespace DS1054Z
             SendCommand(":WAVeform:STARt 1");
             SendCommand(":WAVeform:STOP 1200");
             SendCommand(":STOP");
+            for (int i = 0; i < 4; i++)
+            {
+                SendCommand(":CHANnel" + i.ToString() + ":DISPlay OFF");
+            }
         }
 
         private void SendCommand(string Command)
         {
+            Debug.WriteLine(Command);
             TcpipSession.FormattedIO.WriteLine(Command);
         }
 
@@ -125,7 +130,7 @@ namespace DS1054Z
                     if (ChannelEnabled[channelNumber])
                     {
                         preamble = GetWaveformPreamble();
-                        SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber - 1));
+                        SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber+1));
                         SendCommand(":WAVeform:DATA?");
                         byte[] byteArray = GetByteData();
 
@@ -184,48 +189,56 @@ namespace DS1054Z
         //TODO: Use visibility rather than adding and subtracting the traces
         private void Channel1_Checked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel1:DISPlay ON");
             traces.Children.Add(ChannelTraces[0]);
             ChannelEnabled[0] = true;
         }
 
         private void Channel1_Unchecked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel1:DISPlay OFF");
             traces.Children.Remove(ChannelTraces[0]);
             ChannelEnabled[0] = false;
         }
 
         private void Channel2_Checked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel2:DISPlay ON");
             traces.Children.Add(ChannelTraces[1]);
             ChannelEnabled[1] = true;
         }
 
         private void Channel2_Unchecked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel2:DISPlay OFF");
             traces.Children.Remove(ChannelTraces[1]);
             ChannelEnabled[1] = false;
         }
 
         private void Channel3_Checked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel3:DISPlay ON"); 
             traces.Children.Add(ChannelTraces[2]);
             ChannelEnabled[2] = true;
         }
 
         private void Channel3_Unchecked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel3:DISPlay OFF");
             traces.Children.Remove(ChannelTraces[2]);
             ChannelEnabled[2] = false;
         }
 
         private void Channel4_Checked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel4:DISPlay ON"); 
             traces.Children.Add(ChannelTraces[3]);
             ChannelEnabled[3] = true;
         }
 
         private void Channel4_Unchecked(object sender, RoutedEventArgs e)
         {
+            SendCommand(":CHANnel4:DISPlay OFF");
             traces.Children.Remove(ChannelTraces[3]);
             ChannelEnabled[3] = false;
         }

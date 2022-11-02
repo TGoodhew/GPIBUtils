@@ -21,9 +21,9 @@
         </d3:Chart>
         <StackPanel Orientation="Horizontal" Grid.Row="1">
             <ToggleButton x:Name="Channel1" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 1" Background="Yellow" Checked="Channel1_Checked" Unchecked="Channel1_Unchecked" />
-            <ToggleButton x:Name="Channel2" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 2" Background="Cyan"/>
-            <ToggleButton x:Name="Channel3" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 3" Background="Violet"/>
-            <ToggleButton x:Name="Channel4" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 4" Background="Blue" Foreground="White"/>
+            <ToggleButton x:Name="Channel2" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 2" Background="Cyan" Checked="Channel2_Checked" Unchecked="Channel2_Unchecked" />
+            <ToggleButton x:Name="Channel3" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 3" Background="Violet" Checked="Channel3_Checked" Unchecked="Channel3_Unchecked" />
+            <ToggleButton x:Name="Channel4" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 4" Background="Blue" Foreground="White" Checked="Channel4_Checked" Unchecked="Channel4_Unchecked" />
             <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Auto" Content="Auto" Click="Auto_Click" />
             <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Single" Content="Single" Click="Single_Click" />
             <ToggleButton x:Name="RunStop" Style="{DynamicResource RunStopButtonStyle}"  Content="Run/Stop" Checked="RunStop_Checked" Unchecked="RunStop_Unchecked" />
