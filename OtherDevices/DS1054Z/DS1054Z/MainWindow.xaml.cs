@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace DS1054Z
 {
@@ -47,6 +48,11 @@ namespace DS1054Z
                 ChannelTraces[i] = new LineGraph();
                 //traces.Children.Add(ChannelTraces[i]);
             }
+
+            ChannelTraces[0].Stroke = new SolidColorBrush(Colors.Yellow);
+            ChannelTraces[1].Stroke = new SolidColorBrush(Colors.Cyan);
+            ChannelTraces[2].Stroke = new SolidColorBrush(Colors.Violet);
+            ChannelTraces[3].Stroke = new SolidColorBrush(Colors.Blue);
         }
 
         private void InitializeComms()
@@ -78,7 +84,16 @@ namespace DS1054Z
 
         private byte[] GetByteData()
         {
-            return TcpipSession.RawIO.Read(1212);
+            try
+            {
+                return TcpipSession.RawIO.Read(1212);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine (ex.Message);
+                return null;
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -185,8 +200,6 @@ namespace DS1054Z
             RunStop.IsChecked = false;
         }
 
-        //TODO: Turn these into a group of buttons
-        //TODO: Use visibility rather than adding and subtracting the traces
         private void Channel1_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel1:DISPlay ON");

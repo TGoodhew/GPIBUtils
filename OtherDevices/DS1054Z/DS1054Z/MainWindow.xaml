@@ -15,7 +15,7 @@
             <RowDefinition />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <d3:Chart Name="plotter" LegendVisibility="Hidden" Grid.Row="0">
+        <d3:Chart Name="plotter" LegendVisibility="Hidden" Grid.Row="0" Background="Black" Foreground="White">
             <Grid x:Name="traces">
             </Grid>
         </d3:Chart>
