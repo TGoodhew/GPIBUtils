@@ -10,16 +10,20 @@
     <Window.Resources>
         <local:VisibilityToCheckedConverter x:Key="VisibilityToCheckedConverter"/>
     </Window.Resources>
-    <Grid>
+    <Grid Background="Black">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="141*"/>
+            <ColumnDefinition Width="659*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <d3:Chart Name="plotter" LegendVisibility="Hidden" Grid.Row="0" Background="Black" Foreground="White">
+        <d3:Chart Name="plotter" Style="{DynamicResource OscopeStyle}" LegendVisibility="Hidden" Grid.Row="0" Background="Black" Foreground="White" Margin="0,10,10,0" Grid.ColumnSpan="2">
             <Grid x:Name="traces">
             </Grid>
         </d3:Chart>
-        <StackPanel Orientation="Horizontal" Grid.Row="1">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
             <ToggleButton x:Name="Channel1" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 1" Background="Yellow" Checked="Channel1_Checked" Unchecked="Channel1_Unchecked" />
             <ToggleButton x:Name="Channel2" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 2" Background="Cyan" Checked="Channel2_Checked" Unchecked="Channel2_Unchecked" />
             <ToggleButton x:Name="Channel3" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 3" Background="Violet" Checked="Channel3_Checked" Unchecked="Channel3_Unchecked" />
