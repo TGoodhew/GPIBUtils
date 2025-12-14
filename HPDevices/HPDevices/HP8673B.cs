@@ -135,23 +135,14 @@ namespace HPDevices.HP8673B
              */
 
             // Read the Status Byte but discard for now
-            // TODO: Investigate why this pattern seems to work but using gpibSession from the class fails for the 8673B
-
-            /* Background:
-             * I was having an issue with the system hanging on the srqWait.Wait() command as the count appeared to get
-             * decreased by a "phantom" SRQ that would get handled. It didn't matter if I rebooted my machine or power cycled
-             * the 8673B. So I set it aside since the last commit and got back to it today (5/30/2022). Searching for insight
-             * I found this pattern of using the GpibSession object passed in via sender rather than using the session stored
-             * as a class member. Testing this seems to work but it is unclear to me if this is a just voodoo or if this is the
-             * correct pattern to use. The next step is to go back and see if I can recreate the original experience as 
-             * using the class member GpibSession worked for my other instruments.
-             */
-            
             var gbs = (GpibSession)sender;
             StatusByteFlags sb = gbs.ReadStatusByte();
 
             Debug.WriteLine(sb.ToString(), "Status Byte: ");
-            
+
+            // Clear the SRQ event
+            gpibSession.DiscardEvents(EventType.ServiceRequest);
+
             // Assume Data Ready and release the semaphore for now
             srqWait.Release();
         }
