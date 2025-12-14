@@ -1,6 +1,7 @@
 ﻿using InteractiveDataDisplay.WPF;
 using NationalInstruments.Visa;
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -30,12 +31,14 @@ namespace DS1054Z
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string DMMAddress = @"TCPIP0::192.168.1.146::inst0::INSTR";
+        private string DMMAddress = @"TCPIP0::192.168.1.145::inst0::INSTR";
         private ResourceManager ResMgr = new ResourceManager();
         private TcpipSession TcpipSession;
         private Thread UpdateDisplayThread;
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
         private LineGraph[] ChannelTraces = new LineGraph[4];
+
+        public ObservableCollection<string> LabelTexts { get; set; }
 
         public MainWindow()
         {
@@ -53,6 +56,15 @@ namespace DS1054Z
             ChannelTraces[1].Stroke = new SolidColorBrush(Colors.Cyan);
             ChannelTraces[2].Stroke = new SolidColorBrush(Colors.Violet);
             ChannelTraces[3].Stroke = new SolidColorBrush(Colors.Blue);
+
+            LabelTexts = new ObservableCollection<string>
+            {
+            "CH 1",
+            "CH 2",
+            "CH 3",
+            "CH 4"};
+
+            DataContext = this;
         }
 
         private void InitializeComms()
@@ -91,7 +103,7 @@ namespace DS1054Z
             }
             catch (Exception ex)
             {
-                Debug.WriteLine (ex.Message);
+                Debug.WriteLine(ex.Message);
                 return null;
             }
         }
@@ -137,17 +149,33 @@ namespace DS1054Z
 
         private void GetDisplayWaveform()
         {
+            double result = 0;
+
             WaveformPreamble preamble;
             while (true)
             {
+
                 for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                 {
                     if (ChannelEnabled[channelNumber])
                     {
                         preamble = GetWaveformPreamble();
-                        SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber+1));
+                        SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber + 1));
                         SendCommand(":WAVeform:DATA?");
                         byte[] byteArray = GetByteData();
+
+                        try
+                        {
+                            SendCommand(String.Format(":MEASure:ITEM? VPP,CHANnel{0}", channelNumber+1));
+                            result = TcpipSession.FormattedIO.ReadDouble();
+                        }
+                        catch (Exception)
+                        {
+                            result = 0;
+                        }
+
+
+                        Debug.WriteLine("C1 VPP " + result);
 
                         //BUG: X axis range not tracking actual values
                         var x = Enumerable.Range(0, 1199).Select(i => preamble.xorigin + (i * preamble.xincrement)).ToArray();
@@ -162,6 +190,8 @@ namespace DS1054Z
                                 plotter.PlotWidth = x[1198] * 2;
 
                                 ChannelTraces[channelNumber].Plot(x, byteArray.Skip(12).Take(byteArray.Length - 13).ToArray());
+
+                                LabelTexts[channelNumber] = String.Format("CH {0} {1}", channelNumber+1, ToEngineeringFormat.Convert(result, 3, "V", true));
                             }
                             catch (System.ArgumentException ex)
                             {
@@ -205,6 +235,8 @@ namespace DS1054Z
             SendCommand(":CHANnel1:DISPlay ON");
             traces.Children.Add(ChannelTraces[0]);
             ChannelEnabled[0] = true;
+
+            SendCommand(":MEASure:ITEM VPP,CHANnel1");
         }
 
         private void Channel1_Unchecked(object sender, RoutedEventArgs e)
@@ -219,6 +251,8 @@ namespace DS1054Z
             SendCommand(":CHANnel2:DISPlay ON");
             traces.Children.Add(ChannelTraces[1]);
             ChannelEnabled[1] = true;
+
+            SendCommand(":MEASure:ITEM VPP,CHANnel2");
         }
 
         private void Channel2_Unchecked(object sender, RoutedEventArgs e)
@@ -230,9 +264,11 @@ namespace DS1054Z
 
         private void Channel3_Checked(object sender, RoutedEventArgs e)
         {
-            SendCommand(":CHANnel3:DISPlay ON"); 
+            SendCommand(":CHANnel3:DISPlay ON");
             traces.Children.Add(ChannelTraces[2]);
             ChannelEnabled[2] = true;
+
+            SendCommand(":MEASure:ITEM VPP,CHANnel3");
         }
 
         private void Channel3_Unchecked(object sender, RoutedEventArgs e)
@@ -244,9 +280,11 @@ namespace DS1054Z
 
         private void Channel4_Checked(object sender, RoutedEventArgs e)
         {
-            SendCommand(":CHANnel4:DISPlay ON"); 
+            SendCommand(":CHANnel4:DISPlay ON");
             traces.Children.Add(ChannelTraces[3]);
             ChannelEnabled[3] = true;
+
+            SendCommand(":MEASure:ITEM VPP,CHANnel4");
         }
 
         private void Channel4_Unchecked(object sender, RoutedEventArgs e)
