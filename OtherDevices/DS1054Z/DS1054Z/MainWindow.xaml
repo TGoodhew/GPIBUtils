@@ -6,7 +6,7 @@
                 xmlns:d3="clr-namespace:InteractiveDataDisplay.WPF;assembly=InteractiveDataDisplay.WPF"
         xmlns:local="clr-namespace:DS1054Z"
         mc:Ignorable="d"
-        Title="Rigol DS1054 Display Utility" Height="450" Width="800" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="Rigol DS1054 Display Utility" Height="720" Width="1280" Loaded="Window_Loaded" Closing="Window_Closing">
     <Window.Resources>
         <local:VisibilityToCheckedConverter x:Key="VisibilityToCheckedConverter"/>
     </Window.Resources>

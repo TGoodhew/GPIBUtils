@@ -69,7 +69,21 @@ namespace DS1054Z
 
         private void InitializeComms()
         {
-            TcpipSession = (TcpipSession)ResMgr.Open(DMMAddress);
+            bool IsConnected = false;
+
+            while (!IsConnected)
+            {
+                try
+                {
+                    TcpipSession = (TcpipSession)ResMgr.Open(DMMAddress);
+                    IsConnected = true;
+                }
+                catch (Exception)
+                {
+                    IsConnected = false;
+                }
+            }
+
             TcpipSession.TerminationCharacterEnabled = true;
             TcpipSession.TimeoutMilliseconds = 20000;
             TcpipSession.Clear();

@@ -23,7 +23,25 @@ namespace DS1054Z
         // units: what the number is a measure of, like "Hz", "Farads", "Tesla", etc.
         public static string Convert(double number, Int16 significant_digits = 3, string units = "", bool fixedFormat = false)
         {
-            string format_str;
+            // Guard special numeric values
+            if (double.IsNaN(number) || double.IsInfinity(number))
+            {
+                // Preserve the representation for NaN/Infinity
+                return number.ToString() + units;
+            }
+
+            // Normalize significant digits within allowed range
+            int sd = significant_digits;
+            if (sd < 1) sd = 1;
+            if (sd > 15) sd = 15;
+
+            string format_str = (fixedFormat ? "F" : "G") + sd.ToString();
+
+            // Zero is a common case; return immediately using the 'no prefix' entry (index 8)
+            if (number == 0.0)
+            {
+                return (0.0).ToString(format_str) + prefix_const[8] + units;
+            }
 
             double scale = Math.Log10(Math.Abs(number));
             if (scale < 0.0)
@@ -31,24 +49,22 @@ namespace DS1054Z
 
             // The + 0.001 here makes sure that we use the proper scale range by pushing the calculated range just a bit.
             Int16 power = (Int16)((scale / 3) + 0.001);
-            string prefix_str = prefix_const[power + 8];
+            int index = power + 8;
+
+            // If the computed prefix index is out of range, fallback to scientific (exponential) format
+            if (index < 0 || index >= prefix_const.Length)
+            {
+                string sciFmt = "E" + sd.ToString();
+                return number.ToString(sciFmt) + units;
+            }
+
+            string prefix_str = prefix_const[index];
             double scale_factor = Math.Pow(10.0, (double)power * 3.0);
             double base_num = number / scale_factor;
 
-            // Make the format specifier string - bound limit the digits first
-            if (significant_digits < 1)
-                significant_digits = 1;
-            if (significant_digits > 15)
-                significant_digits = 15;
-
-            if (fixedFormat)
-                format_str = "F" + significant_digits.ToString();
-            else
-                format_str = "G" + significant_digits.ToString();
-
             string converted_str = base_num.ToString(format_str) + prefix_str + units;
 
-            return (converted_str);
+            return converted_str;
         }
     }
 }
