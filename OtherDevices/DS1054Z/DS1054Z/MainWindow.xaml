@@ -11,30 +11,6 @@
         <local:VisibilityToCheckedConverter x:Key="VisibilityToCheckedConverter"/>
     </Window.Resources>
     <Grid Background="Black">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="141*"/>
-            <ColumnDefinition Width="659*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <DockPanel LastChildFill="True" Grid.Row="0" Grid.ColumnSpan="2">
-            <!-- Right-most control: labels -->
-            <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="0,10,10,0">
-                <ItemsControl ItemsSource="{Binding LabelTexts}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Label Content="{Binding}" 
-                               Foreground="White" 
-                               HorizontalAlignment="Left" 
-                               MinWidth="80"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-
-            <!-- Main chart fills remaining space -->
             <d3:Chart Name="plotter"
               Style="{DynamicResource OscopeStyle}"
               LegendVisibility="Hidden"
@@ -42,8 +18,6 @@
               Foreground="White">
                 <Grid x:Name="traces"/>
             </d3:Chart>
-        </DockPanel>
-
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
             <ToggleButton x:Name="Channel1" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 1" Background="Yellow" Checked="Channel1_Checked" Unchecked="Channel1_Unchecked" />
             <ToggleButton x:Name="Channel2" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 2" Background="Cyan" Checked="Channel2_Checked" Unchecked="Channel2_Unchecked" />
