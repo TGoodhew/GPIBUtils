@@ -1,6 +1,8 @@
-﻿using InteractiveDataDisplay.WPF;
-using NationalInstruments.Visa;
+﻿using NationalInstruments.Visa;
+using Syncfusion.UI.Xaml.Charts;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +28,36 @@ namespace DS1054Z
         public int yreference;
     }
 
+    public class DataPoint
+    {
+        public int X { get; set; }
+        public byte Y { get; set; }
+    }
+
+    public class ChartViewModel
+    {
+        public List<DataPoint> ByteSeries { get; }
+
+        public ChartViewModel(byte[] data)
+        {
+            ByteSeries = ConvertBytes(data);
+        }
+
+        public List<DataPoint> ConvertBytes(byte[] bytes)
+        {
+            var list = new List<DataPoint>();
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                list.Add(new DataPoint { X = i, Y = bytes[i] });
+            }
+
+            return list;
+        }
+    }
+
+
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -36,9 +68,9 @@ namespace DS1054Z
         private TcpipSession TcpipSession;
         private Thread UpdateDisplayThread;
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
-        private LineGraph[] ChannelTraces = new LineGraph[4];
+        private FastLineSeries[] ChannelTraces = new FastLineSeries[4];
 
-        public ObservableCollection<string> LabelTexts { get; set; }
+        private ObservableCollection<string> LabelTexts { get; set; }
 
         public MainWindow()
         {
@@ -48,14 +80,23 @@ namespace DS1054Z
 
             for (int i = 0; i < 4; i++)
             {
-                ChannelTraces[i] = new LineGraph();
-                //traces.Children.Add(ChannelTraces[i]);
+                byte[] buffer = Enumerable.Repeat<byte>(127, 1199).ToArray();
+
+
+                ChannelTraces[i] = new FastLineSeries();
+                ChannelTraces[i].ItemsSource = new ChartViewModel(buffer);
+                ChannelTraces[i].XBindingPath = "X";
+                ChannelTraces[i].YBindingPath = "Y";
+                ChannelTraces[i].Interior= new SolidColorBrush(Color.FromRgb(0x7F, 0x7F, 0x7F));
+                ChannelTraces[i].StrokeThickness = 1;
+                ChannelTraces[i].Visibility = Visibility.Hidden;
+                DisplayChart.Series.Add(ChannelTraces[i]);
             }
 
-            ChannelTraces[0].Stroke = new SolidColorBrush(Colors.Yellow);
-            ChannelTraces[1].Stroke = new SolidColorBrush(Colors.Cyan);
-            ChannelTraces[2].Stroke = new SolidColorBrush(Colors.Violet);
-            ChannelTraces[3].Stroke = new SolidColorBrush(Colors.Blue);
+            //ChannelTraces[0].Stroke = new SolidColorBrush(Colors.Yellow);
+            //ChannelTraces[1].Stroke = new SolidColorBrush(Colors.Cyan);
+            //ChannelTraces[2].Stroke = new SolidColorBrush(Colors.Violet);
+            //ChannelTraces[3].Stroke = new SolidColorBrush(Colors.Blue);
 
             LabelTexts = new ObservableCollection<string>
             {
@@ -198,12 +239,13 @@ namespace DS1054Z
                         {
                             try
                             {
-                                plotter.PlotHeight = 255;
-                                plotter.PlotOriginY = 0;
-                                plotter.PlotOriginX = x[0];
-                                plotter.PlotWidth = x[1198] * 2;
+                                ChannelTraces[channelNumber].ItemsSource = new ChartViewModel(byteArray);
+                                //plotter.PlotHeight = 255;
+                                //plotter.PlotOriginY = 0;
+                                //plotter.PlotOriginX = x[0];
+                                //plotter.PlotWidth = x[1198] * 2;
 
-                                ChannelTraces[channelNumber].Plot(x, byteArray.Skip(12).Take(byteArray.Length - 13).ToArray());
+                                //ChannelTraces[channelNumber].Plot(x, byteArray.Skip(12).Take(byteArray.Length - 13).ToArray());
 
                                 LabelTexts[channelNumber] = String.Format("CH {0} {1}", channelNumber+1, ToEngineeringFormat.Convert(result, 3, "V", true));
                             }
@@ -247,7 +289,7 @@ namespace DS1054Z
         private void Channel1_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel1:DISPlay ON");
-            traces.Children.Add(ChannelTraces[0]);
+            ChannelTraces[0].Visibility = Visibility.Visible;
             ChannelEnabled[0] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel1");
@@ -256,14 +298,14 @@ namespace DS1054Z
         private void Channel1_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel1:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[0]);
+            ChannelTraces[0].Visibility = Visibility.Hidden;
             ChannelEnabled[0] = false;
         }
 
         private void Channel2_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel2:DISPlay ON");
-            traces.Children.Add(ChannelTraces[1]);
+            ChannelTraces[1].Visibility = Visibility.Visible;
             ChannelEnabled[1] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel2");
@@ -272,14 +314,14 @@ namespace DS1054Z
         private void Channel2_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel2:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[1]);
+            ChannelTraces[1].Visibility = Visibility.Hidden;
             ChannelEnabled[1] = false;
         }
 
         private void Channel3_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel3:DISPlay ON");
-            traces.Children.Add(ChannelTraces[2]);
+            ChannelTraces[2].Visibility = Visibility.Visible;
             ChannelEnabled[2] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel3");
@@ -288,14 +330,14 @@ namespace DS1054Z
         private void Channel3_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel3:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[2]);
+            ChannelTraces[2].Visibility = Visibility.Hidden;
             ChannelEnabled[2] = false;
         }
 
         private void Channel4_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel4:DISPlay ON");
-            traces.Children.Add(ChannelTraces[3]);
+            ChannelTraces[3].Visibility = Visibility.Visible;
             ChannelEnabled[3] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel4");
@@ -304,7 +346,7 @@ namespace DS1054Z
         private void Channel4_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel4:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[3]);
+            ChannelTraces[3].Visibility = Visibility.Hidden;
             ChannelEnabled[3] = false;
         }
     }
