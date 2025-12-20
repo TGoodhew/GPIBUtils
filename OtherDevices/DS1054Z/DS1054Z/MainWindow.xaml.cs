@@ -77,7 +77,7 @@ namespace DS1054Z
             new SolidColorBrush(Colors.Blue)
         };
 
-        private ObservableCollection<string> LabelTexts { get; set; }
+        public ObservableCollection<string> LabelTexts { get; set; }
 
         public MainWindow()
         {
@@ -215,6 +215,8 @@ namespace DS1054Z
             double result = 0;
 
             WaveformPreamble preamble;
+            const int headerSize = 12;
+
             while (true)
             {
 
@@ -222,8 +224,11 @@ namespace DS1054Z
                 {
                     if (ChannelEnabled[channelNumber])
                     {
-                        preamble = GetWaveformPreamble();
+                        // Select the waveform source before requesting the preamble to ensure
+                        // the instrument returns the preamble for the correct channel.
                         SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber + 1));
+
+                        preamble = GetWaveformPreamble();
                         SendCommand(":WAVeform:DATA?");
                         byte[] byteArray = GetByteData();
 
@@ -246,12 +251,43 @@ namespace DS1054Z
                             {
                                 var source = byteArray ?? Array.Empty<byte>();
 
-                                // Ensure we don't underflow if the array is shorter than 12 bytes
-                                var length = Math.Max(0, source.Length - 12);
+                                // Compute available payload bytes after the header
+                                int available = Math.Max(0, source.Length - headerSize);
 
-                                var payload = new byte[length];
+                                // Determine bytes per sample from the preamble format
+                                // Common convention: format == 0 => BYTE (1 byte/sample), format == 1 => WORD (2 bytes/sample)
+                                int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
+
+                                // Compute expected bytes from the preamble if available, safely clamped to int
+                                long expectedBytesLong = 0;
+                                if (preamble.points > 0)
+                                {
+                                    expectedBytesLong = preamble.points * (long)bytesPerPoint;
+                                }
+
+                                int expectedBytes = expectedBytesLong > 0
+                                    ? (int)Math.Min(expectedBytesLong, int.MaxValue)
+                                    : 0;
+
+                                int length;
+
+                                // If the preamble provides an expected size, use the smaller of expected and available.
+                                // Otherwise use the available bytes.
+                                if (expectedBytes > 0)
+                                    length = Math.Min(available, expectedBytes);
+                                else
+                                    length = available;
+
+                                // Ignore the last byte on a successful read (instrument appends an extra terminator/checksum byte).
+                                if (byteArray != null && length > 0)
+                                {
+                                    length = Math.Max(0, length - 1);
+                                }
+
+                                // Ensure we never allocate a negative or zero-length array unnecessarily
+                                var payload = length > 0 ? new byte[length] : Array.Empty<byte>();
                                 if (length > 0)
-                                    Array.Copy(source, 12, payload, 0, length);
+                                    Array.Copy(source, headerSize, payload, 0, length);
 
                                 ChannelTraces[channelNumber].ItemsSource =
                                     new ChartViewModel(payload).ByteSeries;

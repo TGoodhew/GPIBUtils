@@ -11,44 +11,84 @@
         <local:VisibilityToCheckedConverter x:Key="VisibilityToCheckedConverter"/>
     </Window.Resources>
     <Grid Background="Black">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="120"/>
+        </Grid.ColumnDefinitions>
+
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
         <!-- Right-most control: labels -->
-        <StackPanel Orientation="Vertical" Margin="0,10,10,0">
+        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,10,10,0">
             <ItemsControl ItemsSource="{Binding LabelTexts}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Label Content="{Binding}" 
-                               Foreground="White" 
-                               HorizontalAlignment="Left" 
-                               MinWidth="80"/>
+                        <Label Content="{Binding}"
+                           Foreground="White"
+                           HorizontalAlignment="Left"
+                           MinWidth="80"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </StackPanel>
 
-        <!-- Main chart fills remaining space -->
-        <syncfusion:SfChart Name="DisplayChart" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <!-- X Axis -->
+        <syncfusion:SfChart Grid.Column="0"
+                    Name="DisplayChart"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    ClipToBounds="True">
+
+            <!-- X Axis: 12 divisions -->
             <syncfusion:SfChart.PrimaryAxis>
-                <syncfusion:NumericalAxis />
+                <syncfusion:NumericalAxis
+            Minimum="0"
+            Maximum="1200"
+            Interval="100"
+            RangePadding="None"
+            PlotOffset="0"
+            Margin="0"
+            LabelExtent="0"
+            TickLineSize="0"
+            EdgeLabelsDrawingMode="Center"
+            ShowGridLines="True"
+                    AxisLineStyle="{StaticResource RigolAxisLineStyle}"
+            MajorGridLineStyle="{StaticResource RigolGridLineStyle}" 
+                    OpposedPosition="False"/>
             </syncfusion:SfChart.PrimaryAxis>
-            <!-- Y Axis -->
+
+            <!-- Y Axis: 10 divisions -->
             <syncfusion:SfChart.SecondaryAxis>
-                <syncfusion:NumericalAxis Minimum="0" Maximum="255" Interval="25.5"/>
+                <syncfusion:NumericalAxis
+            Minimum="0"
+            Maximum="260"
+            Interval="26"
+            RangePadding="None"
+            PlotOffset="0"
+            Margin="0"
+            LabelExtent="0"
+            TickLineSize="0"
+            EdgeLabelsDrawingMode="Center"
+            ShowGridLines="True"
+                    AxisLineStyle="{StaticResource RigolAxisLineStyle}"
+                    OpposedPosition="False"
+            MajorGridLineStyle="{StaticResource RigolGridLineStyle}" />
             </syncfusion:SfChart.SecondaryAxis>
+
         </syncfusion:SfChart>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
-            <ToggleButton x:Name="Channel1" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 1" Background="Yellow" Checked="Channel1_Checked" Unchecked="Channel1_Unchecked" />
-            <ToggleButton x:Name="Channel2" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 2" Background="Cyan" Checked="Channel2_Checked" Unchecked="Channel2_Unchecked" />
-            <ToggleButton x:Name="Channel3" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 3" Background="Violet" Checked="Channel3_Checked" Unchecked="Channel3_Unchecked" />
-            <ToggleButton x:Name="Channel4" Style="{DynamicResource ChannelButtonStyle}"  Content="Channel 4" Background="Blue" Foreground="White" Checked="Channel4_Checked" Unchecked="Channel4_Unchecked" />
+        <StackPanel Orientation="Horizontal"
+                Grid.Row="1"
+                Grid.ColumnSpan="2">
+            <ToggleButton x:Name="Channel1" Style="{DynamicResource ChannelButtonStyle}" Content="Channel 1" Background="Yellow" Checked="Channel1_Checked" Unchecked="Channel1_Unchecked" />
+            <ToggleButton x:Name="Channel2" Style="{DynamicResource ChannelButtonStyle}" Content="Channel 2" Background="Cyan" Checked="Channel2_Checked" Unchecked="Channel2_Unchecked" />
+            <ToggleButton x:Name="Channel3" Style="{DynamicResource ChannelButtonStyle}" Content="Channel 3" Background="Violet" Checked="Channel3_Checked" Unchecked="Channel3_Unchecked" />
+            <ToggleButton x:Name="Channel4" Style="{DynamicResource ChannelButtonStyle}" Content="Channel 4" Background="Blue" Foreground="White" Checked="Channel4_Checked" Unchecked="Channel4_Unchecked" />
             <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Auto" Content="Auto" Click="Auto_Click" />
             <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Single" Content="Single" Click="Single_Click" />
-            <ToggleButton x:Name="RunStop" Style="{DynamicResource RunStopButtonStyle}"  Content="Run/Stop" Checked="RunStop_Checked" Unchecked="RunStop_Unchecked" />
+            <ToggleButton x:Name="RunStop" Style="{DynamicResource RunStopButtonStyle}" Content="Run/Stop" Checked="RunStop_Checked" Unchecked="RunStop_Unchecked" />
         </StackPanel>
     </Grid>
 </Window>

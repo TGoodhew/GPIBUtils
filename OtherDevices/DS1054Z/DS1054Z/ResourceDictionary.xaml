@@ -146,6 +146,19 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <!-- Interior grid lines (Rigol-style dark gray) -->
+    <Style x:Key="RigolGridLineStyle" TargetType="Line">
+        <Setter Property="Stroke" Value="#303030"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+    </Style>
+
+    <!-- Outer border (slightly brighter) -->
+    <Style x:Key="RigolAxisLineStyle" TargetType="Line">
+        <Setter Property="Stroke" Value="#505050"/>
+        <Setter Property="StrokeThickness" Value="1.5"/>
+    </Style>
+    
+
     <!--<Style x:Key="OscopeStyle" TargetType="d3:Chart">
         <Setter Property="Template">
             <Setter.Value>
