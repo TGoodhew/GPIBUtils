@@ -69,6 +69,13 @@ namespace DS1054Z
         private Thread UpdateDisplayThread;
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
         private FastLineSeries[] ChannelTraces = new FastLineSeries[4];
+        private SolidColorBrush[] ChannelColors = new SolidColorBrush[4]
+        {
+            new SolidColorBrush(Colors.Yellow),
+            new SolidColorBrush(Colors.Cyan),
+            new SolidColorBrush(Colors.Violet),
+            new SolidColorBrush(Colors.Blue)
+        };
 
         private ObservableCollection<string> LabelTexts { get; set; }
 
@@ -84,10 +91,11 @@ namespace DS1054Z
 
 
                 ChannelTraces[i] = new FastLineSeries();
-                ChannelTraces[i].ItemsSource = new ChartViewModel(buffer);
+                // ItemsSource must be an enumerable of data points; use the ByteSeries list
+                ChannelTraces[i].ItemsSource = new ChartViewModel(buffer).ByteSeries;
                 ChannelTraces[i].XBindingPath = "X";
                 ChannelTraces[i].YBindingPath = "Y";
-                ChannelTraces[i].Interior= new SolidColorBrush(Color.FromRgb(0x7F, 0x7F, 0x7F));
+                ChannelTraces[i].Interior = ChannelColors[i];
                 ChannelTraces[i].StrokeThickness = 1;
                 ChannelTraces[i].Visibility = Visibility.Hidden;
                 DisplayChart.Series.Add(ChannelTraces[i]);
@@ -232,27 +240,33 @@ namespace DS1054Z
 
                         Debug.WriteLine("C1 VPP " + result);
 
-                        //BUG: X axis range not tracking actual values
-                        var x = Enumerable.Range(0, 1199).Select(i => preamble.xorigin + (i * preamble.xincrement)).ToArray();
-
                         this.Dispatcher.Invoke(() =>
                         {
                             try
                             {
-                                ChannelTraces[channelNumber].ItemsSource = new ChartViewModel(byteArray);
-                                //plotter.PlotHeight = 255;
-                                //plotter.PlotOriginY = 0;
-                                //plotter.PlotOriginX = x[0];
-                                //plotter.PlotWidth = x[1198] * 2;
+                                var source = byteArray ?? Array.Empty<byte>();
 
-                                //ChannelTraces[channelNumber].Plot(x, byteArray.Skip(12).Take(byteArray.Length - 13).ToArray());
+                                // Ensure we don't underflow if the array is shorter than 12 bytes
+                                var length = Math.Max(0, source.Length - 12);
 
-                                LabelTexts[channelNumber] = String.Format("CH {0} {1}", channelNumber+1, ToEngineeringFormat.Convert(result, 3, "V", true));
+                                var payload = new byte[length];
+                                if (length > 0)
+                                    Array.Copy(source, 12, payload, 0, length);
+
+                                ChannelTraces[channelNumber].ItemsSource =
+                                    new ChartViewModel(payload).ByteSeries;
+
+                                LabelTexts[channelNumber] = string.Format(
+                                    "CH {0} {1}",
+                                    channelNumber + 1,
+                                    ToEngineeringFormat.Convert(result, 3, "V", true)
+                                );
                             }
-                            catch (System.ArgumentException ex)
+                            catch (ArgumentException ex)
                             {
                                 Debug.WriteLine(ex.Message);
                             }
+
                         });
                     }
                 }
