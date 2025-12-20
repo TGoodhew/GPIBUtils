@@ -44,37 +44,37 @@
             <!-- X Axis: 12 divisions -->
             <syncfusion:SfChart.PrimaryAxis>
                 <syncfusion:NumericalAxis
-            Minimum="0"
-            Maximum="1200"
-            Interval="100"
-            RangePadding="None"
-            PlotOffset="0"
-            Margin="0"
-            LabelExtent="0"
-            TickLineSize="0"
-            EdgeLabelsDrawingMode="Center"
-            ShowGridLines="True"
+                    Minimum="0"
+                    Maximum="1200"
+                    Interval="100"
+                    RangePadding="None"
+                    PlotOffset="0"
+                    Margin="0"
+                    LabelExtent="0"
+                    TickLineSize="0"
+                    EdgeLabelsDrawingMode="Center"
+                    ShowGridLines="True"
                     AxisLineStyle="{StaticResource RigolAxisLineStyle}"
-            MajorGridLineStyle="{StaticResource RigolGridLineStyle}" 
+                    MajorGridLineStyle="{StaticResource RigolGridLineStyle}" 
                     OpposedPosition="False"/>
             </syncfusion:SfChart.PrimaryAxis>
 
             <!-- Y Axis: 10 divisions -->
             <syncfusion:SfChart.SecondaryAxis>
                 <syncfusion:NumericalAxis
-            Minimum="0"
-            Maximum="260"
-            Interval="26"
-            RangePadding="None"
-            PlotOffset="0"
-            Margin="0"
-            LabelExtent="0"
-            TickLineSize="0"
-            EdgeLabelsDrawingMode="Center"
-            ShowGridLines="True"
+                    Minimum="0"
+                    Maximum="260"
+                    Interval="26"
+                    RangePadding="None"
+                    PlotOffset="0"
+                    Margin="0"
+                    LabelExtent="0"
+                    TickLineSize="0"
+                    EdgeLabelsDrawingMode="Center"
+                    ShowGridLines="True"
                     AxisLineStyle="{StaticResource RigolAxisLineStyle}"
                     OpposedPosition="False"
-            MajorGridLineStyle="{StaticResource RigolGridLineStyle}" />
+                    MajorGridLineStyle="{StaticResource RigolGridLineStyle}" />
             </syncfusion:SfChart.SecondaryAxis>
 
         </syncfusion:SfChart>

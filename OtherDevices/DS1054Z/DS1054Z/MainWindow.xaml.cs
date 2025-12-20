@@ -89,7 +89,6 @@ namespace DS1054Z
             {
                 byte[] buffer = Enumerable.Repeat<byte>(127, 1199).ToArray();
 
-
                 ChannelTraces[i] = new FastLineSeries();
                 // ItemsSource must be an enumerable of data points; use the ByteSeries list
                 ChannelTraces[i].ItemsSource = new ChartViewModel(buffer).ByteSeries;
@@ -108,10 +107,11 @@ namespace DS1054Z
 
             LabelTexts = new ObservableCollection<string>
             {
-            "CH 1",
-            "CH 2",
-            "CH 3",
-            "CH 4"};
+                "CH 1",
+                "CH 2",
+                "CH 3",
+                "CH 4"
+            };
 
             DataContext = this;
         }
@@ -162,7 +162,6 @@ namespace DS1054Z
             try
             {
                 return TcpipSession.RawIO.Read(1212);
-
             }
             catch (Exception ex)
             {
@@ -219,7 +218,6 @@ namespace DS1054Z
 
             while (true)
             {
-
                 for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                 {
                     if (ChannelEnabled[channelNumber])
@@ -234,14 +232,13 @@ namespace DS1054Z
 
                         try
                         {
-                            SendCommand(String.Format(":MEASure:ITEM? VPP,CHANnel{0}", channelNumber+1));
+                            SendCommand(String.Format(":MEASure:ITEM? VPP,CHANnel{0}", channelNumber + 1));
                             result = TcpipSession.FormattedIO.ReadDouble();
                         }
                         catch (Exception)
                         {
                             result = 0;
                         }
-
 
                         Debug.WriteLine("C1 VPP " + result);
 
@@ -274,9 +271,13 @@ namespace DS1054Z
                                 // If the preamble provides an expected size, use the smaller of expected and available.
                                 // Otherwise use the available bytes.
                                 if (expectedBytes > 0)
+                                {
                                     length = Math.Min(available, expectedBytes);
+                                }
                                 else
+                                {
                                     length = available;
+                                }
 
                                 // Ignore the last byte on a successful read (instrument appends an extra terminator/checksum byte).
                                 if (byteArray != null && length > 0)
@@ -287,7 +288,9 @@ namespace DS1054Z
                                 // Ensure we never allocate a negative or zero-length array unnecessarily
                                 var payload = length > 0 ? new byte[length] : Array.Empty<byte>();
                                 if (length > 0)
+                                {
                                     Array.Copy(source, headerSize, payload, 0, length);
+                                }
 
                                 ChannelTraces[channelNumber].ItemsSource =
                                     new ChartViewModel(payload).ByteSeries;
