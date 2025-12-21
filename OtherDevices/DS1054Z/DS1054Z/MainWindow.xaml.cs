@@ -152,9 +152,6 @@ namespace DS1054Z
     {
         private static readonly TimeSpan ThreadShutdownTimeout = TimeSpan.FromSeconds(2);
         
-        // TCP/IP address of the Rigol DS1054Z oscilloscope
-        private string TCPIPAddress = @"TCPIP0::192.168.1.145::inst0::INSTR";
-        
         private ResourceManager ResMgr = new ResourceManager();
         private TcpipSession TCPIPSession;
         private ScpiSession SCPISession;
@@ -229,23 +226,74 @@ namespace DS1054Z
         {
             bool IsConnected = false;
 
+            // Ensure settings are initialized with default value if not set
+            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TCPIPAddress))
+            {
+                Properties.Settings.Default.TCPIPAddress = "192.168.1.145";
+                Properties.Settings.Default.Save();
+            }
+
+            string tcpipAddress = $"TCPIP0::{Properties.Settings.Default.TCPIPAddress}::inst0::INSTR";
+
             while (!IsConnected)
             {
                 try
                 {
-                    TCPIPSession = (TcpipSession)ResMgr.Open(TCPIPAddress);
+                    TCPIPSession = (TcpipSession)ResMgr.Open(tcpipAddress);
                     SCPISession = new ScpiSession(TCPIPSession);
                     IsConnected = true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    IsConnected = false;
+                    var result = MessageBox.Show(
+                        $"Failed to connect to oscilloscope at {Properties.Settings.Default.TCPIPAddress}\n\n" +
+                        $"Error: {ex.Message}\n\n" +
+                        "Click 'Retry' to try again or 'Cancel' to change settings.",
+                        "Connection Error",
+                        MessageBoxButton.OKCancel,
+                        MessageBoxImage.Error);
+
+                    if (result == MessageBoxResult.Cancel)
+                    {
+                        // Open settings dialog
+                        var dialog = new ConfigDialog(Properties.Settings.Default.TCPIPAddress);
+                        if (dialog.ShowDialog() == true)
+                        {
+                            // Extract IP from VISA format and save
+                            string newAddress = ExtractIPFromVISA(dialog.TCPIPAddress);
+                            Properties.Settings.Default.TCPIPAddress = newAddress;
+                            Properties.Settings.Default.Save();
+                            tcpipAddress = dialog.TCPIPAddress;
+                        }
+                        else
+                        {
+                            // User cancelled, exit application
+                            Application.Current.Shutdown();
+                            return;
+                        }
+                    }
                 }
             }
 
             TCPIPSession.TerminationCharacterEnabled = false; // avoid truncation/timeouts on binary reads
             TCPIPSession.TimeoutMilliseconds = 20000;
             TCPIPSession.Clear();
+        }
+
+        /// <summary>
+        /// Extracts the IP address from a VISA TCPIP resource string.
+        /// </summary>
+        /// <param name="visaAddress">The VISA address string (e.g., "TCPIP0::192.168.1.145::inst0::INSTR").</param>
+        /// <returns>The IP address (e.g., "192.168.1.145").</returns>
+        private string ExtractIPFromVISA(string visaAddress)
+        {
+            // Expected format: TCPIP0::xxx.xxx.xxx.xxx::inst0::INSTR
+            var match = Regex.Match(visaAddress, @"TCPIP\d+::([^:]+)::.*");
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+            return visaAddress; // fallback
         }
 
         /// <summary>
@@ -532,6 +580,35 @@ namespace DS1054Z
             SendCommand(":CHANnel4:DISPlay OFF");
             ChannelTraces[3].Visibility = Visibility.Hidden;
             ChannelEnabled[3] = false;
+        }
+
+        /// <summary>
+        /// Handles the Settings menu item click. Opens the configuration dialog.
+        /// </summary>
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ConfigDialog(Properties.Settings.Default.TCPIPAddress);
+            if (dialog.ShowDialog() == true)
+            {
+                // Extract IP from VISA format and save
+                string newAddress = ExtractIPFromVISA(dialog.TCPIPAddress);
+                Properties.Settings.Default.TCPIPAddress = newAddress;
+                Properties.Settings.Default.Save();
+
+                MessageBox.Show(
+                    "Settings saved successfully.\n\nPlease restart the application for changes to take effect.",
+                    "Settings Saved",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+        }
+
+        /// <summary>
+        /// Handles the Exit menu item click. Closes the application.
+        /// </summary>
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 

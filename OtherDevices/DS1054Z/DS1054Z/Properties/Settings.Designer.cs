@@ -22,5 +22,17 @@ namespace DS1054Z.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.1.145")]
+        public string TCPIPAddress {
+            get {
+                return ((string)(this["TCPIPAddress"]));
+            }
+            set {
+                this["TCPIPAddress"] = value;
+            }
+        }
     }
 }
