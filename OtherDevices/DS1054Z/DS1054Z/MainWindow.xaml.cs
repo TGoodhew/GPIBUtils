@@ -144,7 +144,11 @@ namespace DS1054Z
             SendCommand(":WAVeform:FORMat BYTE");
             SendCommand(":WAVeform:MODE NORMal");
             SendCommand(":WAVeform:STARt 1");
-            SendCommand(":WAVeform:STOP 1200");
+            
+            // Query the actual available points from the device and set STOP accordingly
+            int availablePoints = SCPISession.QueryWaveformPoints();
+            SendCommand($":WAVeform:STOP {availablePoints}");
+            
             SendCommand(":STOP");
             for (int ch = 1; ch <= 4; ch++)
             {

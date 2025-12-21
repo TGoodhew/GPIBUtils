@@ -144,6 +144,12 @@ namespace DS1054Z
             return QueryDouble(":TIMebase:MAIN:SCALe?");
         }
 
+        public int QueryWaveformPoints()
+        {
+            string result = QueryString(":WAVeform:POINts?");
+            return int.Parse(result.Trim());
+        }
+
         // --------------- Lifetime ---------------
 
         private void EnsureNotDisposed()
