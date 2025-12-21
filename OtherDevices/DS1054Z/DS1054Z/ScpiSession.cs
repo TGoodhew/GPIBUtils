@@ -144,6 +144,12 @@ namespace DS1054Z
             return QueryDouble(":TIMebase:MAIN:SCALe?");
         }
 
+        /// <summary>
+        /// Queries the current waveform points setting from the oscilloscope.
+        /// The number of points varies with the timebase setting.
+        /// </summary>
+        /// <returns>The number of waveform points currently available.</returns>
+        /// <exception cref="FormatException">Thrown when the device returns an invalid or non-positive value.</exception>
         public int QueryWaveformPoints()
         {
             string result = QueryString(":WAVeform:POINts?");
