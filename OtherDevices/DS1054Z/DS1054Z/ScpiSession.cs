@@ -154,7 +154,7 @@ namespace DS1054Z
         {
             string result = QueryString(":WAVeform:POINts?");
             if (!int.TryParse(result.Trim(), out int points) || points <= 0)
-                throw new FormatException($"Invalid waveform points value returned: '{result}'");
+                throw new FormatException($"Device returned invalid waveform points value: '{result}'. Expected a positive integer.");
             return points;
         }
 
