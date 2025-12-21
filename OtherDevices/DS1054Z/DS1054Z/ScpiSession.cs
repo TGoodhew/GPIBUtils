@@ -147,7 +147,9 @@ namespace DS1054Z
         public int QueryWaveformPoints()
         {
             string result = QueryString(":WAVeform:POINts?");
-            return int.Parse(result.Trim());
+            if (!int.TryParse(result.Trim(), out int points) || points <= 0)
+                throw new FormatException($"Invalid waveform points value returned: '{result}'");
+            return points;
         }
 
         // --------------- Lifetime ---------------
