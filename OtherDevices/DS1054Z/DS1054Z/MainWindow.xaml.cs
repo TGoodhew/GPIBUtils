@@ -18,54 +18,50 @@ namespace DS1054Z
     {
         public int format;
         public int type;
-        public long points;
+        public int points;
         public int count;
-        public double xincrement;
-        public double xorigin;
-        public int xreference;
-        public double yincrement;
-        public int yorigin;
-        public int yreference;
-    }
+        public double xIncrement;
+        public double xOrigin;
+        public double xReference;
+        public double yIncrement;
+        public double yOrigin;
+        public double yReference;
+        public string rawText;
 
-    public class DataPoint
-    {
-        public int X { get; set; }
-        public byte Y { get; set; }
-    }
-
-    public class ChartViewModel
-    {
-        public List<DataPoint> ByteSeries { get; }
-
-        public ChartViewModel(byte[] data)
+        public static WaveformPreamble Parse(string preamble)
         {
-            ByteSeries = ConvertBytes(data);
-        }
+            // Rigol DS1054Z: usually 10 comma-separated fields
+            // format,type,points,count,xinc,xorig,xref,yinc,yorig,yref
+            var parts = preamble.Split(new[] { ',', ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 10)
+                throw new FormatException("Unexpected waveform preamble format: " + preamble);
 
-        public List<DataPoint> ConvertBytes(byte[] bytes)
-        {
-            var list = new List<DataPoint>();
-
-            for (int i = 0; i < bytes.Length; i++)
+            return new WaveformPreamble
             {
-                list.Add(new DataPoint { X = i, Y = bytes[i] });
-            }
-
-            return list;
+                format = int.Parse(parts[0]),
+                type = int.Parse(parts[1]),
+                points = int.Parse(parts[2]),
+                count = int.Parse(parts[3]),
+                xIncrement = double.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture),
+                xOrigin = double.Parse(parts[5], System.Globalization.CultureInfo.InvariantCulture),
+                xReference = double.Parse(parts[6], System.Globalization.CultureInfo.InvariantCulture),
+                yIncrement = double.Parse(parts[7], System.Globalization.CultureInfo.InvariantCulture),
+                yOrigin = double.Parse(parts[8], System.Globalization.CultureInfo.InvariantCulture),
+                yReference = double.Parse(parts[9], System.Globalization.CultureInfo.InvariantCulture),
+                rawText = preamble
+            };
         }
     }
-
-
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string DMMAddress = @"TCPIP0::192.168.1.145::inst0::INSTR";
+        private string TCPIPAddress = @"TCPIP0::192.168.1.145::inst0::INSTR";
         private ResourceManager ResMgr = new ResourceManager();
-        private TcpipSession TcpipSession;
+        private TcpipSession TCPIPSession;
+        private ScpiSession SCPISession;
         private Thread UpdateDisplayThread;
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
         private FastLineSeries[] ChannelTraces = new FastLineSeries[4];
@@ -119,7 +115,8 @@ namespace DS1054Z
             {
                 try
                 {
-                    TcpipSession = (TcpipSession)ResMgr.Open(DMMAddress);
+                    TCPIPSession = (TcpipSession)ResMgr.Open(TCPIPAddress);
+                    SCPISession = new ScpiSession(TCPIPSession);
                     IsConnected = true;
                 }
                 catch (Exception)
@@ -128,9 +125,9 @@ namespace DS1054Z
                 }
             }
 
-            TcpipSession.TerminationCharacterEnabled = true;
-            TcpipSession.TimeoutMilliseconds = 20000;
-            TcpipSession.Clear();
+            TCPIPSession.TerminationCharacterEnabled = false; // avoid truncation/timeouts on binary reads
+            TCPIPSession.TimeoutMilliseconds = 20000;
+            TCPIPSession.Clear();
         }
 
         private void InitializeScope()
@@ -140,56 +137,17 @@ namespace DS1054Z
             SendCommand(":WAVeform:STARt 1");
             SendCommand(":WAVeform:STOP 1200");
             SendCommand(":STOP");
-            for (int i = 0; i < 4; i++)
+            for (int ch = 1; ch <= 4; ch++)
             {
-                SendCommand(":CHANnel" + i.ToString() + ":DISPlay OFF");
+                SendCommand(":CHANnel" + ch.ToString() + ":DISPlay OFF");
             }
         }
 
         private void SendCommand(string Command)
         {
             Debug.WriteLine(Command);
-            TcpipSession.FormattedIO.WriteLine(Command);
+            TCPIPSession.FormattedIO.WriteLine(Command);
         }
-
-        private byte[] GetByteData()
-        {
-            try
-            {
-                // 1. Read the '#' and the digit count
-                byte[] header = TcpipSession.RawIO.Read(2);
-                if (header.Length != 2 || header[0] != (byte)'#')
-                    throw new InvalidOperationException("Invalid SCPI block: missing '#'");
-
-                int numLenDigits = header[1] - '0';
-                if (numLenDigits < 1 || numLenDigits > 9)
-                    throw new InvalidOperationException($"Invalid SCPI block: length digit count {numLenDigits}");
-
-                // 2. Read the ASCII digits that specify the payload length
-                byte[] lenBytes = TcpipSession.RawIO.Read(numLenDigits);
-                if (lenBytes.Length != numLenDigits)
-                    throw new InvalidOperationException("Incomplete SCPI block length header");
-
-                int dataLength = int.Parse(System.Text.Encoding.ASCII.GetString(lenBytes));
-
-                // 3. Read the actual binary payload
-                byte[] data = TcpipSession.RawIO.Read(dataLength);
-                if (data.Length != dataLength)
-                    throw new InvalidOperationException("Incomplete SCPI block payload");
-
-                // 4. Optionally read the trailing terminator (Rigol usually sends '\n')
-                //    Safe to ignore if not present.
-                try { TcpipSession.RawIO.Read(1); } catch { /* ignore */ }
-
-                return data;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                return null;
-            }
-        }
-
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -197,141 +155,84 @@ namespace DS1054Z
             UpdateDisplayThread.Start();
         }
 
-        private WaveformPreamble GetWaveformPreamble()
-        {
-            /* Preamble string format
-            int format;
-            int type;
-            long points;
-            int count;
-            double xincrement;
-            double xorigin;
-            int xreference;
-            double yincrement;
-            int yorigin;
-            int yreference;*/
-
-            WaveformPreamble preamble = new WaveformPreamble();
-
-            SendCommand(":WAVeform:PREamble?");
-            var result = TcpipSession.FormattedIO.ReadString().Split(',');
-
-            preamble.format = Convert.ToInt32(result[0]);
-            preamble.type = Convert.ToInt32(result[1]);
-            preamble.points = Convert.ToInt64(result[2]);
-            preamble.count = Convert.ToInt32(result[3]);
-            preamble.xincrement = Convert.ToDouble(result[4]);
-            preamble.xorigin = Convert.ToDouble(result[5]);
-            preamble.xreference = Convert.ToInt32(result[6]);
-            preamble.yincrement = Convert.ToDouble(result[7]);
-            preamble.yorigin = Convert.ToInt32(result[8]);
-            preamble.yreference = Convert.ToInt32(result[9]);
-
-            return preamble;
-        }
-
         private void GetDisplayWaveform()
         {
-            double VppResult = 0;
-            double ChannelScaleResult = 0;
-            double TimebaseResult = 0;
-
-            WaveformPreamble preamble;
-            const int headerSize = 12;
-
             while (true)
             {
                 for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                 {
-                    if (ChannelEnabled[channelNumber])
+                    if (!ChannelEnabled[channelNumber])
+                        continue;
+
+                    int ch = channelNumber + 1;
+
+                    WaveformPreamble preamble;
+                    byte[] payload;
+                    double VppResult = 0;
+                    double ChannelScaleResult = 0;
+                    double TimebaseResult = 0;
+
+                    try
                     {
-                        // Select the waveform source before requesting the preamble to ensure
-                        // the instrument returns the preamble for the correct channel.
-                        SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber + 1));
+                        preamble = SCPISession.QueryWaveformPreamble(ch);
+                        // Consume the terminator to keep the stream aligned
+                        payload = SCPISession.QueryBinaryBlock(":WAVeform:DATA?", false);
 
-                        preamble = GetWaveformPreamble();
-                        SendCommand(":WAVeform:DATA?");
-                        byte[] byteArray = GetByteData();
+                        VppResult = SCPISession.QueryVpp(ch);
+                        ChannelScaleResult = SCPISession.QueryChannelScale(ch);
+                        TimebaseResult = SCPISession.QueryTimebaseScale();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("SCPI error in GetDisplayWaveform: " + ex.Message);
+                        continue;
+                    }
 
+                    if (payload == null)
+                    {
+                        Debug.WriteLine("Waveform frame truncated or malformed — skipping.");
+                        continue;
+                    }
+
+                    this.Dispatcher.Invoke(() =>
+                    {
                         try
                         {
-                            SendCommand(String.Format(":MEASure:ITEM? VPP,CHANnel{0}", channelNumber + 1));
-                            VppResult = TcpipSession.FormattedIO.ReadDouble();
-                            SendCommand(String.Format(":CHANnel{0}:SCALe?", channelNumber + 1));
-                            ChannelScaleResult = TcpipSession.FormattedIO.ReadDouble();
-                            SendCommand(":TIMebase:MAIN:SCALe?");
-                            TimebaseResult = TcpipSession.FormattedIO.ReadDouble();
+                            var source = payload;
+                            int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
+
+                            long expectedBytesLong = (preamble.points > 0)
+                                ? preamble.points * (long)bytesPerPoint
+                                : 0;
+
+                            int expectedBytes = expectedBytesLong > 0
+                                ? (int)Math.Min(expectedBytesLong, int.MaxValue)
+                                : source.Length;
+
+                            int length = Math.Min(source.Length, expectedBytes);
+
+                            var data = (length > 0 && length == source.Length)
+                                ? source
+                                : (length > 0 ? source.Take(length).ToArray() : Array.Empty<byte>());
+
+                            ChannelTraces[channelNumber].ItemsSource =
+                                new ChartViewModel(data).ByteSeries;
+
+                            LabelTexts[channelNumber] = string.Format(
+                                "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
+                                ch,
+                                ToEngineeringFormat.Convert(VppResult, 3, "V"),
+                                ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
+                                ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
                         }
-                        catch (Exception)
+                        catch (ArgumentException ex)
                         {
-                            VppResult = 0;
+                            Debug.WriteLine(ex.Message);
                         }
-
-                        Debug.WriteLine(string.Format("C1 VPP {0}, Scale {1}, Timebase {2}", VppResult, ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"), ToEngineeringFormat.Convert(TimebaseResult,3,"S")));
-
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            try
-                            {
-                                var source = byteArray ?? Array.Empty<byte>();
-
-                                // Compute available payload bytes after the header
-                                int available = Math.Max(0, source.Length - headerSize);
-
-                                // Determine bytes per sample from the preamble format
-                                // Common convention: format == 0 => BYTE (1 byte/sample), format == 1 => WORD (2 bytes/sample)
-                                int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
-
-                                // Compute expected bytes from the preamble if available, safely clamped to int
-                                long expectedBytesLong = 0;
-                                if (preamble.points > 0)
-                                {
-                                    expectedBytesLong = preamble.points * (long)bytesPerPoint;
-                                }
-
-                                int expectedBytes = expectedBytesLong > 0
-                                    ? (int)Math.Min(expectedBytesLong, int.MaxValue)
-                                    : 0;
-
-                                int length;
-
-                                // If the preamble provides an expected size, use the smaller of expected and available.
-                                // Otherwise use the available bytes.
-                                if (expectedBytes > 0)
-                                {
-                                    length = Math.Min(available, expectedBytes);
-                                }
-                                else
-                                {
-                                    length = available;
-                                }
-
-                                // Ignore the last byte on a successful read (instrument appends an extra terminator/checksum byte).
-                                if (byteArray != null && length > 0)
-                                {
-                                    length = Math.Max(0, length - 1);
-                                }
-
-                                // Ensure we never allocate a negative or zero-length array unnecessarily
-                                var payload = length > 0 ? new byte[length] : Array.Empty<byte>();
-                                if (length > 0)
-                                {
-                                    Array.Copy(source, headerSize, payload, 0, length);
-                                }
-
-                                ChannelTraces[channelNumber].ItemsSource =
-                                    new ChartViewModel(payload).ByteSeries;
-
-                                LabelTexts[channelNumber] = string.Format("C1 VPP {0}, Scale {1}, Timebase {2}", ToEngineeringFormat.Convert(VppResult, 3, "V"), ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"), ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
-                            }
-                            catch (ArgumentException ex)
-                            {
-                                Debug.WriteLine(ex.Message);
-                            }
-
-                        });
-                    }
+                    });
                 }
+
+                Thread.Sleep(10);
             }
         }
 
