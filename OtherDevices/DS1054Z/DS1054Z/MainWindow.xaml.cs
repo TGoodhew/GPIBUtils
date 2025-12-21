@@ -171,6 +171,9 @@ namespace DS1054Z
             {
                 for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                 {
+                    if (token.IsCancellationRequested)
+                        break;
+
                     if (!ChannelEnabled[channelNumber])
                         continue;
 
@@ -204,46 +207,58 @@ namespace DS1054Z
                         continue;
                     }
 
-                    this.Dispatcher.Invoke(() =>
+                    if (token.IsCancellationRequested)
+                        break;
+
+                    try
                     {
-                        try
+                        this.Dispatcher.Invoke(() =>
                         {
-                            var source = payload;
-                            int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
-
-                            long expectedBytesLong = (preamble.points > 0)
-                                ? preamble.points * (long)bytesPerPoint
-                                : 0;
-
-                            int expectedBytes = expectedBytesLong > 0
-                                ? (int)Math.Min(expectedBytesLong, int.MaxValue)
-                                : source.Length;
-
-                            int length = Math.Min(source.Length, expectedBytes);
-
-                            var data = (length > 0 && length == source.Length)
-                                ? source
-                                : (length > 0 ? source.Take(length).ToArray() : Array.Empty<byte>());
-
-                            ChannelTraces[channelNumber].ItemsSource =
-                                new ChartViewModel(data).ByteSeries;
-
-                            Labels[channelNumber] = new LabelItem
+                            try
                             {
-                                Text = string.Format(
-                                    "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
-                                    ch,
-                                    ToEngineeringFormat.Convert(VppResult, 3, "V"),
-                                    ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
-                                    ToEngineeringFormat.Convert(TimebaseResult, 3, "S")),
-                                Foreground = ChannelColors[channelNumber]
-                            };
-                        }
-                        catch (ArgumentException ex)
-                        {
-                            Debug.WriteLine(ex.Message);
-                        }
-                    });
+                                var source = payload;
+                                int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
+
+                                long expectedBytesLong = (preamble.points > 0)
+                                    ? preamble.points * (long)bytesPerPoint
+                                    : 0;
+
+                                int expectedBytes = expectedBytesLong > 0
+                                    ? (int)Math.Min(expectedBytesLong, int.MaxValue)
+                                    : source.Length;
+
+                                int length = Math.Min(source.Length, expectedBytes);
+
+                                var data = (length > 0 && length == source.Length)
+                                    ? source
+                                    : (length > 0 ? source.Take(length).ToArray() : Array.Empty<byte>());
+
+                                ChannelTraces[channelNumber].ItemsSource =
+                                    new ChartViewModel(data).ByteSeries;
+
+                                Labels[channelNumber] = new LabelItem
+                                {
+                                    Text = string.Format(
+                                        "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
+                                        ch,
+                                        ToEngineeringFormat.Convert(VppResult, 3, "V"),
+                                        ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
+                                        ToEngineeringFormat.Convert(TimebaseResult, 3, "S")),
+                                    Foreground = ChannelColors[channelNumber]
+                                };
+                            }
+                            catch (ArgumentException ex)
+                            {
+                                Debug.WriteLine(ex.Message);
+                            }
+                        });
+                    }
+                    catch (System.Threading.Tasks.TaskCanceledException)
+                    {
+                        // Dispatcher is shutting down, exit gracefully
+                        Debug.WriteLine("Dispatcher shutdown detected, exiting GetDisplayWaveform.");
+                        return;
+                    }
                 }
 
                 Thread.Sleep(10);
