@@ -64,6 +64,7 @@ namespace DS1054Z
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static readonly TimeSpan ThreadShutdownTimeout = TimeSpan.FromSeconds(2);
         private string TCPIPAddress = @"TCPIP0::192.168.1.145::inst0::INSTR";
         private ResourceManager ResMgr = new ResourceManager();
         private TcpipSession TCPIPSession;
@@ -256,7 +257,10 @@ namespace DS1054Z
             // Wait for the thread to finish
             if (UpdateDisplayThread != null && UpdateDisplayThread.IsAlive)
             {
-                UpdateDisplayThread.Join(TimeSpan.FromSeconds(2));
+                if (!UpdateDisplayThread.Join(ThreadShutdownTimeout))
+                {
+                    Debug.WriteLine("Warning: UpdateDisplayThread did not exit within timeout period");
+                }
             }
 
             // Dispose resources
