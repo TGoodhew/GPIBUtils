@@ -192,8 +192,8 @@ namespace DS1054Z
                     try
                     {
                         preamble = SCPISession.QueryWaveformPreamble(ch);
-                        // Consume the terminator to keep the stream aligned
-                        payload = SCPISession.QueryBinaryBlock(":WAVeform:DATA?", false);
+                        // Swallow any trailing terminator to keep the stream aligned
+                        payload = SCPISession.QueryBinaryBlock(":WAVeform:DATA?", true);
 
                         VppResult = SCPISession.QueryVpp(ch);
                         ChannelScaleResult = SCPISession.QueryChannelScale(ch);
