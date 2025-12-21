@@ -156,7 +156,32 @@ namespace DS1054Z
         {
             try
             {
-                return TcpipSession.RawIO.Read(1212);
+                // 1. Read the '#' and the digit count
+                byte[] header = TcpipSession.RawIO.Read(2);
+                if (header.Length != 2 || header[0] != (byte)'#')
+                    throw new InvalidOperationException("Invalid SCPI block: missing '#'");
+
+                int numLenDigits = header[1] - '0';
+                if (numLenDigits < 1 || numLenDigits > 9)
+                    throw new InvalidOperationException($"Invalid SCPI block: length digit count {numLenDigits}");
+
+                // 2. Read the ASCII digits that specify the payload length
+                byte[] lenBytes = TcpipSession.RawIO.Read(numLenDigits);
+                if (lenBytes.Length != numLenDigits)
+                    throw new InvalidOperationException("Incomplete SCPI block length header");
+
+                int dataLength = int.Parse(System.Text.Encoding.ASCII.GetString(lenBytes));
+
+                // 3. Read the actual binary payload
+                byte[] data = TcpipSession.RawIO.Read(dataLength);
+                if (data.Length != dataLength)
+                    throw new InvalidOperationException("Incomplete SCPI block payload");
+
+                // 4. Optionally read the trailing terminator (Rigol usually sends '\n')
+                //    Safe to ignore if not present.
+                try { TcpipSession.RawIO.Read(1); } catch { /* ignore */ }
+
+                return data;
             }
             catch (Exception ex)
             {
@@ -164,6 +189,7 @@ namespace DS1054Z
                 return null;
             }
         }
+
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
