@@ -105,7 +105,7 @@ namespace DS1054Z
                         byte[] terminator = raw.Read(1);
                         // Successfully read terminator (typically '\n'), discard it
                     }
-                    catch (IOTimeoutException)
+                    catch (Ivi.Visa.IOTimeoutException ex)
                     {
                         // No terminator present, which is fine for many instruments
                     }
