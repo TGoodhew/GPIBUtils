@@ -100,11 +100,6 @@ namespace DS1054Z
                 DisplayChart.Series.Add(ChannelTraces[i]);
             }
 
-            //ChannelTraces[0].Stroke = new SolidColorBrush(Colors.Yellow);
-            //ChannelTraces[1].Stroke = new SolidColorBrush(Colors.Cyan);
-            //ChannelTraces[2].Stroke = new SolidColorBrush(Colors.Violet);
-            //ChannelTraces[3].Stroke = new SolidColorBrush(Colors.Blue);
-
             LabelTexts = new ObservableCollection<string>
             {
                 "CH 1",
@@ -300,11 +295,6 @@ namespace DS1054Z
 
                                 ChannelTraces[channelNumber].ItemsSource =
                                     new ChartViewModel(payload).ByteSeries;
-
-                                //LabelTexts[channelNumber] = string.Format(
-                                //    "CH {0} {1}",
-                                //    channelNumber + 1,
-                                //    ToEngineeringFormat.Convert(VppResult, 3, "V", true));
 
                                 LabelTexts[channelNumber] = string.Format("C1 VPP {0}, Scale {1}, Timebase {2}", ToEngineeringFormat.Convert(VppResult, 3, "V"), ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"), ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
                             }
