@@ -15,20 +15,73 @@ using System.Windows.Media;
 
 namespace DS1054Z
 {
+    /// <summary>
+    /// Represents the waveform preamble data returned by the Rigol DS1054Z oscilloscope.
+    /// Contains metadata about the waveform including format, number of points, and scaling factors.
+    /// </summary>
     public struct WaveformPreamble
     {
+        /// <summary>
+        /// The waveform format: 0 = BYTE, 1 = WORD, 2 = ASCII.
+        /// </summary>
         public int format;
+
+        /// <summary>
+        /// The acquisition type: 0 = NORMAL, 1 = PEAK, 2 = AVERAGE, 3 = HIGH_RESOLUTION.
+        /// </summary>
         public int type;
+
+        /// <summary>
+        /// The number of waveform points in the data.
+        /// </summary>
         public int points;
+
+        /// <summary>
+        /// The number of averages (for average mode) or 1 for other modes.
+        /// </summary>
         public int count;
+
+        /// <summary>
+        /// The time increment between data points in seconds.
+        /// </summary>
         public double xIncrement;
+
+        /// <summary>
+        /// The time offset from trigger in seconds.
+        /// </summary>
         public double xOrigin;
+
+        /// <summary>
+        /// The reference point for X-axis calculations (typically 0).
+        /// </summary>
         public double xReference;
+
+        /// <summary>
+        /// The voltage increment per LSB (least significant bit).
+        /// </summary>
         public double yIncrement;
+
+        /// <summary>
+        /// The voltage offset in volts.
+        /// </summary>
         public double yOrigin;
+
+        /// <summary>
+        /// The reference point for Y-axis calculations (typically 0 or 127 for byte data).
+        /// </summary>
         public double yReference;
+
+        /// <summary>
+        /// The raw preamble text received from the oscilloscope.
+        /// </summary>
         public string rawText;
 
+        /// <summary>
+        /// Parses a comma-separated preamble string from the Rigol DS1054Z into a WaveformPreamble structure.
+        /// </summary>
+        /// <param name="preamble">The comma-separated preamble string in the format: format,type,points,count,xinc,xorig,xref,yinc,yorig,yref</param>
+        /// <returns>A parsed <see cref="WaveformPreamble"/> structure.</returns>
+        /// <exception cref="FormatException">Thrown when the preamble string doesn't contain at least 10 comma-separated values.</exception>
         public static WaveformPreamble Parse(string preamble)
         {
             // Rigol DS1054Z: usually 10 comma-separated fields
@@ -54,10 +107,17 @@ namespace DS1054Z
         }
     }
 
+    /// <summary>
+    /// Represents a label item with text and color for display in the UI.
+    /// Implements INotifyPropertyChanged to support data binding.
+    /// </summary>
     public sealed class LabelItem : INotifyPropertyChanged
     {
         private string text;
 
+        /// <summary>
+        /// Gets or sets the text content of the label.
+        /// </summary>
         public string Text
         {
             get { return text; }
@@ -71,6 +131,9 @@ namespace DS1054Z
             }
         }
 
+        /// <summary>
+        /// Gets or sets the foreground brush color for the label.
+        /// </summary>
         public Brush Foreground { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -82,20 +145,36 @@ namespace DS1054Z
     }
 
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Main window for the DS1054Z oscilloscope viewer application.
+    /// Provides real-time waveform display and control for Rigol DS1054Z oscilloscope via TCP/IP.
     /// </summary>
     public partial class MainWindow : Window
     {
         private static readonly TimeSpan ThreadShutdownTimeout = TimeSpan.FromSeconds(2);
+        
+        // TCP/IP address of the Rigol DS1054Z oscilloscope
         private string TCPIPAddress = @"TCPIP0::192.168.1.145::inst0::INSTR";
+        
         private ResourceManager ResMgr = new ResourceManager();
         private TcpipSession TCPIPSession;
         private ScpiSession SCPISession;
+        
+        // Background thread for continuously updating waveform display
         private Thread UpdateDisplayThread;
         private CancellationTokenSource CancellationTokenSource;
+        
+        // Tracks which channels are currently enabled for display
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
+        
+        // Chart series objects for each channel's waveform
         private FastLineSeries[] ChannelTraces = new FastLineSeries[4];
+        
+        /// <summary>
+        /// Gets the collection of label items for channel information display.
+        /// </summary>
         public ObservableCollection<LabelItem> Labels { get; set; }
+        
+        // Color scheme for the four oscilloscope channels
         private SolidColorBrush[] ChannelColors = new SolidColorBrush[4]
         {
             new SolidColorBrush(Colors.Yellow),
@@ -105,6 +184,10 @@ namespace DS1054Z
         };
 
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindow"/> class.
+        /// Sets up communication with the oscilloscope and initializes the chart display.
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -138,6 +221,10 @@ namespace DS1054Z
             DataContext = this;
         }
 
+        /// <summary>
+        /// Initializes communication with the oscilloscope via TCP/IP.
+        /// Retries connection indefinitely until successful.
+        /// </summary>
         private void InitializeComms()
         {
             bool IsConnected = false;
@@ -161,6 +248,10 @@ namespace DS1054Z
             TCPIPSession.Clear();
         }
 
+        /// <summary>
+        /// Initializes the oscilloscope settings for waveform acquisition.
+        /// Configures waveform format, mode, and point range, then stops the scope.
+        /// </summary>
         private void InitializeScope()
         {
             SendCommand(":WAVeform:FORMat BYTE");
@@ -178,12 +269,19 @@ namespace DS1054Z
             }
         }
 
+        /// <summary>
+        /// Sends a SCPI command to the oscilloscope and logs it to debug output.
+        /// </summary>
+        /// <param name="Command">The SCPI command to send.</param>
         private void SendCommand(string Command)
         {
             Debug.WriteLine(Command);
             TCPIPSession.FormattedIO.WriteLine(Command);
         }
 
+        /// <summary>
+        /// Handles the Window.Loaded event. Starts the background thread for updating waveform display.
+        /// </summary>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             var token = CancellationTokenSource.Token; // capture once
@@ -191,6 +289,11 @@ namespace DS1054Z
             UpdateDisplayThread.Start();
         }
 
+        /// <summary>
+        /// Background thread method that continuously retrieves waveform data from enabled channels
+        /// and updates the chart display. Runs until cancellation is requested.
+        /// </summary>
+        /// <param name="token">Cancellation token to signal thread shutdown.</param>
         private void GetDisplayWaveform(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -287,6 +390,9 @@ namespace DS1054Z
             }
         }
 
+        /// <summary>
+        /// Handles the Window.Closing event. Stops the background thread and disposes of VISA resources.
+        /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             CancellationTokenSource?.Cancel();
@@ -306,28 +412,43 @@ namespace DS1054Z
             CancellationTokenSource?.Dispose();
         }
 
+        /// <summary>
+        /// Handles the RunStop checkbox checked event. Sends the RUN command to the oscilloscope.
+        /// </summary>
         private void RunStop_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":RUN");
         }
 
+        /// <summary>
+        /// Handles the RunStop checkbox unchecked event. Sends the STOP command to the oscilloscope.
+        /// </summary>
         private void RunStop_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":STOP");
         }
 
+        /// <summary>
+        /// Handles the Auto button click. Triggers the oscilloscope's auto-scale function and starts acquisition.
+        /// </summary>
         private void Auto_Click(object sender, RoutedEventArgs e)
         {
             SendCommand(":AUToscale");
             RunStop.IsChecked = true;
         }
 
+        /// <summary>
+        /// Handles the Single button click. Triggers a single acquisition on the oscilloscope.
+        /// </summary>
         private void Single_Click(object sender, RoutedEventArgs e)
         {
             SendCommand(":SINGle");
             RunStop.IsChecked = false;
         }
 
+        /// <summary>
+        /// Handles Channel 1 checkbox checked event. Enables Channel 1 display and measurement.
+        /// </summary>
         private void Channel1_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel1:DISPlay ON");
@@ -337,6 +458,9 @@ namespace DS1054Z
             SendCommand(":MEASure:ITEM VPP,CHANnel1");
         }
 
+        /// <summary>
+        /// Handles Channel 1 checkbox unchecked event. Disables Channel 1 display.
+        /// </summary>
         private void Channel1_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel1:DISPlay OFF");
@@ -344,6 +468,9 @@ namespace DS1054Z
             ChannelEnabled[0] = false;
         }
 
+        /// <summary>
+        /// Handles Channel 2 checkbox checked event. Enables Channel 2 display and measurement.
+        /// </summary>
         private void Channel2_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel2:DISPlay ON");
@@ -353,6 +480,9 @@ namespace DS1054Z
             SendCommand(":MEASure:ITEM VPP,CHANnel2");
         }
 
+        /// <summary>
+        /// Handles Channel 2 checkbox unchecked event. Disables Channel 2 display.
+        /// </summary>
         private void Channel2_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel2:DISPlay OFF");
@@ -360,6 +490,9 @@ namespace DS1054Z
             ChannelEnabled[1] = false;
         }
 
+        /// <summary>
+        /// Handles Channel 3 checkbox checked event. Enables Channel 3 display and measurement.
+        /// </summary>
         private void Channel3_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel3:DISPlay ON");
@@ -369,6 +502,9 @@ namespace DS1054Z
             SendCommand(":MEASure:ITEM VPP,CHANnel3");
         }
 
+        /// <summary>
+        /// Handles Channel 3 checkbox unchecked event. Disables Channel 3 display.
+        /// </summary>
         private void Channel3_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel3:DISPlay OFF");
@@ -376,6 +512,9 @@ namespace DS1054Z
             ChannelEnabled[2] = false;
         }
 
+        /// <summary>
+        /// Handles Channel 4 checkbox checked event. Enables Channel 4 display and measurement.
+        /// </summary>
         private void Channel4_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel4:DISPlay ON");
@@ -385,6 +524,9 @@ namespace DS1054Z
             SendCommand(":MEASure:ITEM VPP,CHANnel4");
         }
 
+        /// <summary>
+        /// Handles Channel 4 checkbox unchecked event. Disables Channel 4 display.
+        /// </summary>
         private void Channel4_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel4:DISPlay OFF");
@@ -393,13 +535,32 @@ namespace DS1054Z
         }
     }
 
+    /// <summary>
+    /// Value converter that converts between Visibility and boolean values for data binding.
+    /// </summary>
     public class VisibilityToCheckedConverter : IValueConverter
     {
+        /// <summary>
+        /// Converts a Visibility value to a boolean value.
+        /// </summary>
+        /// <param name="value">The Visibility value to convert.</param>
+        /// <param name="targetType">The target type (not used).</param>
+        /// <param name="parameter">Optional parameter (not used).</param>
+        /// <param name="culture">The culture information (not used).</param>
+        /// <returns>True if visibility is Visible, false otherwise.</returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return ((Visibility)value) == Visibility.Visible;
         }
 
+        /// <summary>
+        /// Converts a boolean value to a Visibility value.
+        /// </summary>
+        /// <param name="value">The boolean value to convert.</param>
+        /// <param name="targetType">The target type (not used).</param>
+        /// <param name="parameter">Optional parameter (not used).</param>
+        /// <param name="culture">The culture information (not used).</param>
+        /// <returns>Visible if value is true, Collapsed if false.</returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return ((bool)value) ? Visibility.Visible : Visibility.Collapsed;
