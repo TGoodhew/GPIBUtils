@@ -22,6 +22,16 @@ GPIBUtils is a .NET Framework class library for automating HP/Agilent test equip
 - **Visual Studio 2015+ toolchain**
 - Build with MSBuild or Visual Studio
 
+## Prerequisites
+
+To develop with this repository, you need:
+- Visual Studio 2015 or later (with .NET Framework 4.7.2 SDK)
+- NI-VISA drivers (for GPIB communication)
+- Physical GPIB hardware (for testing)
+- MSBuild (included with Visual Studio)
+
+Note: The repository can be built without hardware, but test applications require physical devices.
+
 ## Coding Conventions
 
 ### General Style
@@ -122,3 +132,37 @@ When adding a new device class:
 - Document expected device responses
 - Use async patterns for operations that may block (measurements, sweeps)
 - Clean up VISA resources properly to avoid driver issues
+
+## Development Workflow
+
+1. **Making Changes to Device Classes**:
+   - Edit the appropriate .cs file in `HPDevices/HPDevices/`
+   - Build the solution: `msbuild HPDevices/HPDevices.sln`
+   - Test with the corresponding test app (requires hardware)
+
+2. **Testing**:
+   - Test applications are in `HPTestApps/`
+   - Each test app demonstrates usage of its corresponding device class
+   - Test apps require physical GPIB hardware connected
+   - Run test apps from Visual Studio or build and run from command line
+
+3. **Code Review Focus**:
+   - Since tests require hardware, focus reviews on:
+     - Code structure and organization
+     - API design and usability
+     - GPIB command accuracy (cross-reference with device manuals)
+     - Error handling and resource cleanup
+     - Documentation completeness
+
+## Troubleshooting
+
+### Build Issues
+- Ensure .NET Framework 4.7.2 SDK is installed
+- Use `msbuild` not `dotnet build` (these are classic .NET Framework projects)
+- Check that NuGet packages are restored
+
+### GPIB Communication Issues
+- Verify NI-VISA drivers are installed
+- Check GPIB address format: "GPIB0::XX::INSTR" where XX is device address
+- Ensure proper timeout values for slow operations
+- Confirm termination character settings match device requirements
