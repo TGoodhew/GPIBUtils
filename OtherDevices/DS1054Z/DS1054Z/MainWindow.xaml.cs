@@ -160,13 +160,14 @@ namespace DS1054Z
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            UpdateDisplayThread = new Thread(GetDisplayWaveform);
+            var token = CancellationTokenSource.Token; // capture once
+            UpdateDisplayThread = new Thread(() => GetDisplayWaveform(token));
             UpdateDisplayThread.Start();
         }
 
-        private void GetDisplayWaveform()
+        private void GetDisplayWaveform(CancellationToken token)
         {
-            while (!CancellationTokenSource.Token.IsCancellationRequested)
+            while (!token.IsCancellationRequested)
             {
                 for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                 {
@@ -251,19 +252,17 @@ namespace DS1054Z
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Signal the thread to stop
             CancellationTokenSource?.Cancel();
 
-            // Wait for the thread to finish
             if (UpdateDisplayThread != null && UpdateDisplayThread.IsAlive)
             {
                 if (!UpdateDisplayThread.Join(ThreadShutdownTimeout))
                 {
-                    Debug.WriteLine($"Warning: UpdateDisplayThread did not exit within {ThreadShutdownTimeout.TotalSeconds} seconds timeout. Thread may still be running and could cause resource leaks.");
+                    Debug.WriteLine($"Warning: UpdateDisplayThread did not exit within {ThreadShutdownTimeout.TotalSeconds} seconds.");
+                    return; // avoid disposing CTS while thread may still run
                 }
             }
 
-            // Dispose resources
             SCPISession?.Dispose();
             TCPIPSession?.Dispose();
             ResMgr?.Dispose();
