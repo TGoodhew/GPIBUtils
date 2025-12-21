@@ -26,13 +26,16 @@
             <ItemsControl ItemsSource="{Binding LabelTexts}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Label Content="{Binding}"
-                           Foreground="White"
-                           HorizontalAlignment="Left"
-                           MinWidth="80"/>
+                        <TextBlock Text="{Binding}"
+                       Foreground="White"
+                       HorizontalAlignment="Left"
+                       MinWidth="80"
+                       MaxWidth="120"
+                       TextWrapping="Wrap"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+
         </StackPanel>
 
         <syncfusion:SfChart Grid.Column="0"

@@ -211,7 +211,9 @@ namespace DS1054Z
 
         private void GetDisplayWaveform()
         {
-            double result = 0;
+            double VppResult = 0;
+            double ChannelScaleResult = 0;
+            double TimebaseResult = 0;
 
             WaveformPreamble preamble;
             const int headerSize = 12;
@@ -233,14 +235,18 @@ namespace DS1054Z
                         try
                         {
                             SendCommand(String.Format(":MEASure:ITEM? VPP,CHANnel{0}", channelNumber + 1));
-                            result = TcpipSession.FormattedIO.ReadDouble();
+                            VppResult = TcpipSession.FormattedIO.ReadDouble();
+                            SendCommand(String.Format(":CHANnel{0}:SCALe?", channelNumber + 1));
+                            ChannelScaleResult = TcpipSession.FormattedIO.ReadDouble();
+                            SendCommand(":TIMebase:MAIN:SCALe?");
+                            TimebaseResult = TcpipSession.FormattedIO.ReadDouble();
                         }
                         catch (Exception)
                         {
-                            result = 0;
+                            VppResult = 0;
                         }
 
-                        Debug.WriteLine("C1 VPP " + result);
+                        Debug.WriteLine(string.Format("C1 VPP {0}, Scale {1}, Timebase {2}", VppResult, ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"), ToEngineeringFormat.Convert(TimebaseResult,3,"S")));
 
                         this.Dispatcher.Invoke(() =>
                         {
@@ -295,11 +301,12 @@ namespace DS1054Z
                                 ChannelTraces[channelNumber].ItemsSource =
                                     new ChartViewModel(payload).ByteSeries;
 
-                                LabelTexts[channelNumber] = string.Format(
-                                    "CH {0} {1}",
-                                    channelNumber + 1,
-                                    ToEngineeringFormat.Convert(result, 3, "V", true)
-                                );
+                                //LabelTexts[channelNumber] = string.Format(
+                                //    "CH {0} {1}",
+                                //    channelNumber + 1,
+                                //    ToEngineeringFormat.Convert(VppResult, 3, "V", true));
+
+                                LabelTexts[channelNumber] = string.Format("C1 VPP {0}, Scale {1}, Timebase {2}", ToEngineeringFormat.Convert(VppResult, 3, "V"), ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"), ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
                             }
                             catch (ArgumentException ex)
                             {
