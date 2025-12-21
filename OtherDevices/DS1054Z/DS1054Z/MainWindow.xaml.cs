@@ -257,15 +257,16 @@ namespace DS1054Z
             // Wait for the thread to finish
             if (UpdateDisplayThread != null && UpdateDisplayThread.IsAlive)
             {
-                if (!UpdateDisplayThread.Join(ThreadShutdownTimeout))
+                if (!UpdateDisplayThread.Join((int)ThreadShutdownTimeout.TotalMilliseconds))
                 {
-                    Debug.WriteLine("Warning: UpdateDisplayThread did not exit within timeout period");
+                    Debug.WriteLine($"Warning: UpdateDisplayThread did not exit within {ThreadShutdownTimeout.TotalSeconds} seconds timeout. Thread may still be running and could cause resource leaks.");
                 }
             }
 
             // Dispose resources
             SCPISession?.Dispose();
             TCPIPSession?.Dispose();
+            ResMgr?.Dispose();
             CancellationTokenSource?.Dispose();
         }
 
