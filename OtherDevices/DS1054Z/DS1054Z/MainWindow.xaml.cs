@@ -69,6 +69,7 @@ namespace DS1054Z
         private TcpipSession TCPIPSession;
         private ScpiSession SCPISession;
         private Thread UpdateDisplayThread;
+        private CancellationTokenSource CancellationTokenSource;
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
         private FastLineSeries[] ChannelTraces = new FastLineSeries[4];
         public ObservableCollection<LabelItem> Labels { get; set; }
@@ -84,6 +85,7 @@ namespace DS1054Z
         public MainWindow()
         {
             InitializeComponent();
+            CancellationTokenSource = new CancellationTokenSource();
             InitializeComms();
             InitializeScope();
 
@@ -163,7 +165,7 @@ namespace DS1054Z
 
         private void GetDisplayWaveform()
         {
-            while (true)
+            while (!CancellationTokenSource.Token.IsCancellationRequested)
             {
                 for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                 {
@@ -248,7 +250,19 @@ namespace DS1054Z
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Environment.Exit(0);
+            // Signal the thread to stop
+            CancellationTokenSource?.Cancel();
+
+            // Wait for the thread to finish
+            if (UpdateDisplayThread != null && UpdateDisplayThread.IsAlive)
+            {
+                UpdateDisplayThread.Join(TimeSpan.FromSeconds(2));
+            }
+
+            // Dispose resources
+            SCPISession?.Dispose();
+            TCPIPSession?.Dispose();
+            CancellationTokenSource?.Dispose();
         }
 
         private void RunStop_Checked(object sender, RoutedEventArgs e)
