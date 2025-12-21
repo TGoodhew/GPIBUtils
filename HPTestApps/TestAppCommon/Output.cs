@@ -8,11 +8,23 @@ namespace TestAppCommon
 {
     public static class Output
     {
-        public static void SetupConsole()
+        public static void SetupConsole(int bufferHeight = 9999)
         {
             // Setup the console
             Console.ForegroundColor = ConsoleColor.White;
-            Console.BufferHeight = 500;
+            
+            // Set buffer height to prevent log truncation
+            // Default is 9999 (near maximum) to allow extensive logging
+            // Can be customized by passing a different value
+            try
+            {
+                Console.BufferHeight = bufferHeight;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // If the requested buffer height is invalid, use system default
+                // This can happen if bufferHeight is too small or exceeds system limits
+            }
         }
         public static void Prompt(string message)
         {
