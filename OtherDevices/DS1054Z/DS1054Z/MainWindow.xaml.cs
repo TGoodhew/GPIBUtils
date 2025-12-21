@@ -1,6 +1,8 @@
-﻿using InteractiveDataDisplay.WPF;
-using NationalInstruments.Visa;
+﻿using NationalInstruments.Visa;
+using Syncfusion.UI.Xaml.Charts;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +28,36 @@ namespace DS1054Z
         public int yreference;
     }
 
+    public class DataPoint
+    {
+        public int X { get; set; }
+        public byte Y { get; set; }
+    }
+
+    public class ChartViewModel
+    {
+        public List<DataPoint> ByteSeries { get; }
+
+        public ChartViewModel(byte[] data)
+        {
+            ByteSeries = ConvertBytes(data);
+        }
+
+        public List<DataPoint> ConvertBytes(byte[] bytes)
+        {
+            var list = new List<DataPoint>();
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                list.Add(new DataPoint { X = i, Y = bytes[i] });
+            }
+
+            return list;
+        }
+    }
+
+
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -36,7 +68,14 @@ namespace DS1054Z
         private TcpipSession TcpipSession;
         private Thread UpdateDisplayThread;
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
-        private LineGraph[] ChannelTraces = new LineGraph[4];
+        private FastLineSeries[] ChannelTraces = new FastLineSeries[4];
+        private SolidColorBrush[] ChannelColors = new SolidColorBrush[4]
+        {
+            new SolidColorBrush(Colors.Yellow),
+            new SolidColorBrush(Colors.Cyan),
+            new SolidColorBrush(Colors.Violet),
+            new SolidColorBrush(Colors.Blue)
+        };
 
         public ObservableCollection<string> LabelTexts { get; set; }
 
@@ -48,21 +87,31 @@ namespace DS1054Z
 
             for (int i = 0; i < 4; i++)
             {
-                ChannelTraces[i] = new LineGraph();
-                //traces.Children.Add(ChannelTraces[i]);
+                byte[] buffer = Enumerable.Repeat<byte>(127, 1199).ToArray();
+
+                ChannelTraces[i] = new FastLineSeries();
+                // ItemsSource must be an enumerable of data points; use the ByteSeries list
+                ChannelTraces[i].ItemsSource = new ChartViewModel(buffer).ByteSeries;
+                ChannelTraces[i].XBindingPath = "X";
+                ChannelTraces[i].YBindingPath = "Y";
+                ChannelTraces[i].Interior = ChannelColors[i];
+                ChannelTraces[i].StrokeThickness = 1;
+                ChannelTraces[i].Visibility = Visibility.Hidden;
+                DisplayChart.Series.Add(ChannelTraces[i]);
             }
 
-            ChannelTraces[0].Stroke = new SolidColorBrush(Colors.Yellow);
-            ChannelTraces[1].Stroke = new SolidColorBrush(Colors.Cyan);
-            ChannelTraces[2].Stroke = new SolidColorBrush(Colors.Violet);
-            ChannelTraces[3].Stroke = new SolidColorBrush(Colors.Blue);
+            //ChannelTraces[0].Stroke = new SolidColorBrush(Colors.Yellow);
+            //ChannelTraces[1].Stroke = new SolidColorBrush(Colors.Cyan);
+            //ChannelTraces[2].Stroke = new SolidColorBrush(Colors.Violet);
+            //ChannelTraces[3].Stroke = new SolidColorBrush(Colors.Blue);
 
             LabelTexts = new ObservableCollection<string>
             {
-            "CH 1",
-            "CH 2",
-            "CH 3",
-            "CH 4"};
+                "CH 1",
+                "CH 2",
+                "CH 3",
+                "CH 4"
+            };
 
             DataContext = this;
         }
@@ -113,7 +162,6 @@ namespace DS1054Z
             try
             {
                 return TcpipSession.RawIO.Read(1212);
-
             }
             catch (Exception ex)
             {
@@ -166,21 +214,25 @@ namespace DS1054Z
             double result = 0;
 
             WaveformPreamble preamble;
+            const int headerSize = 12;
+
             while (true)
             {
-
                 for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                 {
                     if (ChannelEnabled[channelNumber])
                     {
-                        preamble = GetWaveformPreamble();
+                        // Select the waveform source before requesting the preamble to ensure
+                        // the instrument returns the preamble for the correct channel.
                         SendCommand(":WAVeform:SOURce CHANnel" + (channelNumber + 1));
+
+                        preamble = GetWaveformPreamble();
                         SendCommand(":WAVeform:DATA?");
                         byte[] byteArray = GetByteData();
 
                         try
                         {
-                            SendCommand(String.Format(":MEASure:ITEM? VPP,CHANnel{0}", channelNumber+1));
+                            SendCommand(String.Format(":MEASure:ITEM? VPP,CHANnel{0}", channelNumber + 1));
                             result = TcpipSession.FormattedIO.ReadDouble();
                         }
                         catch (Exception)
@@ -188,29 +240,72 @@ namespace DS1054Z
                             result = 0;
                         }
 
-
                         Debug.WriteLine("C1 VPP " + result);
-
-                        //BUG: X axis range not tracking actual values
-                        var x = Enumerable.Range(0, 1199).Select(i => preamble.xorigin + (i * preamble.xincrement)).ToArray();
 
                         this.Dispatcher.Invoke(() =>
                         {
                             try
                             {
-                                plotter.PlotHeight = 255;
-                                plotter.PlotOriginY = 0;
-                                plotter.PlotOriginX = x[0];
-                                plotter.PlotWidth = x[1198] * 2;
+                                var source = byteArray ?? Array.Empty<byte>();
 
-                                ChannelTraces[channelNumber].Plot(x, byteArray.Skip(12).Take(byteArray.Length - 13).ToArray());
+                                // Compute available payload bytes after the header
+                                int available = Math.Max(0, source.Length - headerSize);
 
-                                LabelTexts[channelNumber] = String.Format("CH {0} {1}", channelNumber+1, ToEngineeringFormat.Convert(result, 3, "V", true));
+                                // Determine bytes per sample from the preamble format
+                                // Common convention: format == 0 => BYTE (1 byte/sample), format == 1 => WORD (2 bytes/sample)
+                                int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
+
+                                // Compute expected bytes from the preamble if available, safely clamped to int
+                                long expectedBytesLong = 0;
+                                if (preamble.points > 0)
+                                {
+                                    expectedBytesLong = preamble.points * (long)bytesPerPoint;
+                                }
+
+                                int expectedBytes = expectedBytesLong > 0
+                                    ? (int)Math.Min(expectedBytesLong, int.MaxValue)
+                                    : 0;
+
+                                int length;
+
+                                // If the preamble provides an expected size, use the smaller of expected and available.
+                                // Otherwise use the available bytes.
+                                if (expectedBytes > 0)
+                                {
+                                    length = Math.Min(available, expectedBytes);
+                                }
+                                else
+                                {
+                                    length = available;
+                                }
+
+                                // Ignore the last byte on a successful read (instrument appends an extra terminator/checksum byte).
+                                if (byteArray != null && length > 0)
+                                {
+                                    length = Math.Max(0, length - 1);
+                                }
+
+                                // Ensure we never allocate a negative or zero-length array unnecessarily
+                                var payload = length > 0 ? new byte[length] : Array.Empty<byte>();
+                                if (length > 0)
+                                {
+                                    Array.Copy(source, headerSize, payload, 0, length);
+                                }
+
+                                ChannelTraces[channelNumber].ItemsSource =
+                                    new ChartViewModel(payload).ByteSeries;
+
+                                LabelTexts[channelNumber] = string.Format(
+                                    "CH {0} {1}",
+                                    channelNumber + 1,
+                                    ToEngineeringFormat.Convert(result, 3, "V", true)
+                                );
                             }
-                            catch (System.ArgumentException ex)
+                            catch (ArgumentException ex)
                             {
                                 Debug.WriteLine(ex.Message);
                             }
+
                         });
                     }
                 }
@@ -247,7 +342,7 @@ namespace DS1054Z
         private void Channel1_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel1:DISPlay ON");
-            traces.Children.Add(ChannelTraces[0]);
+            ChannelTraces[0].Visibility = Visibility.Visible;
             ChannelEnabled[0] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel1");
@@ -256,14 +351,14 @@ namespace DS1054Z
         private void Channel1_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel1:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[0]);
+            ChannelTraces[0].Visibility = Visibility.Hidden;
             ChannelEnabled[0] = false;
         }
 
         private void Channel2_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel2:DISPlay ON");
-            traces.Children.Add(ChannelTraces[1]);
+            ChannelTraces[1].Visibility = Visibility.Visible;
             ChannelEnabled[1] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel2");
@@ -272,14 +367,14 @@ namespace DS1054Z
         private void Channel2_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel2:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[1]);
+            ChannelTraces[1].Visibility = Visibility.Hidden;
             ChannelEnabled[1] = false;
         }
 
         private void Channel3_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel3:DISPlay ON");
-            traces.Children.Add(ChannelTraces[2]);
+            ChannelTraces[2].Visibility = Visibility.Visible;
             ChannelEnabled[2] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel3");
@@ -288,14 +383,14 @@ namespace DS1054Z
         private void Channel3_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel3:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[2]);
+            ChannelTraces[2].Visibility = Visibility.Hidden;
             ChannelEnabled[2] = false;
         }
 
         private void Channel4_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel4:DISPlay ON");
-            traces.Children.Add(ChannelTraces[3]);
+            ChannelTraces[3].Visibility = Visibility.Visible;
             ChannelEnabled[3] = true;
 
             SendCommand(":MEASure:ITEM VPP,CHANnel4");
@@ -304,7 +399,7 @@ namespace DS1054Z
         private void Channel4_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":CHANnel4:DISPlay OFF");
-            traces.Children.Remove(ChannelTraces[3]);
+            ChannelTraces[3].Visibility = Visibility.Hidden;
             ChannelEnabled[3] = false;
         }
     }
