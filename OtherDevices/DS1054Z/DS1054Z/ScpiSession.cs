@@ -94,7 +94,27 @@ namespace DS1054Z
                 if (data.Length != dataLength)
                     throw new InvalidOperationException("Incomplete SCPI binary block payload.");
 
-                // 4. Do not attempt to read a trailing terminator; many instruments don't send one after a binary block
+                // 4. Optionally consume trailing terminator to keep stream aligned
+                if (swallowTerminator)
+                {
+                    // Use a short timeout to avoid blocking if no terminator is present
+                    int originalTimeout = _session.TimeoutMilliseconds;
+                    try
+                    {
+                        _session.TimeoutMilliseconds = 100; // Short timeout for optional terminator
+                        byte[] terminator = raw.Read(1);
+                        // Successfully read terminator (typically '\n'), discard it
+                    }
+                    catch (IOTimeoutException)
+                    {
+                        // No terminator present, which is fine for many instruments
+                    }
+                    finally
+                    {
+                        _session.TimeoutMilliseconds = originalTimeout;
+                    }
+                }
+
                 return data;
             }
         }
