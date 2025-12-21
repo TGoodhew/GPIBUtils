@@ -144,6 +144,20 @@ namespace DS1054Z
             return QueryDouble(":TIMebase:MAIN:SCALe?");
         }
 
+        /// <summary>
+        /// Queries the current waveform points setting from the oscilloscope.
+        /// The number of points varies with the timebase setting.
+        /// </summary>
+        /// <returns>The number of waveform points currently available.</returns>
+        /// <exception cref="FormatException">Thrown when the device returns an invalid or non-positive value.</exception>
+        public int QueryWaveformPoints()
+        {
+            string result = QueryString(":WAVeform:POINts?");
+            if (!int.TryParse(result.Trim(), out int points) || points <= 0)
+                throw new FormatException($"Device returned invalid waveform points value: '{result}'. Expected a positive integer.");
+            return points;
+        }
+
         // --------------- Lifetime ---------------
 
         private void EnsureNotDisposed()
