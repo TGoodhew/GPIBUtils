@@ -233,7 +233,7 @@ namespace DS1054Z
                 Properties.Settings.Default.Save();
             }
 
-            string tcpipAddress = $"TCPIP0::{Properties.Settings.Default.TCPIPAddress}::inst0::INSTR";
+            string tcpipAddress = BuildVISAAddress(Properties.Settings.Default.TCPIPAddress);
 
             while (!IsConnected)
             {
@@ -260,7 +260,7 @@ namespace DS1054Z
                         if (dialog.ShowDialog() == true)
                         {
                             SaveIPAddressFromDialog(dialog.TCPIPAddress);
-                            tcpipAddress = dialog.TCPIPAddress;
+                            tcpipAddress = BuildVISAAddress(Properties.Settings.Default.TCPIPAddress);
                         }
                         else
                         {
@@ -275,6 +275,16 @@ namespace DS1054Z
             TCPIPSession.TerminationCharacterEnabled = false; // avoid truncation/timeouts on binary reads
             TCPIPSession.TimeoutMilliseconds = 20000;
             TCPIPSession.Clear();
+        }
+
+        /// <summary>
+        /// Builds a VISA TCPIP resource string from an IP address.
+        /// </summary>
+        /// <param name="ipAddress">The IP address (e.g., "192.168.1.145").</param>
+        /// <returns>The VISA address string (e.g., "TCPIP0::192.168.1.145::inst0::INSTR").</returns>
+        private string BuildVISAAddress(string ipAddress)
+        {
+            return $"TCPIP0::{ipAddress}::inst0::INSTR";
         }
 
         /// <summary>
