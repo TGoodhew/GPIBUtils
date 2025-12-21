@@ -8,6 +8,8 @@ namespace DS1054Z
     /// </summary>
     public partial class ConfigDialog : Window
     {
+        private static readonly Regex IpRegex = new Regex(@"^(\d{1,3}\.){3}\d{1,3}$");
+
         /// <summary>
         /// Gets the configured TCPIP address in VISA format.
         /// </summary>
@@ -39,8 +41,7 @@ namespace DS1054Z
             }
 
             // Simple IP address validation (xxx.xxx.xxx.xxx)
-            var ipRegex = new Regex(@"^(\d{1,3}\.){3}\d{1,3}$");
-            if (!ipRegex.IsMatch(address))
+            if (!IpRegex.IsMatch(address))
             {
                 StatusLabel.Text = "Invalid IP address format. Expected format: xxx.xxx.xxx.xxx";
                 return false;

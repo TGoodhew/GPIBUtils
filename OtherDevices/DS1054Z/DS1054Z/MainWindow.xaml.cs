@@ -259,10 +259,7 @@ namespace DS1054Z
                         var dialog = new ConfigDialog(Properties.Settings.Default.TCPIPAddress);
                         if (dialog.ShowDialog() == true)
                         {
-                            // Extract IP from VISA format and save
-                            string newAddress = ExtractIPFromVISA(dialog.TCPIPAddress);
-                            Properties.Settings.Default.TCPIPAddress = newAddress;
-                            Properties.Settings.Default.Save();
+                            SaveIPAddressFromDialog(dialog.TCPIPAddress);
                             tcpipAddress = dialog.TCPIPAddress;
                         }
                         else
@@ -293,7 +290,19 @@ namespace DS1054Z
             {
                 return match.Groups[1].Value;
             }
-            return visaAddress; // fallback
+            // If extraction fails, return default address
+            return "192.168.1.145";
+        }
+
+        /// <summary>
+        /// Saves the IP address from a dialog to application settings.
+        /// </summary>
+        /// <param name="visaAddress">The VISA address string from the dialog.</param>
+        private void SaveIPAddressFromDialog(string visaAddress)
+        {
+            string newAddress = ExtractIPFromVISA(visaAddress);
+            Properties.Settings.Default.TCPIPAddress = newAddress;
+            Properties.Settings.Default.Save();
         }
 
         /// <summary>
@@ -590,10 +599,7 @@ namespace DS1054Z
             var dialog = new ConfigDialog(Properties.Settings.Default.TCPIPAddress);
             if (dialog.ShowDialog() == true)
             {
-                // Extract IP from VISA format and save
-                string newAddress = ExtractIPFromVISA(dialog.TCPIPAddress);
-                Properties.Settings.Default.TCPIPAddress = newAddress;
-                Properties.Settings.Default.Save();
+                SaveIPAddressFromDialog(dialog.TCPIPAddress);
 
                 MessageBox.Show(
                     "Settings saved successfully.\n\nPlease restart the application for changes to take effect.",
