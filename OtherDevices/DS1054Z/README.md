@@ -14,6 +14,7 @@ This application provides a graphical interface to remotely control and view wav
 - **Live measurements**: Peak-to-peak voltage (Vpp), channel scale, and timebase
 - **Color-coded channels**: Yellow (CH1), Cyan (CH2), Violet (CH3), Blue (CH4)
 - **Engineering notation formatting** for measurements (e.g., 1.23 mV, 5.00 µs)
+- **Configurable TCPIP address**: Set oscilloscope IP address via Settings dialog with persistence
 
 ## Requirements
 
@@ -40,12 +41,20 @@ This application provides a graphical interface to remotely control and view wav
    - Set a static IP address or enable DHCP
    - Note the IP address displayed
 
-2. **Update the application's TCP/IP address:**
-   - Open `MainWindow.xaml.cs`
-   - Locate the line: `private string TCPIPAddress = @"TCPIP0::192.168.1.145::inst0::INSTR";`
-   - Replace `192.168.1.145` with your oscilloscope's IP address
+2. **Configure the application's TCP/IP address:**
+   - On first run, the default IP address is `192.168.1.145`
+   - To change the IP address, use **File → Settings** menu
+   - Enter your oscilloscope's IP address (e.g., `192.168.1.145`)
+   - The address is validated and saved automatically
+   - Restart the application for changes to take effect
 
-3. **Verify connectivity:**
+3. **Connection error handling:**
+   - If the connection fails on startup, an error dialog will appear
+   - Click **OK** to retry with the current address
+   - Click **Cancel** to open the Settings dialog and change the address
+   - If you cancel the Settings dialog, the application will exit
+
+4. **Verify connectivity:**
    - Test the connection using NI MAX (National Instruments Measurement & Automation Explorer)
    - Or use ping to verify network connectivity: `ping 192.168.1.145`
 
@@ -183,17 +192,21 @@ The application uses a background thread (`UpdateDisplayThread`) to continuously
 
 ## Known Limitations
 
-- **Fixed IP address**: Must be changed in source code and recompiled
 - **No error recovery**: Communication errors are logged but may require application restart
 - **Single oscilloscope**: Only supports one oscilloscope connection at a time
 - **Limited to 4 channels**: Designed specifically for the DS1054Z's 4 analog channels
+- **Settings require restart**: Changes to the TCPIP address require application restart to take effect
 
 ## Troubleshooting
 
 ### Connection Issues
-- **"Unable to connect"**: Verify oscilloscope IP address and network connectivity
+- **"Unable to connect"**: 
+  - Verify oscilloscope IP address using **File → Settings** menu
+  - Check network connectivity with `ping` command
+  - Ensure oscilloscope is powered on and network interface is active
 - **Timeout errors**: Check firewall settings, ensure NI-VISA is properly installed
 - **No waveforms displayed**: Verify channels are enabled on both oscilloscope and application
+- **Connection fails on startup**: Use the error dialog to retry or change settings
 
 ### Performance Issues
 - **Slow update rate**: Reduce timebase to decrease data points
