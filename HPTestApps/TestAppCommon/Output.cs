@@ -22,8 +22,9 @@ namespace TestAppCommon
             }
             catch (ArgumentOutOfRangeException)
             {
-                // If the requested buffer height is invalid, use system default
+                // If the requested buffer height is invalid, silently use system default
                 // This can happen if bufferHeight is too small or exceeds system limits
+                // Failing silently is acceptable as buffer height is not critical to app functionality
             }
         }
         public static void Prompt(string message)
