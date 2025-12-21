@@ -67,9 +67,10 @@ namespace HPDevices.DeviceName
 ## Building and Testing
 
 ### Build Commands
-- Build specific project: `dotnet build HPDevices/HPDevices.sln`
-- Build test apps: `dotnet build HPTestApps/HPTestApps.sln`
+- Build specific project: `msbuild HPDevices/HPDevices.sln`
+- Build test apps: `msbuild HPTestApps/HPTestApps.sln`
 - Or use Visual Studio to build the solution
+- Note: These are .NET Framework projects using older csproj format, use `msbuild` not `dotnet build`
 
 ### Test Applications
 - Each device has a corresponding test application in HPTestApps/
@@ -98,12 +99,13 @@ namespace HPDevices.DeviceName
 ## Adding New Devices
 
 When adding a new device class:
-1. Create new subdirectory in HPDevices/
-2. Follow existing device class structure
-3. Create corresponding test application in HPTestApps/
-4. Document command syntax and units in XML comments
-5. Add device-specific timing considerations
-6. Include example usage in test application
+1. Add new .cs file to `HPDevices/HPDevices/` directory (e.g., HP12345.cs)
+2. Follow existing device class structure (see HP8350B.cs as example)
+3. Update HPDevices.csproj to include the new file
+4. Create corresponding test application in HPTestApps/
+5. Document command syntax and units in XML comments
+6. Add device-specific timing considerations
+7. Include example usage in test application
 
 ## Dependencies
 
