@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -53,10 +54,31 @@ namespace DS1054Z
         }
     }
 
-    public sealed class LabelItem
+    public sealed class LabelItem : INotifyPropertyChanged
     {
-        public string Text { get; set; }
+        private string text;
+
+        public string Text
+        {
+            get { return text; }
+            set
+            {
+                if (text != value)
+                {
+                    text = value;
+                    OnPropertyChanged(nameof(Text));
+                }
+            }
+        }
+
         public Brush Foreground { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     /// <summary>
@@ -240,16 +262,12 @@ namespace DS1054Z
                                 ChannelTraces[channelNumber].ItemsSource =
                                     new ChartViewModel(data).ByteSeries;
 
-                                Labels[channelNumber] = new LabelItem
-                                {
-                                    Text = string.Format(
-                                        "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
-                                        ch,
-                                        ToEngineeringFormat.Convert(VppResult, 3, "V"),
-                                        ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
-                                        ToEngineeringFormat.Convert(TimebaseResult, 3, "S")),
-                                    Foreground = ChannelColors[channelNumber]
-                                };
+                                Labels[channelNumber].Text = string.Format(
+                                    "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
+                                    ch,
+                                    ToEngineeringFormat.Convert(VppResult, 3, "V"),
+                                    ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
+                                    ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
                             }
                             catch (ArgumentException ex)
                             {
