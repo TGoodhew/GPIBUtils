@@ -108,6 +108,7 @@ namespace DS1054Z
                     catch (Ivi.Visa.IOTimeoutException ex)
                     {
                         // No terminator present, which is fine for many instruments
+                        Debug.WriteLine($"No terminator found after binary block read: {ex.Message}");
                     }
                     finally
                     {
