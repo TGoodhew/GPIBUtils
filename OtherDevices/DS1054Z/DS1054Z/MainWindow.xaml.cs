@@ -53,6 +53,12 @@ namespace DS1054Z
         }
     }
 
+    public sealed class LabelItem
+    {
+        public string Text { get; set; }
+        public Brush Foreground { get; set; }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -65,6 +71,7 @@ namespace DS1054Z
         private Thread UpdateDisplayThread;
         private bool[] ChannelEnabled = new bool[4] { false, false, false, false };
         private FastLineSeries[] ChannelTraces = new FastLineSeries[4];
+        public ObservableCollection<LabelItem> Labels { get; set; }
         private SolidColorBrush[] ChannelColors = new SolidColorBrush[4]
         {
             new SolidColorBrush(Colors.Yellow),
@@ -73,7 +80,6 @@ namespace DS1054Z
             new SolidColorBrush(Colors.Blue)
         };
 
-        public ObservableCollection<string> LabelTexts { get; set; }
 
         public MainWindow()
         {
@@ -96,12 +102,12 @@ namespace DS1054Z
                 DisplayChart.Series.Add(ChannelTraces[i]);
             }
 
-            LabelTexts = new ObservableCollection<string>
+            Labels = new ObservableCollection<LabelItem>
             {
-                "CH 1",
-                "CH 2",
-                "CH 3",
-                "CH 4"
+                new LabelItem { Text = "CH 1", Foreground = ChannelColors[0] },
+                new LabelItem { Text = "CH 2", Foreground = ChannelColors[1] },
+                new LabelItem { Text = "CH 3", Foreground = ChannelColors[2] },
+                new LabelItem { Text = "CH 4", Foreground = ChannelColors[3] }
             };
 
             DataContext = this;
@@ -218,12 +224,16 @@ namespace DS1054Z
                             ChannelTraces[channelNumber].ItemsSource =
                                 new ChartViewModel(data).ByteSeries;
 
-                            LabelTexts[channelNumber] = string.Format(
-                                "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
-                                ch,
-                                ToEngineeringFormat.Convert(VppResult, 3, "V"),
-                                ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
-                                ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
+                            Labels[channelNumber] = new LabelItem
+                            {
+                                Text = string.Format(
+                                    "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
+                                    ch,
+                                    ToEngineeringFormat.Convert(VppResult, 3, "V"),
+                                    ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
+                                    ToEngineeringFormat.Convert(TimebaseResult, 3, "S")),
+                                Foreground = ChannelColors[channelNumber]
+                            };
                         }
                         catch (ArgumentException ex)
                         {

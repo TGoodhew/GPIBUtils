@@ -23,15 +23,12 @@
 
         <!-- Right-most control: labels -->
         <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,10,10,0">
-            <ItemsControl ItemsSource="{Binding LabelTexts}">
+            <ItemsControl ItemsSource="{Binding Labels}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding}"
-                       Foreground="White"
-                       HorizontalAlignment="Left"
-                       MinWidth="80"
-                       MaxWidth="120"
-                       TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Text}"
+                                   Foreground="{Binding Foreground}"
+                                   TextWrapping="Wrap"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
