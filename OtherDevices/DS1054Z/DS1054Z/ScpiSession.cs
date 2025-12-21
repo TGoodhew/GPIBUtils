@@ -103,7 +103,11 @@ namespace DS1054Z
         /// and XXXXXXXX is the decimal byte count of the payload data.
         /// </remarks>
         /// <param name="command">The SCPI query command to send. Must not be null or empty.</param>
-        /// <param name="swallowTerminator">If true, attempts to read and discard a trailing terminator character after the binary data.</param>
+        /// <param name="swallowTerminator">
+        /// If true, attempts to read and discard a trailing terminator character (typically '\n' newline) after the binary data.
+        /// Set to false when termination characters are disabled on the session. Use true to keep the stream aligned when
+        /// the instrument sends a terminator after binary blocks.
+        /// </param>
         /// <returns>The binary payload data as a byte array.</returns>
         /// <exception cref="ArgumentException">Thrown when <paramref name="command"/> is null or empty.</exception>
         /// <exception cref="ObjectDisposedException">Thrown when this session has been disposed.</exception>

@@ -156,13 +156,13 @@ The oscilloscope returns waveform data in **IEEE 488.2 definite-length arbitrary
 
 Where:
 - `#` - Block prefix character
-- `N` - Single digit indicating the number of digits in the length field
+- `N` - Single digit indicating the number of digits in the length field (1-9)
 - `XXXX` - Decimal byte count of the payload (N digits)
 - `<data bytes>` - Raw waveform data
 
-**Example:** `#9000001200<1200 bytes of data>`
-- `#9` indicates 9 digits follow
-- `000001200` means 1200 bytes of data
+**Example:** `#41200<1200 bytes of data>`
+- `#4` indicates 4 digits follow for the length
+- `1200` means 1200 bytes of data
 - Followed by 1200 bytes of waveform samples
 
 ### Converting Raw Data to Voltage
