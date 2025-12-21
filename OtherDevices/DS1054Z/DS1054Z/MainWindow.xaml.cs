@@ -248,7 +248,7 @@ namespace DS1054Z
                     var result = MessageBox.Show(
                         $"Failed to connect to oscilloscope at {Properties.Settings.Default.TCPIPAddress}\n\n" +
                         $"Error: {ex.Message}\n\n" +
-                        "Click 'Retry' to try again or 'Cancel' to change settings.",
+                        "Click 'OK' to try again or 'Cancel' to change settings.",
                         "Connection Error",
                         MessageBoxButton.OKCancel,
                         MessageBoxImage.Error);
