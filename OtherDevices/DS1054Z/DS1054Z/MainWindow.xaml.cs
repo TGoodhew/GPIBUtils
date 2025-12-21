@@ -150,7 +150,9 @@ namespace DS1054Z
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string DefaultIPAddress = "192.168.1.145";
         private static readonly TimeSpan ThreadShutdownTimeout = TimeSpan.FromSeconds(2);
+        private static readonly Regex VisaAddressRegex = new Regex(@"TCPIP\d+::([^:]+)::.*");
         
         private ResourceManager ResMgr = new ResourceManager();
         private TcpipSession TCPIPSession;
@@ -229,7 +231,7 @@ namespace DS1054Z
             // Ensure settings are initialized with default value if not set
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TCPIPAddress))
             {
-                Properties.Settings.Default.TCPIPAddress = "192.168.1.145";
+                Properties.Settings.Default.TCPIPAddress = DefaultIPAddress;
                 Properties.Settings.Default.Save();
             }
 
@@ -295,13 +297,13 @@ namespace DS1054Z
         private string ExtractIPFromVISA(string visaAddress)
         {
             // Expected format: TCPIP0::xxx.xxx.xxx.xxx::inst0::INSTR
-            var match = Regex.Match(visaAddress, @"TCPIP\d+::([^:]+)::.*");
+            var match = VisaAddressRegex.Match(visaAddress);
             if (match.Success)
             {
                 return match.Groups[1].Value;
             }
             // If extraction fails, return default address
-            return "192.168.1.145";
+            return DefaultIPAddress;
         }
 
         /// <summary>
