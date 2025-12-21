@@ -8,6 +8,7 @@ namespace DS1054Z
     /// </summary>
     public partial class ConfigDialog : Window
     {
+        // Basic format validation - allows 1-3 digits per octet, detailed range check follows
         private static readonly Regex IpRegex = new Regex(@"^(\d{1,3}\.){3}\d{1,3}$");
 
         /// <summary>
@@ -78,6 +79,7 @@ namespace DS1054Z
 
             if (ValidateIPAddress(address))
             {
+                // Return full VISA format address
                 TCPIPAddress = $"TCPIP0::{address}::inst0::INSTR";
                 DialogResult = true;
                 Close();
