@@ -368,57 +368,57 @@ namespace DS1054Z
         {
             while (!token.IsCancellationRequested)
             {
-                for (int channelNumber = 0; channelNumber < 4; channelNumber++)
+                // Check for dispatcher shutdown at start of each update cycle
+                if (this.Dispatcher.HasShutdownStarted || this.Dispatcher.HasShutdownFinished)
                 {
-                    if (token.IsCancellationRequested)
-                        break;
+                    Debug.WriteLine("Dispatcher shutdown detected, exiting GetDisplayWaveform.");
+                    return;
+                }
 
-                    if (!ChannelEnabled[channelNumber])
-                        continue;
-
-                    int ch = channelNumber + 1;
-
-                    WaveformPreamble preamble;
-                    byte[] payload;
-                    double VppResult = 0;
-                    double ChannelScaleResult = 0;
-                    double TimebaseResult = 0;
-
-                    try
+                try
+                {
+                    for (int channelNumber = 0; channelNumber < 4; channelNumber++)
                     {
-                        preamble = SCPISession.QueryWaveformPreamble(ch);
-                        // QueryBinaryBlock returns payload only; no terminator expected since TerminationCharacterEnabled = false
-                        payload = SCPISession.QueryBinaryBlock(":WAVeform:DATA?", false);
+                        if (token.IsCancellationRequested)
+                            break;
 
-                        VppResult = SCPISession.QueryVpp(ch);
-                        ChannelScaleResult = SCPISession.QueryChannelScale(ch);
-                        TimebaseResult = SCPISession.QueryTimebaseScale();
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("SCPI error in GetDisplayWaveform: " + ex.Message);
-                        continue;
-                    }
+                        if (!ChannelEnabled[channelNumber])
+                            continue;
 
-                    if (payload == null)
-                    {
-                        Debug.WriteLine("Waveform frame truncated or malformed — skipping.");
-                        continue;
-                    }
+                        int ch = channelNumber + 1;
 
-                    if (token.IsCancellationRequested)
-                        break;
+                        WaveformPreamble preamble;
+                        byte[] payload;
+                        double VppResult = 0;
+                        double ChannelScaleResult = 0;
+                        double TimebaseResult = 0;
 
-                    // Check if dispatcher is shutting down and exit early if so
-                    if (this.Dispatcher.HasShutdownStarted || this.Dispatcher.HasShutdownFinished)
-                    {
-                        Debug.WriteLine("Dispatcher shutdown detected, exiting GetDisplayWaveform.");
-                        return;
-                    }
+                        try
+                        {
+                            preamble = SCPISession.QueryWaveformPreamble(ch);
+                            // QueryBinaryBlock returns payload only; no terminator expected since TerminationCharacterEnabled = false
+                            payload = SCPISession.QueryBinaryBlock(":WAVeform:DATA?", false);
 
-                    // Use BeginInvoke for non-blocking UI updates
-                    try
-                    {
+                            VppResult = SCPISession.QueryVpp(ch);
+                            ChannelScaleResult = SCPISession.QueryChannelScale(ch);
+                            TimebaseResult = SCPISession.QueryTimebaseScale();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("SCPI error in GetDisplayWaveform: " + ex.Message);
+                            continue;
+                        }
+
+                        if (payload == null)
+                        {
+                            Debug.WriteLine("Waveform frame truncated or malformed — skipping.");
+                            continue;
+                        }
+
+                        if (token.IsCancellationRequested)
+                            break;
+
+                        // Use BeginInvoke for non-blocking UI updates
                         this.Dispatcher.BeginInvoke(new Action(() =>
                         {
                             try
@@ -456,12 +456,12 @@ namespace DS1054Z
                             }
                         }));
                     }
-                    catch (System.Threading.Tasks.TaskCanceledException)
-                    {
-                        // Dispatcher is shutting down, exit gracefully
-                        Debug.WriteLine("Dispatcher shutdown detected (TaskCanceledException), exiting GetDisplayWaveform.");
-                        return;
-                    }
+                }
+                catch (System.Threading.Tasks.TaskCanceledException)
+                {
+                    // Dispatcher is shutting down, exit gracefully
+                    Debug.WriteLine("Dispatcher shutdown detected (TaskCanceledException), exiting GetDisplayWaveform.");
+                    return;
                 }
 
                 // Pace updates at a reasonable rate to avoid excessive CPU usage
