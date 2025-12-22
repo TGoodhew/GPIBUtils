@@ -153,6 +153,7 @@ namespace DS1054Z
         private const string DefaultIPAddress = "192.168.1.145";
         private static readonly TimeSpan ThreadShutdownTimeout = TimeSpan.FromSeconds(2);
         private static readonly Regex VisaAddressRegex = new Regex(@"TCPIP\d+::([^:]+)::.*");
+        private const int UI_UPDATE_INTERVAL_MS = 50;
         
         private ResourceManager ResMgr = new ResourceManager();
         private TcpipSession TCPIPSession;
@@ -464,7 +465,7 @@ namespace DS1054Z
                 }
 
                 // Pace updates at a reasonable rate to avoid excessive CPU usage
-                Thread.Sleep(50);
+                Thread.Sleep(UI_UPDATE_INTERVAL_MS);
             }
         }
 
