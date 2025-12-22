@@ -186,9 +186,9 @@ Time = ((point_index - xReference) * xIncrement) + xOrigin
 
 The application uses a background thread (`UpdateDisplayThread`) to continuously poll the oscilloscope:
 - Main thread handles UI interactions
-- Background thread queries waveform data every 10ms for enabled channels
-- Data is marshaled to UI thread via `Dispatcher.Invoke()`
-- Thread is gracefully shut down on window closing with a 2-second timeout
+- Background thread queries waveform data every 50ms for enabled channels
+- Data is marshaled to UI thread via non-blocking `Dispatcher.BeginInvoke()` to prevent UI freezing
+- Thread is gracefully shut down on window closing with a 2-second timeout using `CancellationToken`
 
 ## Known Limitations
 
