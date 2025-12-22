@@ -408,60 +408,57 @@ namespace DS1054Z
                     if (token.IsCancellationRequested)
                         break;
 
-                    // Use BeginInvoke for non-blocking UI updates
-                    // Check if dispatcher is still available before queuing the operation
-                    if (!this.Dispatcher.HasShutdownStarted && !this.Dispatcher.HasShutdownFinished)
+                    // Check if dispatcher is shutting down and exit early if so
+                    if (this.Dispatcher.HasShutdownStarted || this.Dispatcher.HasShutdownFinished)
                     {
-                        try
-                        {
-                            this.Dispatcher.BeginInvoke(new Action(() =>
-                            {
-                                try
-                                {
-                                    var source = payload;
-                                    int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
-
-                                    long expectedBytesLong = (preamble.points > 0)
-                                        ? preamble.points * (long)bytesPerPoint
-                                        : 0;
-
-                                    int expectedBytes = expectedBytesLong > 0
-                                        ? (int)Math.Min(expectedBytesLong, int.MaxValue)
-                                        : source.Length;
-
-                                    int length = Math.Min(source.Length, expectedBytes);
-
-                                    var data = (length > 0 && length == source.Length)
-                                        ? source
-                                        : (length > 0 ? source.Take(length).ToArray() : Array.Empty<byte>());
-
-                                    ChannelTraces[channelNumber].ItemsSource =
-                                        new ChartViewModel(data).ByteSeries;
-
-                                    Labels[channelNumber].Text = string.Format(
-                                        "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
-                                        ch,
-                                        ToEngineeringFormat.Convert(VppResult, 3, "V"),
-                                        ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
-                                        ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
-                                }
-                                catch (ArgumentException ex)
-                                {
-                                    Debug.WriteLine(ex.Message);
-                                }
-                            }));
-                        }
-                        catch (System.Threading.Tasks.TaskCanceledException)
-                        {
-                            // Dispatcher is shutting down, exit gracefully
-                            Debug.WriteLine("Dispatcher shutdown detected, exiting GetDisplayWaveform.");
-                            return;
-                        }
+                        Debug.WriteLine("Dispatcher shutdown detected, exiting GetDisplayWaveform.");
+                        return;
                     }
-                    else if (this.Dispatcher.HasShutdownStarted)
+
+                    // Use BeginInvoke for non-blocking UI updates
+                    try
+                    {
+                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            try
+                            {
+                                var source = payload;
+                                int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
+
+                                long expectedBytesLong = (preamble.points > 0)
+                                    ? preamble.points * (long)bytesPerPoint
+                                    : 0;
+
+                                int expectedBytes = expectedBytesLong > 0
+                                    ? (int)Math.Min(expectedBytesLong, int.MaxValue)
+                                    : source.Length;
+
+                                int length = Math.Min(source.Length, expectedBytes);
+
+                                var data = (length > 0 && length == source.Length)
+                                    ? source
+                                    : (length > 0 ? source.Take(length).ToArray() : Array.Empty<byte>());
+
+                                ChannelTraces[channelNumber].ItemsSource =
+                                    new ChartViewModel(data).ByteSeries;
+
+                                Labels[channelNumber].Text = string.Format(
+                                    "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
+                                    ch,
+                                    ToEngineeringFormat.Convert(VppResult, 3, "V"),
+                                    ToEngineeringFormat.Convert(ChannelScaleResult, 3, "V"),
+                                    ToEngineeringFormat.Convert(TimebaseResult, 3, "S"));
+                            }
+                            catch (ArgumentException ex)
+                            {
+                                Debug.WriteLine(ex.Message);
+                            }
+                        }));
+                    }
+                    catch (System.Threading.Tasks.TaskCanceledException)
                     {
                         // Dispatcher is shutting down, exit gracefully
-                        Debug.WriteLine("Dispatcher shutdown detected, exiting GetDisplayWaveform.");
+                        Debug.WriteLine("Dispatcher shutdown detected (TaskCanceledException), exiting GetDisplayWaveform.");
                         return;
                     }
                 }
