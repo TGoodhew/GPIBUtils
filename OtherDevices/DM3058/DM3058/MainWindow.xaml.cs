@@ -28,15 +28,15 @@ namespace DM3058
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static RoutedCommand SetModeCommand = new RoutedCommand();
+        public static RoutedCommand SetModeCommand { get; } = new RoutedCommand();
 
-        private string DMMAddress = @"TCPIP0::192.168.1.213::inst0::INSTR";
-        private ResourceManager ResMgr = new ResourceManager();
-        private DispatcherTimer ReadTimer;
-        private Mode CurrentMode;
-        private string CurrentCommand;
-        private TcpipSession TcpipSession;
-        private bool isReading = false;
+        private string _dmmAddress = @"TCPIP0::192.168.1.213::inst0::INSTR";
+        private readonly ResourceManager _resMgr = new ResourceManager();
+        private DispatcherTimer _readTimer;
+        private Mode _currentMode;
+        private string _currentCommand;
+        private TcpipSession _tcpipSession;
+        private bool _isReading = false;
 
         public MainWindow()
         {
@@ -53,24 +53,24 @@ namespace DM3058
 
         private void InitializeTimer()
         {
-            ReadTimer = new DispatcherTimer();
-            ReadTimer.Interval = TimeSpan.FromSeconds(1);
-            ReadTimer.Tick += Timer_Tick;
+            _readTimer = new DispatcherTimer();
+            _readTimer.Interval = TimeSpan.FromSeconds(1);
+            _readTimer.Tick += Timer_Tick;
         }
 
         private void InitializeDMM()
         {
             try
             {
-                TcpipSession = (TcpipSession)ResMgr.Open(DMMAddress);
-                TcpipSession.TerminationCharacterEnabled = true;
-                TcpipSession.TimeoutMilliseconds = 20000;
-                TcpipSession.Clear();
+                _tcpipSession = (TcpipSession)_resMgr.Open(_dmmAddress);
+                _tcpipSession.TerminationCharacterEnabled = true;
+                _tcpipSession.TimeoutMilliseconds = 20000;
+                _tcpipSession.Clear();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to connect to DMM at {DMMAddress}\n\n" +
+                    $"Failed to connect to DMM at {_dmmAddress}\n\n" +
                     $"Error: {ex.Message}\n\n" +
                     "Please check:\n" +
                     "- Device is powered on and connected to network\n" +
@@ -86,13 +86,13 @@ namespace DM3058
         private void btnRun_Checked(object sender, RoutedEventArgs e)
         {
             btnRun.Content = "Stop";
-            ReadTimer.Start();
+            _readTimer.Start();
         }
 
         private void btnRun_Unchecked(object sender, RoutedEventArgs e)
         {
             btnRun.Content = "Run";
-            ReadTimer.Stop();
+            _readTimer.Stop();
         }
 
         private void ExecutedSetModeCommand(object sender, ExecutedRoutedEventArgs e)
@@ -128,22 +128,22 @@ namespace DM3058
                     break;
             }
 
-            SendCommand(CurrentCommand);
+            SendCommand(_currentCommand);
         }
 
-        private void SendCommand(string Command)
+        private void SendCommand(string command)
         {
             try
             {
-                if (TcpipSession?.FormattedIO == null)
+                if (_tcpipSession?.FormattedIO == null)
                     throw new InvalidOperationException("VISA session not initialized");
                     
-                TcpipSession.FormattedIO.WriteLine(Command);
+                _tcpipSession.FormattedIO.WriteLine(command);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to send command: {Command}\n\n" +
+                    $"Failed to send command: {command}\n\n" +
                     $"Error: {ex.Message}",
                     "Communication Error",
                     MessageBoxButton.OK,
@@ -151,15 +151,15 @@ namespace DM3058
             }
         }
 
-        private string ReadCommand(string Command)
+        private string ReadCommand(string command)
         {
             try
             {
-                if (TcpipSession?.FormattedIO == null)
+                if (_tcpipSession?.FormattedIO == null)
                     throw new InvalidOperationException("VISA session not initialized");
                     
-                TcpipSession.FormattedIO.WriteLine(Command);
-                return TcpipSession.FormattedIO.ReadString();
+                _tcpipSession.FormattedIO.WriteLine(command);
+                return _tcpipSession.FormattedIO.ReadString();
             }
             catch (Exception)
             {
@@ -194,7 +194,7 @@ namespace DM3058
             {
                 string Symbol = "";
                 
-                switch (CurrentMode)
+                switch (_currentMode)
                 {
                     case Mode.DCV:
                     case Mode.ACV:
@@ -209,7 +209,7 @@ namespace DM3058
                         break;
                 }
                 
-                string response = ReadCommand(CurrentCommand);
+                string response = ReadCommand(_currentCommand);
                 if (string.IsNullOrWhiteSpace(response))
                 {
                     txtReading.Text = "Error: No Response";
@@ -249,12 +249,12 @@ namespace DM3058
         /// </summary>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            ReadTimer?.Stop();
+            _readTimer?.Stop();
             
             try
             {
-                TcpipSession?.Dispose();
-                ResMgr?.Dispose();
+                _tcpipSession?.Dispose();
+                _resMgr?.Dispose();
             }
             catch (Exception ex)
             {
