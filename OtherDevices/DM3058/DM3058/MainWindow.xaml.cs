@@ -118,11 +118,17 @@ namespace DM3058
 
         private void SendCommand(string Command)
         {
+            if (TcpipSession?.FormattedIO == null)
+                throw new InvalidOperationException("VISA session not initialized");
+                
             TcpipSession.FormattedIO.WriteLine(Command);
         }
 
         private string ReadCommand(string Command)
         {
+            if (TcpipSession?.FormattedIO == null)
+                throw new InvalidOperationException("VISA session not initialized");
+                
             TcpipSession.FormattedIO.WriteLine(Command);
             return TcpipSession.FormattedIO.ReadString();
         }
