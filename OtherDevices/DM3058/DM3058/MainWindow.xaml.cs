@@ -34,6 +34,7 @@ namespace DM3058
         private Mode CurrentMode;
         private string CurrentCommand;
         private TcpipSession TcpipSession;
+        private bool isReading = false;
 
         public MainWindow()
         {
@@ -187,6 +188,11 @@ namespace DM3058
 
         private void Timer_Tick(object sender, EventArgs e)
         {
+            // Prevent overlapping timer ticks when read operation takes longer than timer interval
+            if (isReading)
+                return;
+            
+            isReading = true;
             try
             {
                 string Symbol = "";
@@ -234,6 +240,10 @@ namespace DM3058
                     "Communication Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+            finally
+            {
+                isReading = false;
             }
         }
 
