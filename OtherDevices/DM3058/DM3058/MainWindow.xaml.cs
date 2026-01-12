@@ -30,7 +30,7 @@ namespace DM3058
     {
         public static RoutedCommand SetModeCommand { get; } = new RoutedCommand();
 
-        private string _dmmAddress = @"TCPIP0::192.168.1.213::inst0::INSTR";
+        private string _dmmAddress;
         private readonly ResourceManager _resMgr = new ResourceManager();
         private DispatcherTimer _readTimer;
         private Mode _currentMode;
@@ -44,6 +44,15 @@ namespace DM3058
 
             CommandBinding SetModeCommandBinding = new CommandBinding(SetModeCommand, ExecutedSetModeCommand, CanExecuteSetModeCommand);
             this.CommandBindings.Add(SetModeCommandBinding);
+
+            // Load IP address from settings, default to original hardcoded value if not set
+            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TCPIPAddress))
+            {
+                Properties.Settings.Default.TCPIPAddress = "192.168.1.213";
+                Properties.Settings.Default.Save();
+            }
+
+            _dmmAddress = $"TCPIP0::{Properties.Settings.Default.TCPIPAddress}::inst0::INSTR";
 
             InitializeDMM();
             SetMode(ModeConstants.DCV);
@@ -260,6 +269,33 @@ namespace DM3058
             {
                 System.Diagnostics.Debug.WriteLine($"Error disposing VISA resources: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Handles the Settings menu item click. Opens the configuration dialog.
+        /// </summary>
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ConfigDialog(Properties.Settings.Default.TCPIPAddress);
+            if (dialog.ShowDialog() == true)
+            {
+                Properties.Settings.Default.TCPIPAddress = dialog.TCPIPAddress;
+                Properties.Settings.Default.Save();
+                
+                MessageBox.Show(
+                    "Settings saved successfully.\n\nPlease restart the application for changes to take effect.",
+                    "Settings Saved",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+        }
+
+        /// <summary>
+        /// Handles the Exit menu item click. Closes the application.
+        /// </summary>
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }
