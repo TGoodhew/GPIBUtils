@@ -18,7 +18,7 @@ namespace DM3058
     {
         public static RoutedCommand SetModeCommand { get; } = new RoutedCommand();
 
-        private string DMMAddress = @"TCPIP0::192.168.1.213::inst0::INSTR";
+        private string _dmmAddress = @"TCPIP0::192.168.1.213::inst0::INSTR";
         private readonly ResourceManager _resMgr = new ResourceManager();
         private DispatcherTimer _readTimer;
         private Mode _currentMode;
@@ -50,7 +50,7 @@ namespace DM3058
         {
             try
             {
-                _tcpipSession = (TcpipSession)_resMgr.Open(DMMAddress);
+                _tcpipSession = (TcpipSession)_resMgr.Open(_dmmAddress);
                 _tcpipSession.TerminationCharacterEnabled = true;
                 _tcpipSession.TimeoutMilliseconds = 20000;
                 _tcpipSession.Clear();
@@ -58,7 +58,7 @@ namespace DM3058
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to connect to DMM at {DMMAddress}\n\n" +
+                    $"Failed to connect to DMM at {_dmmAddress}\n\n" +
                     $"Error: {ex.Message}\n\n" +
                     "Please check:\n" +
                     "- Device is powered on and connected to network\n" +
