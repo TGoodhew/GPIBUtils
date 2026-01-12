@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DM3058"
         mc:Ignorable="d"
-        Title="DM3058 Display Utility" MinWidth="500" Loaded="OnLoaded" Closing="Window_Closing" WindowState="Maximized" >
+        Title="DM3058 Display Utility" MinWidth="500" Closing="Window_Closing" WindowState="Maximized" >
     <Window.Resources>
         <Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">
             <Setter Property="Template">
