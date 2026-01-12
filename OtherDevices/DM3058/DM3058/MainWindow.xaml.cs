@@ -34,7 +34,7 @@ namespace DM3058
         private const string DefaultIPAddress = "192.168.1.213";
         private static readonly Regex VisaAddressRegex = new Regex(@"TCPIP\d+::([^:]+)::.*");
         
-        private string _dmmAddress;
+        private readonly string _dmmAddress;
         private readonly ResourceManager _resMgr = new ResourceManager();
         private DispatcherTimer _readTimer;
         private Mode _currentMode;
@@ -56,7 +56,7 @@ namespace DM3058
                 Properties.Settings.Default.Save();
             }
 
-            _dmmAddress = $"TCPIP0::{Properties.Settings.Default.TCPIPAddress}::inst0::INSTR";
+            _dmmAddress = BuildVISAAddress(Properties.Settings.Default.TCPIPAddress);
 
             InitializeDMM();
             SetMode(ModeConstants.DCV);
@@ -302,6 +302,16 @@ namespace DM3058
             string ipAddress = ExtractIPFromVISA(visaAddress);
             Properties.Settings.Default.TCPIPAddress = ipAddress;
             Properties.Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// Builds a VISA TCPIP resource string from an IP address.
+        /// </summary>
+        /// <param name="ipAddress">The IP address (e.g., "192.168.1.213").</param>
+        /// <returns>The VISA address string (e.g., "TCPIP0::192.168.1.213::inst0::INSTR").</returns>
+        private string BuildVISAAddress(string ipAddress)
+        {
+            return $"TCPIP0::{ipAddress}::inst0::INSTR";
         }
 
         /// <summary>
