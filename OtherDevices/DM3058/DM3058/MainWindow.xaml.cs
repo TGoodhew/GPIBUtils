@@ -236,5 +236,23 @@ namespace DM3058
                     MessageBoxImage.Error);
             }
         }
+
+        /// <summary>
+        /// Handles the Window.Closing event. Stops the timer and disposes of VISA resources.
+        /// </summary>
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            ReadTimer?.Stop();
+            
+            try
+            {
+                TcpipSession?.Dispose();
+                ResMgr?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error disposing VISA resources: {ex.Message}");
+            }
+        }
     }
 }
