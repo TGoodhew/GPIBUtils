@@ -345,6 +345,9 @@ namespace DS1054Z
         /// <param name="Command">The SCPI command to send.</param>
         private void SendCommand(string Command)
         {
+            if (TCPIPSession?.FormattedIO == null)
+                throw new InvalidOperationException("VISA session not initialized");
+                
             Debug.WriteLine(Command);
             TCPIPSession.FormattedIO.WriteLine(Command);
         }
