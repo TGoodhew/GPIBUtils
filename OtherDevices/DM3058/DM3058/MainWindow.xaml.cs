@@ -214,28 +214,18 @@ namespace DM3058
                 if (string.IsNullOrWhiteSpace(response))
                 {
                     txtReading.Text = "Error: No Response";
+                    ReadTimer.Stop();
                     return;
                 }
                 
                 if (!double.TryParse(response, out double value))
                 {
                     txtReading.Text = $"Error: Invalid Data ({response})";
+                    ReadTimer.Stop();
                     return;
                 }
                 
                 txtReading.Text = ToEngineeringFormat.Convert(value, 6, Symbol);
-            }
-            catch (FormatException ex)
-            {
-                txtReading.Text = "Error: Invalid Format";
-                ReadTimer.Stop();
-                MessageBox.Show(
-                    $"Failed to parse measurement data.\n\n" +
-                    $"Error: {ex.Message}\n\n" +
-                    "Measurement stopped. Click Run to restart.",
-                    "Parse Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
