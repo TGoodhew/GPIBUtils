@@ -19,7 +19,7 @@ namespace DM3058
         public static RoutedCommand SetModeCommand { get; } = new RoutedCommand();
 
         private string DMMAddress = @"TCPIP0::192.168.1.213::inst0::INSTR";
-        private ResourceManager _resMgr = new ResourceManager();
+        private readonly ResourceManager _resMgr = new ResourceManager();
         private DispatcherTimer _readTimer;
         private Mode _currentMode;
         private string _currentCommand;
