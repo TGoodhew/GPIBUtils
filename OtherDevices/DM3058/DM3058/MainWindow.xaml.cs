@@ -12,6 +12,18 @@ namespace DM3058
     enum Mode {DCV, ACV, DCI, ACI, OHM };
 
     /// <summary>
+    /// Constants for DMM measurement modes used in UI bindings and command routing
+    /// </summary>
+    public static class ModeConstants
+    {
+        public const string DCV = "DCV";
+        public const string ACV = "ACV";
+        public const string DCI = "DCI";
+        public const string ACI = "ACI";
+        public const string OHM = "OHM";
+    }
+
+    /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
@@ -34,7 +46,7 @@ namespace DM3058
             this.CommandBindings.Add(SetModeCommandBinding);
 
             InitializeDMM();
-            SetMode("DCV");
+            SetMode(ModeConstants.DCV);
 
             InitializeTimer();
         }
@@ -94,23 +106,23 @@ namespace DM3058
         {
             switch (mode)
             {
-                case "DCV":
+                case ModeConstants.DCV:
                     _currentMode = Mode.DCV;
                     _currentCommand = "MEAS:VOLT:DC?";
                     break;
-                case "ACV":
+                case ModeConstants.ACV:
                     _currentMode = Mode.ACV;
                     _currentCommand = "MEAS:VOLT:AC?";
                     break;
-                case "DCI":
+                case ModeConstants.DCI:
                     _currentMode = Mode.DCI;
                     _currentCommand = "MEAS:CURR:DC?";
                     break;
-                case "ACI":
+                case ModeConstants.ACI:
                     _currentMode = Mode.ACI;
                     _currentCommand = "MEAS:CURR:AC?";
                     break;
-                case "OHM":
+                case ModeConstants.OHM:
                     _currentMode = Mode.OHM;
                     _currentCommand = "MEAS:RES?";
                     break;
@@ -174,10 +186,10 @@ namespace DM3058
         private void Timer_Tick(object sender, EventArgs e)
         {
             // Prevent overlapping timer ticks when read operation takes longer than timer interval
-            if (isReading)
+            if (_isReading)
                 return;
             
-            isReading = true;
+            _isReading = true;
             try
             {
                 string Symbol = "";
@@ -228,7 +240,7 @@ namespace DM3058
             }
             finally
             {
-                isReading = false;
+                _isReading = false;
             }
         }
 
