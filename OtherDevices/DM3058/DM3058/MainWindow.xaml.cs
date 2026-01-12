@@ -24,7 +24,7 @@ namespace DM3058
         private Mode _currentMode;
         private string _currentCommand;
         private TcpipSession _tcpipSession;
-        private bool isReading = false;
+        private bool _isReading = false;
 
         public MainWindow()
         {
