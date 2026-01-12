@@ -79,8 +79,8 @@ namespace DM3058
 
             if (ValidateIPAddress(address))
             {
-                // Return just the IP address (caller will construct full VISA format)
-                TCPIPAddress = address;
+                // Return full VISA format address
+                TCPIPAddress = $"TCPIP0::{address}::inst0::INSTR";
                 DialogResult = true;
                 Close();
             }
