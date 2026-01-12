@@ -210,14 +210,14 @@ namespace DM3058
                 if (string.IsNullOrWhiteSpace(response))
                 {
                     txtReading.Text = "Error: No Response";
-                    ReadTimer.Stop();
+                    btnRun.IsChecked = false;
                     return;
                 }
                 
                 if (!double.TryParse(response, out double value))
                 {
                     txtReading.Text = $"Error: Invalid Data ({response})";
-                    ReadTimer.Stop();
+                    btnRun.IsChecked = false;
                     return;
                 }
                 
@@ -226,7 +226,7 @@ namespace DM3058
             catch (Exception ex)
             {
                 txtReading.Text = "Error: Communication Failed";
-                ReadTimer.Stop();
+                btnRun.IsChecked = false;
                 MessageBox.Show(
                     $"Communication error during measurement.\n\n" +
                     $"Error: {ex.Message}\n\n" +
