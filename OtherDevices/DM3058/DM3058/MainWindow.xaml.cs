@@ -122,7 +122,7 @@ namespace DM3058
                     break;
                 case "ACI":
                     CurrentMode = Mode.ACI;
-                    CurrentCommand = "MEAS:CURR:DC?";
+                    CurrentCommand = "MEAS:CURR:AC?";
                     break;
                 case "OHM":
                     CurrentMode = Mode.OHM;
