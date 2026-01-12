@@ -282,12 +282,7 @@ namespace DM3058
             var dialog = new ConfigDialog(Properties.Settings.Default.TCPIPAddress);
             if (dialog.ShowDialog() == true)
             {
-                // Extract IP address from VISA format (TCPIP0::xxx.xxx.xxx.xxx::inst0::INSTR)
-                string visaAddress = dialog.TCPIPAddress;
-                string ipAddress = ExtractIPFromVISA(visaAddress);
-                
-                Properties.Settings.Default.TCPIPAddress = ipAddress;
-                Properties.Settings.Default.Save();
+                SaveIPAddressFromDialog(dialog.TCPIPAddress);
                 
                 MessageBox.Show(
                     "Settings saved successfully.\n\nPlease restart the application for changes to take effect.",
@@ -295,6 +290,17 @@ namespace DM3058
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
+        }
+
+        /// <summary>
+        /// Saves the IP address from a dialog to application settings.
+        /// </summary>
+        /// <param name="visaAddress">The VISA address string from the dialog.</param>
+        private void SaveIPAddressFromDialog(string visaAddress)
+        {
+            string ipAddress = ExtractIPFromVISA(visaAddress);
+            Properties.Settings.Default.TCPIPAddress = ipAddress;
+            Properties.Settings.Default.Save();
         }
 
         /// <summary>
