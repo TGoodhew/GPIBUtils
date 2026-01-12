@@ -12,6 +12,18 @@ namespace DM3058
     enum Mode {DCV, ACV, DCI, ACI, OHM };
 
     /// <summary>
+    /// Constants for DMM measurement modes used in UI bindings and command routing
+    /// </summary>
+    public static class ModeConstants
+    {
+        public const string DCV = "DCV";
+        public const string ACV = "ACV";
+        public const string DCI = "DCI";
+        public const string ACI = "ACI";
+        public const string OHM = "OHM";
+    }
+
+    /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
@@ -34,7 +46,7 @@ namespace DM3058
             this.CommandBindings.Add(SetModeCommandBinding);
 
             InitializeDMM();
-            SetMode("DCV");
+            SetMode(ModeConstants.DCV);
 
             InitializeTimer();
         }
@@ -94,23 +106,23 @@ namespace DM3058
         {
             switch (mode)
             {
-                case "DCV":
+                case ModeConstants.DCV:
                     CurrentMode = Mode.DCV;
                     CurrentCommand = "MEAS:VOLT:DC?";
                     break;
-                case "ACV":
+                case ModeConstants.ACV:
                     CurrentMode = Mode.ACV;
                     CurrentCommand = "MEAS:VOLT:AC?";
                     break;
-                case "DCI":
+                case ModeConstants.DCI:
                     CurrentMode = Mode.DCI;
                     CurrentCommand = "MEAS:CURR:DC?";
                     break;
-                case "ACI":
+                case ModeConstants.ACI:
                     CurrentMode = Mode.ACI;
                     CurrentCommand = "MEAS:CURR:AC?";
                     break;
-                case "OHM":
+                case ModeConstants.OHM:
                     CurrentMode = Mode.OHM;
                     CurrentCommand = "MEAS:RES?";
                     break;
