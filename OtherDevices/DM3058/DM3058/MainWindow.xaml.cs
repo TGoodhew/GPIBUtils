@@ -57,10 +57,27 @@ namespace DM3058
 
         private void InitializeDMM()
         {
-            TcpipSession = (TcpipSession)ResMgr.Open(DMMAddress);
-            TcpipSession.TerminationCharacterEnabled = true;
-            TcpipSession.TimeoutMilliseconds = 20000;
-            TcpipSession.Clear();
+            try
+            {
+                TcpipSession = (TcpipSession)ResMgr.Open(DMMAddress);
+                TcpipSession.TerminationCharacterEnabled = true;
+                TcpipSession.TimeoutMilliseconds = 20000;
+                TcpipSession.Clear();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to connect to DMM at {DMMAddress}\n\n" +
+                    $"Error: {ex.Message}\n\n" +
+                    "Please check:\n" +
+                    "- Device is powered on and connected to network\n" +
+                    "- IP address is correct\n" +
+                    "- NI-VISA is installed",
+                    "Connection Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                throw; // Re-throw to prevent application from continuing with null session
+            }
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -118,19 +135,44 @@ namespace DM3058
 
         private void SendCommand(string Command)
         {
-            if (TcpipSession?.FormattedIO == null)
-                throw new InvalidOperationException("VISA session not initialized");
-                
-            TcpipSession.FormattedIO.WriteLine(Command);
+            try
+            {
+                if (TcpipSession?.FormattedIO == null)
+                    throw new InvalidOperationException("VISA session not initialized");
+                    
+                TcpipSession.FormattedIO.WriteLine(Command);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to send command: {Command}\n\n" +
+                    $"Error: {ex.Message}",
+                    "Communication Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
         }
 
         private string ReadCommand(string Command)
         {
-            if (TcpipSession?.FormattedIO == null)
-                throw new InvalidOperationException("VISA session not initialized");
-                
-            TcpipSession.FormattedIO.WriteLine(Command);
-            return TcpipSession.FormattedIO.ReadString();
+            try
+            {
+                if (TcpipSession?.FormattedIO == null)
+                    throw new InvalidOperationException("VISA session not initialized");
+                    
+                TcpipSession.FormattedIO.WriteLine(Command);
+                return TcpipSession.FormattedIO.ReadString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to read command: {Command}\n\n" +
+                    $"Error: {ex.Message}",
+                    "Communication Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return string.Empty;
+            }
         }
 
         private void CanExecuteSetModeCommand(object sender, CanExecuteRoutedEventArgs e)
@@ -149,23 +191,64 @@ namespace DM3058
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            string Symbol = "";
-            
-            switch (CurrentMode)
+            try
             {
-                case Mode.DCV:
-                case Mode.ACV:
-                    Symbol = "V";
-                    break;
-                case Mode.DCI:
-                case Mode.ACI:
-                    Symbol = "A";
-                    break;
-                case Mode.OHM:
-                    Symbol = "Ω";
-                    break;
+                string Symbol = "";
+                
+                switch (CurrentMode)
+                {
+                    case Mode.DCV:
+                    case Mode.ACV:
+                        Symbol = "V";
+                        break;
+                    case Mode.DCI:
+                    case Mode.ACI:
+                        Symbol = "A";
+                        break;
+                    case Mode.OHM:
+                        Symbol = "Ω";
+                        break;
+                }
+                
+                string response = ReadCommand(CurrentCommand);
+                if (string.IsNullOrWhiteSpace(response))
+                {
+                    txtReading.Text = "Error: No Response";
+                    return;
+                }
+                
+                if (!double.TryParse(response, out double value))
+                {
+                    txtReading.Text = $"Error: Invalid Data ({response})";
+                    return;
+                }
+                
+                txtReading.Text = ToEngineeringFormat.Convert(value, 6, Symbol);
             }
-            txtReading.Text = ToEngineeringFormat.Convert(Convert.ToDouble(ReadCommand(CurrentCommand)),6,Symbol);
+            catch (FormatException ex)
+            {
+                txtReading.Text = "Error: Invalid Format";
+                ReadTimer.Stop();
+                MessageBox.Show(
+                    $"Failed to parse measurement data.\n\n" +
+                    $"Error: {ex.Message}\n\n" +
+                    "Measurement stopped. Click Run to restart.",
+                    "Parse Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                txtReading.Text = "Error: Communication Failed";
+                ReadTimer.Stop();
+                MessageBox.Show(
+                    $"Communication error during measurement.\n\n" +
+                    $"Error: {ex.Message}\n\n" +
+                    "Measurement stopped. Check device connection and click Run to restart.",
+                    "Communication Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 }
