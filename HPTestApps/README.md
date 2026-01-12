@@ -220,7 +220,7 @@ using (StreamWriter sw = File.AppendText("results.csv"))
 ## Output Data Analysis
 
 ### Results.csv Format
-The HP8350BTestApp generates a CSV file with tab-separated values:
+The HP8350BTestApp generates a CSV file with comma-separated values:
 ```
 10000000,10000123.45,-0.234
 15000000,15000234.56,-0.187

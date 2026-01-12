@@ -129,7 +129,7 @@ Main application logic:
 #### `ToEngineeringFormat.cs`
 Utility for formatting numeric values with engineering notation and SI prefixes:
 - Converts values like `0.00123` to `"1.23 mV"`
-- Supports prefixes from yocto (10⁻²⁴) to tera (10¹²)
+- Supports common metric prefixes from nano to tera
 - Shared utility also used in HPDevices test applications
 
 ## SCPI Commands
@@ -173,7 +173,7 @@ The ToEngineeringFormat utility automatically scales values with SI prefixes:
 | ≥1 | (base) | 5.0 → "5.00" |
 | ≥1e-3 | m (milli) | 6e-3 → "6.00 m" |
 | ≥1e-6 | µ (micro) | 7e-6 → "7.00 µ" |
-| <1e-6 | (scientific) | 8e-12 → "8.0e-12" |
+| <1e-6 | n (nano) and smaller | 8e-9 → "8.00 n" |
 
 ## Known Limitations
 
