@@ -163,14 +163,10 @@ namespace DM3058
                 TcpipSession.FormattedIO.WriteLine(Command);
                 return TcpipSession.FormattedIO.ReadString();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(
-                    $"Failed to read command: {Command}\n\n" +
-                    $"Error: {ex.Message}",
-                    "Communication Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                // Return empty string and let caller handle the error
+                // This prevents modal dialog spam during timer operations
                 return string.Empty;
             }
         }
