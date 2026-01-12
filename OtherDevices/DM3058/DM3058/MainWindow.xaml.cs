@@ -71,11 +71,6 @@ namespace DM3058
             }
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void btnRun_Checked(object sender, RoutedEventArgs e)
         {
             btnRun.Content = "Stop";
