@@ -95,23 +95,21 @@ Common functionality used across test applications.
 - .NET Framework 4.7.2 or later
 - Visual Studio 2015 or later (for building)
 - NI-VISA runtime (National Instruments VISA drivers)
-- HPDevices library (automatically referenced in solution)
+  - Download from: [NI-VISA Downloads](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
+- HPDevices library (local project reference - automatically built with solution)
 
-### GPIB Configuration
-Each test application expects specific GPIB addresses. Verify your instruments are configured with the correct addresses:
-- HP 8350B: Address 19 (in HP8350BTestApp)
-- HP 53131A: Address 23 (in HP8350BTestApp)
-- HP E4418B: Address 13 (in HP8350BTestApp)
+### Dependencies
+- HPDevices class library (project reference)
+- NationalInstruments.Visa (NuGet package)
+- TestAppCommon (for shared utilities)
 
-**Note:** You can modify addresses in the source code if your instruments use different GPIB addresses.
-
-## Building the Applications
+## Building the Solution
 
 ### Using Visual Studio
 1. Open `HPTestApps.sln` in Visual Studio
 2. Restore NuGet packages (right-click solution → Restore NuGet Packages)
 3. Build the solution (F6 or Build → Build Solution)
-4. Navigate to each application's `bin\Debug` or `bin\Release` folder to run executables
+4. Test applications will be output to each project's `bin\Debug\` or `bin\Release\` folder
 
 ### Using MSBuild
 ```bash
@@ -273,8 +271,14 @@ To create a new test application:
 ## Additional Resources
 
 - [HPDevices Library Documentation](../HPDevices/README.md)
-- [National Instruments VISA Documentation](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
-- [GPIB Basics and Configuration](https://www.ni.com/en-us/support/documentation/gpib-tutorial.html)
+- [NI-VISA Documentation](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
+- [NI MAX User Guide](https://www.ni.com/en-us/support/documentation/supplemental/21/getting-started-with-ni-measurement---automation-explorer--ni-max-.html)
+- HP/Agilent Instrument Programming Manuals (device-specific)
+
+## Related Projects
+
+- **HPDevices**: Core class library containing device drivers (see `../HPDevices/`)
+- **OtherDevices**: Device libraries for non-HP equipment (see `../OtherDevices/`)
 
 ## License
 

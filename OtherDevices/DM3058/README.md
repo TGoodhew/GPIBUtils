@@ -18,56 +18,56 @@ This application provides a graphical interface to remotely control and monitor 
 ## Requirements
 
 ### Hardware
-- Rigol DM3058 digital multimeter (or compatible model)
-- Network connection (Ethernet/LAN) or GPIB interface
-- Proper test leads connected to multimeter inputs
+- Rigol DM3058 Digital Multimeter (or compatible DM30xx series model)
+- GPIB interface card or USB-GPIB adapter (for GPIB connection), or
+- Network connection (for LXI connection)
 
 ### Software
 - .NET Framework 4.8.1 or later
-- Visual Studio 2017 or later (for building) - solution format version 17.3
+- Visual Studio 2015 or later (for building)
 - NI-VISA runtime (National Instruments VISA drivers)
+  - Download from: [NI-VISA Downloads](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
 
 ### NuGet Dependencies
-- `NationalInstruments.Visa` - VISA communication library (GPIB/TCP/IP)
-- `Ivi.Visa` - IVI-VISA interface library
+- `NationalInstruments.Visa` - GPIB/LXI communication library
+- `NationalInstruments.Common` - NI common libraries
 
 ## Configuration
 
-### Network Setup (TCP/IP Connection)
+### GPIB Setup
 
-1. **Configure the multimeter's IP address:**
-   - On the DM3058, press **Utility** → **Interface** → **LAN Config**
-   - Set a static IP address or enable DHCP
-   - Note the IP address displayed (e.g., `192.168.1.213`)
+1. **Configure the multimeter's GPIB address:**
+   - On the DM3058, press **Utility** → **Interface** → **GPIB**
+   - Set the GPIB address (typically 1-30)
+   - Note the address for application configuration
 
-2. **Configure the application's VISA address:**
-   - By default, the application uses: `TCPIP0::192.168.1.213::inst0::INSTR`
-   - To change the address, edit the `_dmmAddress` field in `MainWindow.xaml.cs`:
-   ```csharp
-   private string _dmmAddress = @"TCPIP0::192.168.1.213::inst0::INSTR";
-   ```
-   - Replace `192.168.1.213` with your multimeter's IP address
-   - Rebuild the application
+2. **Configure the application:**
+   - Edit the GPIB address in the source code or configuration file
+   - Default format: `GPIB0::address::INSTR` (e.g., `GPIB0::12::INSTR`)
 
 3. **Verify connectivity:**
-   - Test using NI MAX (National Instruments Measurement & Automation Explorer)
-   - Or use ping to verify network connectivity: `ping 192.168.1.213`
+   - Use NI MAX (National Instruments Measurement & Automation Explorer) to test connection
+   - Send `*IDN?` query to verify instrument responds correctly
 
-### GPIB Connection
+### LXI (Network) Setup
 
-To use GPIB instead of TCP/IP:
-1. Connect the DM3058 to your GPIB interface
-2. Note the multimeter's GPIB address (typically 0-30)
-3. Change `_dmmAddress` in the code to GPIB format:
-   ```csharp
-   private string _dmmAddress = @"GPIB0::10::INSTR"; // Where 10 is your device address
-   ```
-4. Rebuild the application
+1. **Configure the multimeter's network settings:**
+   - On the DM3058, press **Utility** → **Interface** → **LAN**
+   - Set IP address (static or DHCP)
+   - Note the IP address displayed
+
+2. **Configure the application:**
+   - Use TCPIP resource string format: `TCPIP0::ip_address::INSTR`
+   - Example: `TCPIP0::192.168.1.100::INSTR`
+
+3. **Verify connectivity:**
+   - Test with ping: `ping 192.168.1.100`
+   - Use NI MAX to test LXI connection
 
 ## Building the Application
 
 ### Using Visual Studio
-1. Open `DM3058.sln` in Visual Studio 2017 or later
+1. Open `DM3058.sln` in Visual Studio
 2. Restore NuGet packages (right-click solution → Restore NuGet Packages)
 3. Build the solution (F6 or Build → Build Solution)
 

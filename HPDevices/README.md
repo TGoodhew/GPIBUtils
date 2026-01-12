@@ -51,11 +51,14 @@ This library provides a high-level interface to control and measure with HP/Agil
 - .NET Framework 4.7.2 or later
 - Visual Studio 2015 or later (for building)
 - NI-VISA runtime (National Instruments VISA drivers)
+  - Download from: [NI-VISA Downloads](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
 
 ### NuGet Dependencies
+The library uses the following NuGet packages:
 - `NationalInstruments.Visa` - GPIB/VISA communication library
 - `System.Text.Json` (8.0.5) - JSON serialization for calibration data
-- `Microsoft.Bcl.AsyncInterfaces` (8.0.0) - Async support
+- `Microsoft.Bcl.AsyncInterfaces` (8.0.0) - Async/await support
+- Various `System.*` packages for .NET Framework compatibility
 
 ## Building the Library
 
