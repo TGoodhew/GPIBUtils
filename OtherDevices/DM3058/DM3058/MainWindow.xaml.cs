@@ -31,6 +31,7 @@ namespace DM3058
     {
         public static RoutedCommand SetModeCommand { get; } = new RoutedCommand();
 
+        private const string DefaultIPAddress = "192.168.1.213";
         private static readonly Regex VisaAddressRegex = new Regex(@"TCPIP\d+::([^:]+)::.*");
         
         private string _dmmAddress;
@@ -51,7 +52,7 @@ namespace DM3058
             // Load IP address from settings, default to original hardcoded value if not set
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TCPIPAddress))
             {
-                Properties.Settings.Default.TCPIPAddress = "192.168.1.213";
+                Properties.Settings.Default.TCPIPAddress = DefaultIPAddress;
                 Properties.Settings.Default.Save();
             }
 
@@ -317,7 +318,7 @@ namespace DM3058
                 return match.Groups[1].Value;
             }
             // If extraction fails, return default address
-            return "192.168.1.213";
+            return DefaultIPAddress;
         }
 
         /// <summary>
