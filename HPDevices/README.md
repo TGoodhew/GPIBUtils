@@ -109,7 +109,7 @@ double frequency = receiver.MeasureFrequency();
 Console.WriteLine($"Measured Frequency: {frequency} Hz");
 
 // Measure AM modulation depth
-double amDepth = receiver.MeasureAM();
+double amDepth = receiver.MeasureAMModulationPercent();
 Console.WriteLine($"AM Modulation Depth: {amDepth}%");
 ```
 
