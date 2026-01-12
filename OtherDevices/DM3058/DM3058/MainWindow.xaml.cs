@@ -279,7 +279,11 @@ namespace DM3058
             var dialog = new ConfigDialog(Properties.Settings.Default.TCPIPAddress);
             if (dialog.ShowDialog() == true)
             {
-                Properties.Settings.Default.TCPIPAddress = dialog.TCPIPAddress;
+                // Extract IP address from VISA format (TCPIP0::xxx.xxx.xxx.xxx::inst0::INSTR)
+                string visaAddress = dialog.TCPIPAddress;
+                string ipAddress = ExtractIPFromVISA(visaAddress);
+                
+                Properties.Settings.Default.TCPIPAddress = ipAddress;
                 Properties.Settings.Default.Save();
                 
                 MessageBox.Show(
@@ -288,6 +292,23 @@ namespace DM3058
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
+        }
+
+        /// <summary>
+        /// Extracts the IP address from a VISA TCPIP resource string.
+        /// </summary>
+        /// <param name="visaAddress">The VISA address string (e.g., "TCPIP0::192.168.1.213::inst0::INSTR").</param>
+        /// <returns>The IP address (e.g., "192.168.1.213").</returns>
+        private string ExtractIPFromVISA(string visaAddress)
+        {
+            // Expected format: TCPIP0::xxx.xxx.xxx.xxx::inst0::INSTR
+            var parts = visaAddress.Split(new[] { "::" }, StringSplitOptions.None);
+            if (parts.Length >= 2)
+            {
+                return parts[1];
+            }
+            // If extraction fails, return default address
+            return "192.168.1.213";
         }
 
         /// <summary>
