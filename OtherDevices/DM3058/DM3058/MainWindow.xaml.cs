@@ -2,6 +2,7 @@
 using NationalInstruments.Visa;
 using Ivi.Visa;
 using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -30,6 +31,8 @@ namespace DM3058
     {
         public static RoutedCommand SetModeCommand { get; } = new RoutedCommand();
 
+        private static readonly Regex VisaAddressRegex = new Regex(@"TCPIP\d+::([^:]+)::.*");
+        
         private string _dmmAddress;
         private readonly ResourceManager _resMgr = new ResourceManager();
         private DispatcherTimer _readTimer;
@@ -302,10 +305,10 @@ namespace DM3058
         private string ExtractIPFromVISA(string visaAddress)
         {
             // Expected format: TCPIP0::xxx.xxx.xxx.xxx::inst0::INSTR
-            var parts = visaAddress.Split(new[] { "::" }, StringSplitOptions.None);
-            if (parts.Length >= 2)
+            var match = VisaAddressRegex.Match(visaAddress);
+            if (match.Success)
             {
-                return parts[1];
+                return match.Groups[1].Value;
             }
             // If extraction fails, return default address
             return "192.168.1.213";
