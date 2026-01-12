@@ -107,24 +107,24 @@ namespace DM3058
             switch (mode)
             {
                 case ModeConstants.DCV:
-                    CurrentMode = Mode.DCV;
-                    CurrentCommand = "MEAS:VOLT:DC?";
+                    _currentMode = Mode.DCV;
+                    _currentCommand = "MEAS:VOLT:DC?";
                     break;
                 case ModeConstants.ACV:
-                    CurrentMode = Mode.ACV;
-                    CurrentCommand = "MEAS:VOLT:AC?";
+                    _currentMode = Mode.ACV;
+                    _currentCommand = "MEAS:VOLT:AC?";
                     break;
                 case ModeConstants.DCI:
-                    CurrentMode = Mode.DCI;
-                    CurrentCommand = "MEAS:CURR:DC?";
+                    _currentMode = Mode.DCI;
+                    _currentCommand = "MEAS:CURR:DC?";
                     break;
                 case ModeConstants.ACI:
-                    CurrentMode = Mode.ACI;
-                    CurrentCommand = "MEAS:CURR:AC?";
+                    _currentMode = Mode.ACI;
+                    _currentCommand = "MEAS:CURR:AC?";
                     break;
                 case ModeConstants.OHM:
-                    CurrentMode = Mode.OHM;
-                    CurrentCommand = "MEAS:RES?";
+                    _currentMode = Mode.OHM;
+                    _currentCommand = "MEAS:RES?";
                     break;
             }
 
@@ -186,10 +186,10 @@ namespace DM3058
         private void Timer_Tick(object sender, EventArgs e)
         {
             // Prevent overlapping timer ticks when read operation takes longer than timer interval
-            if (isReading)
+            if (_isReading)
                 return;
             
-            isReading = true;
+            _isReading = true;
             try
             {
                 string Symbol = "";
@@ -240,7 +240,7 @@ namespace DM3058
             }
             finally
             {
-                isReading = false;
+                _isReading = false;
             }
         }
 
