@@ -161,9 +161,9 @@ SENSe:VOLTage:RANGe <value>    # Set voltage range
 The DM3058 supports the following measurement modes, all of which are displayed by the application:
 
 - **DC Voltage**: Up to 1000V, resolution down to 0.1 µV
-- **AC Voltage**: Up to 750V, 20Hz to 100kHz
+- **AC Voltage**: Up to 750V, 20 Hz to 100 kHz
 - **DC Current**: Up to 10A, resolution down to 0.1 nA
-- **AC Current**: Up to 10A, 20Hz to 5kHz
+- **AC Current**: Up to 10A, 20 Hz to 5 kHz
 - **2-Wire Resistance**: Up to 100 MΩ
 - **4-Wire Resistance**: Up to 100 MΩ (eliminates lead resistance)
 - **Continuity**: Audio and visual indication
