@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace DM3058
 {
+    /// <summary>
+    /// Provides utility methods for formatting numbers in engineering notation with SI unit prefixes.
+    /// </summary>
+    /// <remarks>
+    /// Engineering notation expresses numbers as a coefficient and a power of 1000, using standard SI prefixes
+    /// (like m, µ, k, M, G, etc.). This is commonly used in engineering and scientific applications
+    /// for expressing measurements with appropriate units. Implementation credit: Steve Hageman.
+    /// http://analoghome.blogspot.com/2012/01/how-to-format-numbers-in-engineering.html
+    /// </remarks>
     // All credit to Steve Hageman for the implementation
     // http://analoghome.blogspot.com/2012/01/how-to-format-numbers-in-engineering.html
     public static class ToEngineeringFormat
@@ -14,6 +23,23 @@ namespace DM3058
         // Used in adding the units to the return string
         private static string[] prefix_const = { " y", " z", " a", " f", " p", " n", " µ", " m", " ", " k", " M", " G", " T" };
 
+        /// <summary>
+        /// Converts a number to engineering notation with SI unit prefix.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="significant_digits">
+        /// The number of significant digits to return. Should be a minimum of 3 for engineering notation.
+        /// Valid range is 1 to 15. When less than 3, output may be in scientific notation. Default is 3.
+        /// </param>
+        /// <param name="units">The measurement units (e.g., "Hz", "V", "A", "Ω"). Default is empty string.</param>
+        /// <returns>A string representing the number in engineering notation with unit prefix and units.</returns>
+        /// <remarks>
+        /// Examples: 
+        /// - Convert(0.001, 3, "V") returns "1.00 mV"
+        /// - Convert(1000000, 3, "Hz") returns "1.00 MHz"
+        /// - Convert(0.000000001, 3, "F") returns "1.00 nF"
+        /// The maximum supported number is 10^12 and minimum is 10^-24.
+        /// </remarks>
         // number: The number to convert.
         // 
         // significant_digits: The number of significant digits to return. digits should be a minimum of 3 for 
