@@ -44,6 +44,7 @@ namespace DM3058
         private bool _isReading = false;
         private double _timerIntervalSeconds = 1.0;
         private bool _isInitialized = false;
+        private bool _isUpdatingInterval = false;
 
         public MainWindow()
         {
@@ -350,15 +351,23 @@ namespace DM3058
         /// </summary>
         private void cmbInterval_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Avoid processing during initialization
-            if (!_isInitialized || cmbInterval == null || cmbInterval.SelectedItem == null)
+            // Avoid processing during initialization or recursive updates
+            if (!_isInitialized || _isUpdatingInterval || cmbInterval == null)
                 return;
                 
             if (cmbInterval.SelectedItem is ComboBoxItem selectedItem && 
                 double.TryParse(selectedItem.Tag.ToString(), out double interval))
             {
-                UpdateTimerInterval(interval);
-                UpdateMenuItemChecks(interval);
+                _isUpdatingInterval = true;
+                try
+                {
+                    UpdateTimerInterval(interval);
+                    UpdateMenuItemChecks(interval);
+                }
+                finally
+                {
+                    _isUpdatingInterval = false;
+                }
             }
         }
 
@@ -371,9 +380,17 @@ namespace DM3058
             if (sender is MenuItem menuItem && 
                 double.TryParse(menuItem.Tag.ToString(), out double interval))
             {
-                UpdateTimerInterval(interval);
-                UpdateMenuItemChecks(interval);
-                UpdateComboBoxSelection(interval);
+                _isUpdatingInterval = true;
+                try
+                {
+                    UpdateTimerInterval(interval);
+                    UpdateMenuItemChecks(interval);
+                    UpdateComboBoxSelection(interval);
+                }
+                finally
+                {
+                    _isUpdatingInterval = false;
+                }
             }
         }
 
