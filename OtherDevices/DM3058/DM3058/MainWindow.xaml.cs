@@ -352,19 +352,22 @@ namespace DM3058
         /// <summary>
         /// Handles the Test Connection button click event.
         /// Tests the connection to the DMM and updates the status accordingly.
+        /// Pauses measurements during test and resumes them afterwards if they were running.
         /// </summary>
         private void btnTestConnection_Click(object sender, RoutedEventArgs e)
         {
-            // Prevent testing while measurements are running to avoid concurrent access
-            if (_readTimer?.IsEnabled == true || _isReading)
+            // Pause measurements if running to avoid concurrent access
+            bool wasRunning = _readTimer?.IsEnabled == true;
+            if (wasRunning)
             {
-                MessageBox.Show(
-                    "Cannot test connection while measurements are running.\n\n" +
-                    "Please stop the measurements first by clicking the Stop button.",
-                    "Test Connection",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                return;
+                _readTimer.Stop();
+            }
+            
+            // Wait for any in-progress reading to complete
+            while (_isReading)
+            {
+                System.Threading.Thread.Sleep(10);
+                System.Windows.Application.Current.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Background);
             }
             
             UpdateStatus("Testing connection...", YellowBrush);
@@ -413,6 +416,14 @@ namespace DM3058
                     "Connection Test Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+            finally
+            {
+                // Resume measurements if they were running before the test
+                if (wasRunning)
+                {
+                    _readTimer.Start();
+                }
             }
         }
 
