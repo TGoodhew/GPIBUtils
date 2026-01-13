@@ -26,7 +26,7 @@ namespace HPDevices.HPE4418B
         private GpibSession gpibSession;
         private ResourceManager resManager;
         private SemaphoreSlim srqWait = new SemaphoreSlim(0, 1); // use a semaphore to wait for the SRQ events
-        private bool disposed = false;
+        private volatile bool disposed;
 
         /// <summary>
         /// Initializes a new instance of the E4418B device and establishes GPIB communication.
