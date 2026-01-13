@@ -117,7 +117,7 @@ namespace DM3058
                 // Clear the input buffer to prevent *IDN? response from being read by first measurement
                 try
                 {
-                    _tcpipSession.DiscardBuffers();
+                    _tcpipSession.FormattedIO.DiscardBuffers();
                 }
                 catch
                 {
@@ -401,7 +401,7 @@ namespace DM3058
                     // Clear the input buffer to prevent *IDN? response from being read by next measurement
                     try
                     {
-                        _tcpipSession.DiscardBuffers();
+                        _tcpipSession.FormattedIO.DiscardBuffers();
                     }
                     catch
                     {
