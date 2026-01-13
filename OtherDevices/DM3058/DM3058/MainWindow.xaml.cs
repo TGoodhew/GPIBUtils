@@ -351,7 +351,7 @@ namespace DM3058
         private void cmbInterval_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Avoid processing during initialization
-            if (!_isInitialized || cmbInterval?.SelectedItem == null)
+            if (!_isInitialized || cmbInterval == null || cmbInterval.SelectedItem == null)
                 return;
                 
             if (cmbInterval.SelectedItem is ComboBoxItem selectedItem && 
@@ -403,22 +403,15 @@ namespace DM3058
         /// </summary>
         private void UpdateMenuItemChecks(double interval)
         {
-            if (menuBar == null)
+            if (menuUpdateInterval == null)
                 return;
                 
-            foreach (var item in menuBar.Items)
+            foreach (var subItem in menuUpdateInterval.Items)
             {
-                if (item is MenuItem parentItem && parentItem.Header.ToString() == "_Update Interval")
+                if (subItem is MenuItem menuItem && menuItem.Tag != null && 
+                    double.TryParse(menuItem.Tag.ToString(), out double itemInterval))
                 {
-                    foreach (var subItem in parentItem.Items)
-                    {
-                        if (subItem is MenuItem menuItem && menuItem.Tag != null && 
-                            double.TryParse(menuItem.Tag.ToString(), out double itemInterval))
-                        {
-                            menuItem.IsChecked = Math.Abs(itemInterval - interval) < IntervalComparisonTolerance;
-                        }
-                    }
-                    break;
+                    menuItem.IsChecked = Math.Abs(itemInterval - interval) < IntervalComparisonTolerance;
                 }
             }
         }
