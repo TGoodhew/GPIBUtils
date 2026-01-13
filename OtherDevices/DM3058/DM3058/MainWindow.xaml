@@ -63,6 +63,32 @@
                 <MenuItem Header="5 seconds" Tag="5" Click="IntervalMenuItem_Click"/>
             </MenuItem>
         </Menu>
+        <StatusBar DockPanel.Dock="Bottom" Height="40" Background="#F0F0F0">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Name="statusIndicator" Width="16" Height="16" Fill="Gray" Margin="5,0,5,0"/>
+                    <TextBlock Name="statusText" Text="Initializing..." FontSize="14" VerticalAlignment="Center"/>
+                </StackPanel>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="2">
+                <TextBlock Name="lastUpdateText" Text="Last update: --" FontSize="14" VerticalAlignment="Center" Margin="10,0,10,0"/>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="3">
+                <Button Name="btnTestConnection" Content="Test Connection" Click="btnTestConnection_Click" FontSize="14" Padding="10,2,10,2" Margin="5,0,5,0"/>
+            </StatusBarItem>
+        </StatusBar>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
