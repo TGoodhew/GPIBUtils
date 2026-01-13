@@ -12,6 +12,13 @@ using System.Text.Json;
 
 namespace HPDevices.HP8902A
 {
+    /// <summary>
+    /// Service Request (SRQ) mask flags for the HP 8902A Measuring Receiver.
+    /// </summary>
+    /// <remarks>
+    /// These flags control which conditions generate a Service Request on the GPIB bus.
+    /// Multiple flags can be combined using bitwise OR operations.
+    /// </remarks>
     [Flags]
     public enum SRQMaskFlags : short
     {
@@ -24,20 +31,58 @@ namespace HPDevices.HP8902A
          * Bit 1 - HP-IB Code Error (always set in the SRQ Mask)
          * Bit 0 - Data Ready
         */
+        /// <summary>
+        /// Indicates that measurement data is ready to be read.
+        /// </summary>
         DataReady = 0x01,
+        /// <summary>
+        /// Indicates that an instrument error has occurred.
+        /// </summary>
         InstrumentError = 0x04,
+        /// <summary>
+        /// Indicates that a measurement limit has been exceeded.
+        /// </summary>
         LimitExceeded = 0x08,
+        /// <summary>
+        /// Indicates that the frequency offset mode has changed.
+        /// </summary>
         FrequencyOffsetModeChanged = 0x10,
+        /// <summary>
+        /// Indicates that the instrument has become uncalibrated or has been recalibrated.
+        /// </summary>
         UnOrRecalibrated = 0x20
     }
 
+    /// <summary>
+    /// Represents a calibration factor entry for RF power measurements at a specific frequency.
+    /// </summary>
+    /// <remarks>
+    /// Calibration factors compensate for losses or gains in the measurement path and are
+    /// frequency-dependent. They are typically loaded from a JSON file and applied to the
+    /// HP 8902A's internal calibration table.
+    /// </remarks>
     public class CalibrationFactor
     {
+        /// <summary>
+        /// Gets or sets the frequency in MHz for which this calibration factor applies.
+        /// </summary>
         public decimal Frequency { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the calibration factor in dB.
+        /// </summary>
         public decimal CalFactor { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CalibrationFactor"/> class with default values.
+        /// </summary>
         public CalibrationFactor() { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CalibrationFactor"/> class with specified values.
+        /// </summary>
+        /// <param name="frequency">The frequency in MHz.</param>
+        /// <param name="calFactor">The calibration factor in dB.</param>
         public CalibrationFactor(double frequency, double calFactor)
         {
             Frequency = (decimal)frequency;
@@ -45,8 +90,20 @@ namespace HPDevices.HP8902A
         }
     }
 
+    /// <summary>
+    /// Represents an HP 8902A Measuring Receiver that can measure RF signal parameters including
+    /// frequency, power, AM modulation, FM modulation, and phase modulation.
+    /// </summary>
+    /// <remarks>
+    /// The HP 8902A is a versatile measuring receiver capable of characterizing RF signals.
+    /// It supports calibration factor tables for accurate power measurements and can measure
+    /// various modulation parameters. Communication is via GPIB with SRQ-based synchronization.
+    /// </remarks>
     public class Device
     {
+        /// <summary>
+        /// Gets the GPIB address for this device in the format "GPIB0::XX::INSTR".
+        /// </summary>
         public string gpibAddress { get; }
 
         private GpibSession gpibSession;
@@ -55,6 +112,14 @@ namespace HPDevices.HP8902A
 
         private List<CalibrationFactor> CalFactors;
 
+        /// <summary>
+        /// Initializes a new instance of the HP 8902A device and establishes GPIB communication.
+        /// </summary>
+        /// <param name="GPIBAddress">The GPIB address in the format "GPIB0::XX::INSTR" where XX is the device address.</param>
+        /// <remarks>
+        /// Upon initialization, the device is preset to a known state using the IP (Instrument Preset) command.
+        /// The timeout is set to 20 seconds to accommodate measurements with 1 Hz resolution.
+        /// </remarks>
         public Device (string GPIBAddress)
         {
             resManager = new ResourceManager();
@@ -228,6 +293,15 @@ namespace HPDevices.HP8902A
             return ReadSciValue();
         }
 
+        /// <summary>
+        /// Measures the carrier frequency in Hz.
+        /// </summary>
+        /// <returns>The measured carrier frequency in Hz.</returns>
+        /// <remarks>
+        /// This method configures the instrument for frequency measurement (M5 mode) with auto-tuning,
+        /// sets 1 Hz frequency resolution, and triggers a measurement with settling time.
+        /// It uses SRQ to wait for measurement completion.
+        /// </remarks>
         public double MeasureFrequency()
         {
             // Set to Frequency Mode (M5),Auto-Tuning (AT) and Trigger Hold (T1)
