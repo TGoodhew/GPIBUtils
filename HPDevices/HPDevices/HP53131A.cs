@@ -21,7 +21,7 @@ namespace HPDevices.HP53131A
         private GpibSession gpibSession;
         private ResourceManager resManager;
         private SemaphoreSlim srqWait = new SemaphoreSlim(0, 1); // use a semaphore to wait for the SRQ events
-        private bool disposed = false;
+        private volatile bool disposed = false;
 
         /// <summary>
         /// Initializes a new instance of the HP 53131A device and establishes GPIB communication.
