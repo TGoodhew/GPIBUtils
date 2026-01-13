@@ -82,7 +82,7 @@ namespace HPDevices.HP5351A
         private GpibSession gpibSession;
         private ResourceManager resManager;
         private SemaphoreSlim srqWait = new SemaphoreSlim(0, 1); // use a semaphore to wait for the SRQ events
-        private bool disposed = false;
+        private volatile bool disposed = false;
 
         private string lastCommand;
 
