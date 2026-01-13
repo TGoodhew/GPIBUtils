@@ -97,7 +97,7 @@
             <ToggleButton x:Name="Channel4" Style="{DynamicResource ChannelButtonStyle}" Content="Channel 4" Background="Blue" Foreground="White" Checked="Channel4_Checked" Unchecked="Channel4_Unchecked" />
             <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Auto" Content="Auto" Click="Auto_Click" />
             <Button Style="{DynamicResource ControlButtonStyle}" x:Name="Single" Content="Single" Click="Single_Click" />
-            <ToggleButton x:Name="RunStop" Style="{DynamicResource RunStopButtonStyle}" Content="Run/Stop" Checked="RunStop_Checked" Unchecked="RunStop_Unchecked" />
+            <ToggleButton x:Name="RunStop" Style="{DynamicResource RunStopButtonStyle}" Checked="RunStop_Checked" Unchecked="RunStop_Unchecked" />
         </StackPanel>
         </Grid>
     </DockPanel>

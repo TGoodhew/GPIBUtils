@@ -337,6 +337,10 @@ namespace DS1054Z
             {
                 SendCommand(":CHANnel" + ch.ToString() + ":DISPlay OFF");
             }
+            
+            // Initialize RunStop button to reflect stopped state
+            RunStop.IsChecked = false;
+            RunStop.Content = "Run";
         }
 
         /// <summary>
@@ -388,7 +392,8 @@ namespace DS1054Z
                         if (!ChannelEnabled[channelNumber])
                             continue;
 
-                        int ch = channelNumber + 1;
+                        int localChannelNumber = channelNumber; // Capture by value
+                        int ch = localChannelNumber + 1;
 
                         WaveformPreamble preamble;
                         byte[] payload;
@@ -426,27 +431,11 @@ namespace DS1054Z
                         {
                             try
                             {
-                                var source = payload;
-                                int bytesPerPoint = (preamble.format == 0) ? 1 : 2;
+                                // Use localChannelNumber instead of channelNumber
+                                ChannelTraces[localChannelNumber].ItemsSource =
+                                    new ChartViewModel(payload).ByteSeries;
 
-                                long expectedBytesLong = (preamble.points > 0)
-                                    ? preamble.points * (long)bytesPerPoint
-                                    : 0;
-
-                                int expectedBytes = expectedBytesLong > 0
-                                    ? (int)Math.Min(expectedBytesLong, int.MaxValue)
-                                    : source.Length;
-
-                                int length = Math.Min(source.Length, expectedBytes);
-
-                                var data = (length > 0 && length == source.Length)
-                                    ? source
-                                    : (length > 0 ? source.Take(length).ToArray() : Array.Empty<byte>());
-
-                                ChannelTraces[channelNumber].ItemsSource =
-                                    new ChartViewModel(data).ByteSeries;
-
-                                Labels[channelNumber].Text = string.Format(
+                                Labels[localChannelNumber].Text = string.Format(
                                     "C{0}\nVPP {1}\nScale {2}\nTimebase {3}",
                                     ch,
                                     ToEngineeringFormat.Convert(VppResult, 3, "V"),
@@ -495,19 +484,21 @@ namespace DS1054Z
         }
 
         /// <summary>
-        /// Handles the RunStop checkbox checked event. Sends the RUN command to the oscilloscope.
+        /// Handles the RunStop checkbox checked event. Sends the RUN command to the oscilloscope and updates button to show Stop.
         /// </summary>
         private void RunStop_Checked(object sender, RoutedEventArgs e)
         {
             SendCommand(":RUN");
+            RunStop.Content = "Stop";
         }
 
         /// <summary>
-        /// Handles the RunStop checkbox unchecked event. Sends the STOP command to the oscilloscope.
+        /// Handles the RunStop checkbox unchecked event. Sends the STOP command to the oscilloscope and updates button to show Run.
         /// </summary>
         private void RunStop_Unchecked(object sender, RoutedEventArgs e)
         {
             SendCommand(":STOP");
+            RunStop.Content = "Run";
         }
 
         /// <summary>
