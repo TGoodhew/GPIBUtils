@@ -192,7 +192,15 @@ namespace DS1054Z
         {
             InitializeComponent();
             CancellationTokenSource = new CancellationTokenSource();
-            InitializeComms();
+            
+            bool connected = InitializeComms();
+            if (!connected)
+            {
+                // Connection was cancelled by user, exit gracefully
+                Application.Current.Shutdown();
+                return;
+            }
+            
             InitializeScope();
 
             for (int i = 0; i < 4; i++)
@@ -223,9 +231,10 @@ namespace DS1054Z
 
         /// <summary>
         /// Initializes communication with the oscilloscope via TCP/IP.
-        /// Retries connection indefinitely until successful.
+        /// Retries connection indefinitely until successful or user cancels.
         /// </summary>
-        private void InitializeComms()
+        /// <returns>True if connection established successfully, false if user cancelled.</returns>
+        private bool InitializeComms()
         {
             bool IsConnected = false;
 
@@ -264,12 +273,12 @@ namespace DS1054Z
                         {
                             SaveIPAddressFromDialog(dialog.TCPIPAddress);
                             tcpipAddress = BuildVISAAddress(Properties.Settings.Default.TCPIPAddress);
+                            // Continue the loop to try with new address
                         }
                         else
                         {
-                            // User cancelled, exit application
-                            Application.Current.Shutdown();
-                            return;
+                            // User cancelled configuration, return false to indicate no connection
+                            return false;
                         }
                     }
                 }
@@ -278,6 +287,8 @@ namespace DS1054Z
             TCPIPSession.TerminationCharacterEnabled = false; // avoid truncation/timeouts on binary reads
             TCPIPSession.TimeoutMilliseconds = 20000;
             TCPIPSession.Clear();
+            
+            return true;
         }
 
         /// <summary>
