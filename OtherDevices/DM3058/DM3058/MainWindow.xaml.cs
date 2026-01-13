@@ -114,6 +114,16 @@ namespace DM3058
                     throw new InvalidOperationException("Device did not respond to identification query");
                 }
                 
+                // Clear the input buffer to prevent *IDN? response from being read by first measurement
+                try
+                {
+                    _tcpipSession.FormattedIO.FlushRead();
+                }
+                catch
+                {
+                    // Ignore flush errors
+                }
+                
                 _isConnected = true;
                 UpdateStatus($"Connected to {_deviceIPAddress}", GreenBrush);
             }
@@ -191,8 +201,8 @@ namespace DM3058
                     _currentCommand = "MEAS:RES?";
                     break;
             }
-
-            SendCommand(_currentCommand);
+            
+            // Don't send command here - it will be sent by ReadCommand when timer ticks
         }
 
         private void SendCommand(string command)
@@ -387,6 +397,16 @@ namespace DM3058
                 {
                     _isConnected = true;
                     UpdateStatus($"Connected to {_deviceIPAddress}", GreenBrush);
+                    
+                    // Clear the input buffer to prevent *IDN? response from being read by next measurement
+                    try
+                    {
+                        _tcpipSession.FormattedIO.FlushRead();
+                    }
+                    catch
+                    {
+                        // Ignore flush errors
+                    }
                     
                     MessageBox.Show(
                         $"Connection test successful!\n\n" +
