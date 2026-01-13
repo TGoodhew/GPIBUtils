@@ -296,8 +296,11 @@ namespace DM3058
                 
                 // Update status on successful reading
                 _lastSuccessfulUpdate = DateTime.Now;
-                _isConnected = true;
-                UpdateStatus($"Connected to {_deviceIPAddress}", GreenBrush);
+                if (!_isConnected)
+                {
+                    _isConnected = true;
+                    UpdateStatus($"Connected to {_deviceIPAddress}", GreenBrush);
+                }
                 UpdateLastUpdateTime();
             }
             catch (Exception ex)
