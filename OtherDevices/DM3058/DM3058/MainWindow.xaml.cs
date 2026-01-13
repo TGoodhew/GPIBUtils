@@ -2,7 +2,6 @@
 using NationalInstruments.Visa;
 using Ivi.Visa;
 using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,6 +32,7 @@ namespace DM3058
         public static RoutedCommand SetModeCommand { get; } = new RoutedCommand();
 
         private const string DefaultIPAddress = "192.168.1.213";
+        private const double IntervalComparisonTolerance = 0.01;
         private static readonly Regex VisaAddressRegex = new Regex(@"TCPIP\d+::([^:]+)::.*");
         
         private readonly string _dmmAddress;
@@ -43,6 +43,7 @@ namespace DM3058
         private TcpipSession _tcpipSession;
         private bool _isReading = false;
         private double _timerIntervalSeconds = 1.0;
+        private bool _isInitialized = false;
 
         public MainWindow()
         {
@@ -64,6 +65,8 @@ namespace DM3058
             SetMode(ModeConstants.DCV);
 
             InitializeTimer();
+            
+            _isInitialized = true;
         }
 
         private void InitializeTimer()
@@ -347,7 +350,11 @@ namespace DM3058
         /// </summary>
         private void cmbInterval_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cmbInterval?.SelectedItem is ComboBoxItem selectedItem && 
+            // Avoid processing during initialization
+            if (!_isInitialized || cmbInterval?.SelectedItem == null)
+                return;
+                
+            if (cmbInterval.SelectedItem is ComboBoxItem selectedItem && 
                 double.TryParse(selectedItem.Tag.ToString(), out double interval))
             {
                 UpdateTimerInterval(interval);
@@ -396,15 +403,19 @@ namespace DM3058
         /// </summary>
         private void UpdateMenuItemChecks(double interval)
         {
-            foreach (MenuItem parentItem in ((Menu)this.FindName("menuBar"))?.Items ?? Enumerable.Empty<MenuItem>())
+            if (menuBar == null)
+                return;
+                
+            foreach (var item in menuBar.Items)
             {
-                if (parentItem.Header.ToString() == "_Update Interval")
+                if (item is MenuItem parentItem && parentItem.Header.ToString() == "_Update Interval")
                 {
-                    foreach (MenuItem item in parentItem.Items)
+                    foreach (var subItem in parentItem.Items)
                     {
-                        if (item.Tag != null && double.TryParse(item.Tag.ToString(), out double itemInterval))
+                        if (subItem is MenuItem menuItem && menuItem.Tag != null && 
+                            double.TryParse(menuItem.Tag.ToString(), out double itemInterval))
                         {
-                            item.IsChecked = Math.Abs(itemInterval - interval) < 0.01;
+                            menuItem.IsChecked = Math.Abs(itemInterval - interval) < IntervalComparisonTolerance;
                         }
                     }
                     break;
@@ -417,17 +428,17 @@ namespace DM3058
         /// </summary>
         private void UpdateComboBoxSelection(double interval)
         {
-            if (cmbInterval != null)
+            if (cmbInterval == null)
+                return;
+                
+            for (int i = 0; i < cmbInterval.Items.Count; i++)
             {
-                for (int i = 0; i < cmbInterval.Items.Count; i++)
+                if (cmbInterval.Items[i] is ComboBoxItem item && 
+                    double.TryParse(item.Tag.ToString(), out double itemInterval) &&
+                    Math.Abs(itemInterval - interval) < IntervalComparisonTolerance)
                 {
-                    if (cmbInterval.Items[i] is ComboBoxItem item && 
-                        double.TryParse(item.Tag.ToString(), out double itemInterval) &&
-                        Math.Abs(itemInterval - interval) < 0.01)
-                    {
-                        cmbInterval.SelectedIndex = i;
-                        break;
-                    }
+                    cmbInterval.SelectedIndex = i;
+                    break;
                 }
             }
         }
