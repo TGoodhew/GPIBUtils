@@ -217,7 +217,7 @@ namespace HPDevices.HP5351A
             var gbs = (GpibSession)sender;
             StatusByteFlags sb = gbs.ReadStatusByte();
 
-            Debug.WriteLine(sb.ToString(), "Status Byte: ");
+            System.Diagnostics.Debug.WriteLine(sb.ToString(), "Status Byte: ");
 
             // Assume Data Ready and release the semaphore for now
             srqWait.Release();
@@ -253,7 +253,7 @@ namespace HPDevices.HP5351A
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error disposing GPIB session: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Error disposing GPIB session: {ex.Message}");
                     }
 
                     try
@@ -262,7 +262,7 @@ namespace HPDevices.HP5351A
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error disposing Resource Manager: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Error disposing Resource Manager: {ex.Message}");
                     }
 
                     try
@@ -271,7 +271,7 @@ namespace HPDevices.HP5351A
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error disposing SRQ semaphore: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Error disposing SRQ semaphore: {ex.Message}");
                     }
                 }
 
