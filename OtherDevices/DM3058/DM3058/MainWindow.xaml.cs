@@ -2,6 +2,7 @@
 using NationalInstruments.Visa;
 using Ivi.Visa;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,6 +42,7 @@ namespace DM3058
         private string _currentCommand;
         private TcpipSession _tcpipSession;
         private bool _isReading = false;
+        private double _timerIntervalSeconds = 1.0;
 
         public MainWindow()
         {
@@ -67,7 +69,7 @@ namespace DM3058
         private void InitializeTimer()
         {
             _readTimer = new DispatcherTimer();
-            _readTimer.Interval = TimeSpan.FromSeconds(1);
+            _readTimer.Interval = TimeSpan.FromSeconds(_timerIntervalSeconds);
             _readTimer.Tick += Timer_Tick;
         }
 
@@ -337,6 +339,97 @@ namespace DM3058
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        /// Handles the ComboBox selection changed event for timer interval.
+        /// Updates the timer interval based on the selected value.
+        /// </summary>
+        private void cmbInterval_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbInterval?.SelectedItem is ComboBoxItem selectedItem && 
+                double.TryParse(selectedItem.Tag.ToString(), out double interval))
+            {
+                UpdateTimerInterval(interval);
+                UpdateMenuItemChecks(interval);
+            }
+        }
+
+        /// <summary>
+        /// Handles the menu item click event for timer interval selection.
+        /// Updates the timer interval and synchronizes with the ComboBox.
+        /// </summary>
+        private void IntervalMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem menuItem && 
+                double.TryParse(menuItem.Tag.ToString(), out double interval))
+            {
+                UpdateTimerInterval(interval);
+                UpdateMenuItemChecks(interval);
+                UpdateComboBoxSelection(interval);
+            }
+        }
+
+        /// <summary>
+        /// Updates the timer interval to the specified value.
+        /// If the timer is running, it restarts with the new interval.
+        /// </summary>
+        private void UpdateTimerInterval(double seconds)
+        {
+            _timerIntervalSeconds = seconds;
+            
+            if (_readTimer != null)
+            {
+                bool wasRunning = _readTimer.IsEnabled;
+                _readTimer.Stop();
+                _readTimer.Interval = TimeSpan.FromSeconds(_timerIntervalSeconds);
+                
+                if (wasRunning)
+                {
+                    _readTimer.Start();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the checked state of menu items based on the selected interval.
+        /// </summary>
+        private void UpdateMenuItemChecks(double interval)
+        {
+            foreach (MenuItem parentItem in ((Menu)this.FindName("menuBar"))?.Items ?? Enumerable.Empty<MenuItem>())
+            {
+                if (parentItem.Header.ToString() == "_Update Interval")
+                {
+                    foreach (MenuItem item in parentItem.Items)
+                    {
+                        if (item.Tag != null && double.TryParse(item.Tag.ToString(), out double itemInterval))
+                        {
+                            item.IsChecked = Math.Abs(itemInterval - interval) < 0.01;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the ComboBox selection based on the specified interval.
+        /// </summary>
+        private void UpdateComboBoxSelection(double interval)
+        {
+            if (cmbInterval != null)
+            {
+                for (int i = 0; i < cmbInterval.Items.Count; i++)
+                {
+                    if (cmbInterval.Items[i] is ComboBoxItem item && 
+                        double.TryParse(item.Tag.ToString(), out double itemInterval) &&
+                        Math.Abs(itemInterval - interval) < 0.01)
+                    {
+                        cmbInterval.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
         }
     }
 }

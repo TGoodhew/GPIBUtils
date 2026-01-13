@@ -49,11 +49,18 @@
         <CommandBinding Command="{x:Static local:MainWindow.SetModeCommand}" Executed="ExecutedSetModeCommand" CanExecute="CanExecuteSetModeCommand" />
     </Window.CommandBindings>
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
+        <Menu Name="menuBar" DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem Header="_Settings" Click="Settings_Click"/>
                 <Separator/>
                 <MenuItem Header="E_xit" Click="Exit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Update Interval">
+                <MenuItem Header="0.1 seconds" Tag="0.1" Click="IntervalMenuItem_Click"/>
+                <MenuItem Header="0.5 seconds" Tag="0.5" Click="IntervalMenuItem_Click"/>
+                <MenuItem Header="1 second" Tag="1" Click="IntervalMenuItem_Click" IsChecked="True"/>
+                <MenuItem Header="2 seconds" Tag="2" Click="IntervalMenuItem_Click"/>
+                <MenuItem Header="5 seconds" Tag="5" Click="IntervalMenuItem_Click"/>
             </MenuItem>
         </Menu>
         <Grid>
