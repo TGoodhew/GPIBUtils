@@ -121,6 +121,18 @@ namespace DM3058
             {
                 _isConnected = false;
                 UpdateStatus("Connection failed", RedBrush);
+                
+                // Dispose of session if it was opened but device didn't respond properly
+                try
+                {
+                    _tcpipSession?.Dispose();
+                    _tcpipSession = null;
+                }
+                catch (Exception)
+                {
+                    // Ignore disposal errors
+                }
+                
                 MessageBox.Show(
                     $"Failed to connect to DMM at {_dmmAddress}\n\n" +
                     $"Error: {ex.Message}\n\n" +
