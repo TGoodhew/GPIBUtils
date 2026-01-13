@@ -7,5 +7,11 @@
     <Setting Name="TCPIPAddress" Type="System.String" Scope="User">
       <Value Profile="(Default)">192.168.1.213</Value>
     </Setting>
+    <Setting Name="LogFilePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)"></Value>
+    </Setting>
+    <Setting Name="LogFormat" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CSV</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

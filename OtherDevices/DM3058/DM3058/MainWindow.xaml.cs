@@ -8,6 +8,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.IO;
+using System.Xml.Linq;
+using System.Globalization;
 
 namespace DM3058
 {
@@ -50,11 +53,19 @@ namespace DM3058
         private DateTime _lastSuccessfulUpdate = DateTime.MinValue;
         private bool _isConnected = false;
         
+        // Logging-related fields
+        private bool _isLogging = false;
+        private StreamWriter _logWriter;
+        private XDocument _xmlLog;
+        private string _currentLogPath;
+        private string _currentLogFormat;
+        
         // Cache brushes to avoid repeated allocation and freeze for WPF optimization
         private static readonly SolidColorBrush GrayBrush = CreateFrozenBrush(Colors.Gray);
         private static readonly SolidColorBrush YellowBrush = CreateFrozenBrush(Colors.Yellow);
         private static readonly SolidColorBrush GreenBrush = CreateFrozenBrush(Colors.Green);
         private static readonly SolidColorBrush RedBrush = CreateFrozenBrush(Colors.Red);
+        private static readonly SolidColorBrush OrangeBrush = CreateFrozenBrush(Colors.Orange);
 
         private static SolidColorBrush CreateFrozenBrush(Color color)
         {
@@ -84,6 +95,13 @@ namespace DM3058
             SetMode(ModeConstants.DCV);
 
             InitializeTimer();
+            
+            // Load logging settings
+            _currentLogPath = Properties.Settings.Default.LogFilePath;
+            _currentLogFormat = Properties.Settings.Default.LogFormat;
+            
+            // Initialize logging status display
+            UpdateLoggingStatus();
             
             _isInitialized = true;
         }
@@ -267,19 +285,29 @@ namespace DM3058
             try
             {
                 string Symbol = "";
+                string ModeStr = "";
                 
                 switch (_currentMode)
                 {
                     case Mode.DCV:
+                        Symbol = "V";
+                        ModeStr = "DCV";
+                        break;
                     case Mode.ACV:
                         Symbol = "V";
+                        ModeStr = "ACV";
                         break;
                     case Mode.DCI:
+                        Symbol = "A";
+                        ModeStr = "DCI";
+                        break;
                     case Mode.ACI:
                         Symbol = "A";
+                        ModeStr = "ACI";
                         break;
                     case Mode.OHM:
                         Symbol = "Ω";
+                        ModeStr = "OHM";
                         break;
                 }
                 
@@ -303,6 +331,9 @@ namespace DM3058
                 }
                 
                 txtReading.Text = ToEngineeringFormat.Convert(value, 6, Symbol);
+                
+                // Log the reading if logging is enabled
+                LogReading(value, Symbol, ModeStr);
                 
                 // Update status on successful reading
                 _lastSuccessfulUpdate = DateTime.Now;
@@ -453,6 +484,12 @@ namespace DM3058
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _readTimer?.Stop();
+            
+            // Stop logging if active
+            if (_isLogging)
+            {
+                StopLogging();
+            }
             
             try
             {
@@ -633,6 +670,317 @@ namespace DM3058
                 {
                     cmbInterval.SelectedIndex = i;
                     break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the Logging Configuration menu item click. Opens the logging configuration dialog.
+        /// </summary>
+        private void LogConfig_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new LogConfigDialog(_currentLogPath, _currentLogFormat);
+            if (dialog.ShowDialog() == true)
+            {
+                // Stop logging if currently active
+                bool wasLogging = _isLogging;
+                if (_isLogging)
+                {
+                    StopLogging();
+                    btnLogging.IsChecked = false;
+                }
+
+                _currentLogPath = dialog.LogFilePath;
+                _currentLogFormat = dialog.LogFormat;
+                
+                // Save settings
+                Properties.Settings.Default.LogFilePath = _currentLogPath;
+                Properties.Settings.Default.LogFormat = _currentLogFormat;
+                Properties.Settings.Default.Save();
+                
+                UpdateLoggingStatus();
+                
+                MessageBox.Show(
+                    $"Logging configuration saved.\n\n" +
+                    $"File: {_currentLogPath}\n" +
+                    $"Format: {_currentLogFormat}",
+                    "Configuration Saved",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                
+                // If was logging, inform user they need to restart it
+                if (wasLogging)
+                {
+                    MessageBox.Show(
+                        "Logging was stopped to apply the new configuration.\n\n" +
+                        "Click the 'Log' button to start logging with the new settings.",
+                        "Logging Stopped",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the logging toggle button checked event. Starts logging.
+        /// </summary>
+        private void btnLogging_Checked(object sender, RoutedEventArgs e)
+        {
+            StartLogging();
+        }
+
+        /// <summary>
+        /// Handles the logging toggle button unchecked event. Stops logging.
+        /// </summary>
+        private void btnLogging_Unchecked(object sender, RoutedEventArgs e)
+        {
+            StopLogging();
+        }
+
+        /// <summary>
+        /// Starts logging measurements to file.
+        /// </summary>
+        private void StartLogging()
+        {
+            // Validate configuration
+            if (string.IsNullOrWhiteSpace(_currentLogPath))
+            {
+                MessageBox.Show(
+                    "Logging is not configured.\n\n" +
+                    "Please configure logging from File → Logging Configuration.",
+                    "Logging Not Configured",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                btnLogging.IsChecked = false;
+                return;
+            }
+
+            try
+            {
+                // Create directory if it doesn't exist
+                string directory = Path.GetDirectoryName(_currentLogPath);
+                if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                if (_currentLogFormat?.ToUpper() == "XML")
+                {
+                    InitializeXMLLogging();
+                }
+                else
+                {
+                    InitializeCSVLogging();
+                }
+
+                _isLogging = true;
+                UpdateLoggingStatus();
+            }
+            catch (Exception ex)
+            {
+                _isLogging = false;
+                btnLogging.IsChecked = false;
+                UpdateLoggingStatus();
+                
+                MessageBox.Show(
+                    $"Failed to start logging:\n\n{ex.Message}",
+                    "Logging Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Stops logging measurements.
+        /// </summary>
+        private void StopLogging()
+        {
+            _isLogging = false;
+
+            try
+            {
+                if (_currentLogFormat?.ToUpper() == "XML" && _xmlLog != null)
+                {
+                    FinalizeXMLLogging();
+                }
+
+                _logWriter?.Flush();
+                _logWriter?.Close();
+                _logWriter?.Dispose();
+                _logWriter = null;
+                _xmlLog = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Error while closing log file:\n\n{ex.Message}",
+                    "Logging Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+
+            UpdateLoggingStatus();
+        }
+
+        /// <summary>
+        /// Initializes CSV logging by creating or appending to the log file.
+        /// </summary>
+        private void InitializeCSVLogging()
+        {
+            bool fileExists = File.Exists(_currentLogPath);
+            
+            _logWriter = new StreamWriter(_currentLogPath, append: true);
+            
+            // Write header if file is new
+            if (!fileExists || new FileInfo(_currentLogPath).Length == 0)
+            {
+                _logWriter.WriteLine("Timestamp,Mode,Value,Unit");
+            }
+            
+            _logWriter.WriteLine($"# Logging started at {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            _logWriter.Flush();
+        }
+
+        /// <summary>
+        /// Initializes XML logging by creating or loading the log file.
+        /// </summary>
+        private void InitializeXMLLogging()
+        {
+            if (File.Exists(_currentLogPath))
+            {
+                // Load existing XML file
+                try
+                {
+                    _xmlLog = XDocument.Load(_currentLogPath);
+                }
+                catch
+                {
+                    // If file is corrupted, create new
+                    _xmlLog = new XDocument(
+                        new XDeclaration("1.0", "utf-8", "yes"),
+                        new XElement("MeasurementLog")
+                    );
+                }
+            }
+            else
+            {
+                // Create new XML document
+                _xmlLog = new XDocument(
+                    new XDeclaration("1.0", "utf-8", "yes"),
+                    new XElement("MeasurementLog")
+                );
+            }
+
+            // Add session start marker
+            _xmlLog.Root.Add(new XElement("Session",
+                new XAttribute("StartTime", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
+            ));
+        }
+
+        /// <summary>
+        /// Finalizes XML logging by saving the document to file.
+        /// </summary>
+        private void FinalizeXMLLogging()
+        {
+            if (_xmlLog != null)
+            {
+                // Add session end marker
+                var lastSession = _xmlLog.Root.Elements("Session").LastOrDefault();
+                if (lastSession != null)
+                {
+                    lastSession.Add(new XAttribute("EndTime", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")));
+                }
+                
+                _xmlLog.Save(_currentLogPath);
+            }
+        }
+
+        /// <summary>
+        /// Logs a measurement reading to the currently open log file.
+        /// </summary>
+        private void LogReading(double value, string unit, string mode)
+        {
+            if (!_isLogging)
+                return;
+
+            try
+            {
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+                if (_currentLogFormat?.ToUpper() == "XML")
+                {
+                    LogReadingXML(timestamp, value, unit, mode);
+                }
+                else
+                {
+                    LogReadingCSV(timestamp, value, unit, mode);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Don't show error dialog during timer tick to avoid spam
+                // Just stop logging and update status
+                _isLogging = false;
+                btnLogging.IsChecked = false;
+                UpdateLoggingStatus();
+                
+                System.Diagnostics.Debug.WriteLine($"Logging error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Logs a reading to CSV format.
+        /// </summary>
+        private void LogReadingCSV(string timestamp, double value, string unit, string mode)
+        {
+            if (_logWriter != null)
+            {
+                _logWriter.WriteLine($"{timestamp},{mode},{value.ToString(CultureInfo.InvariantCulture)},{unit}");
+                _logWriter.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Logs a reading to XML format.
+        /// </summary>
+        private void LogReadingXML(string timestamp, double value, string unit, string mode)
+        {
+            if (_xmlLog != null)
+            {
+                var lastSession = _xmlLog.Root.Elements("Session").LastOrDefault();
+                if (lastSession != null)
+                {
+                    lastSession.Add(new XElement("Reading",
+                        new XAttribute("Timestamp", timestamp),
+                        new XAttribute("Mode", mode),
+                        new XAttribute("Value", value.ToString(CultureInfo.InvariantCulture)),
+                        new XAttribute("Unit", unit)
+                    ));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the logging status display in the status bar.
+        /// </summary>
+        private void UpdateLoggingStatus()
+        {
+            if (loggingStatusText != null && loggingIndicator != null)
+            {
+                if (_isLogging)
+                {
+                    loggingStatusText.Text = $"Logging: {_currentLogFormat}";
+                    loggingIndicator.Fill = GreenBrush;
+                }
+                else if (!string.IsNullOrWhiteSpace(_currentLogPath))
+                {
+                    loggingStatusText.Text = "Logging: Ready";
+                    loggingIndicator.Fill = OrangeBrush;
+                }
+                else
+                {
+                    loggingStatusText.Text = "Logging: Not configured";
+                    loggingIndicator.Fill = GrayBrush;
                 }
             }
         }
