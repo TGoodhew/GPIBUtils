@@ -180,7 +180,19 @@ namespace HPDevices.HP53131A
                     // Dispose managed resources
                     try
                     {
-                        gpibSession?.Dispose();
+                        if (gpibSession != null)
+                        {
+                            try
+                            {
+                                gpibSession.ServiceRequest -= SRQHandler;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Error unregistering SRQ handler: {ex.Message}");
+                            }
+
+                            gpibSession.Dispose();
+                        }
                     }
                     catch (Exception ex)
                     {
