@@ -247,7 +247,12 @@ namespace HPDevices.HP8673B
                     // Dispose managed resources
                     try
                     {
-                        gpibSession?.Dispose();
+                        // Unsubscribe Service Request handler before disposing the GPIB session
+                        if (gpibSession != null)
+                        {
+                            gpibSession.ServiceRequest -= SRQHandler;
+                            gpibSession.Dispose();
+                        }
                     }
                     catch (Exception ex)
                     {
