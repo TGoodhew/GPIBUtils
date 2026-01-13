@@ -54,9 +54,10 @@ namespace DM3058
                         dialog.FileName = Path.GetFileName(txtLogPath.Text);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     // If path parsing fails, just use default directory
+                    System.Diagnostics.Debug.WriteLine($"Warning: Unable to parse log path '{txtLogPath.Text}': {ex.Message}");
                 }
             }
 
