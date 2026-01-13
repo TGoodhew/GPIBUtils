@@ -119,7 +119,11 @@ namespace HPDevices.HP8350B
                     // Dispose managed resources
                     try
                     {
-                        gpibSession?.Dispose();
+                        if (gpibSession != null)
+                        {
+                            gpibSession.ServiceRequest -= SRQHandler;
+                            gpibSession.Dispose();
+                        }
                     }
                     catch (Exception ex)
                     {
