@@ -3,14 +3,33 @@ using System.Threading;
 
 namespace HPDevices.HP53131A
 {
+    /// <summary>
+    /// Represents an HP 53131A Universal Counter that can measure frequency, period, and time interval.
+    /// </summary>
+    /// <remarks>
+    /// The HP 53131A is a 225 MHz universal counter with three input channels. This class provides
+    /// methods to measure frequency on any channel and configure input impedance (50 ohm or 1 Mohm).
+    /// Communication is via GPIB with SRQ-based synchronization for measurement completion.
+    /// </remarks>
     public class Device
     {
+        /// <summary>
+        /// Gets the GPIB address for this device in the format "GPIB0::XX::INSTR".
+        /// </summary>
         public string gpibAddress { get; }
 
         private GpibSession gpibSession;
         private ResourceManager resManager;
         private SemaphoreSlim srqWait = new SemaphoreSlim(0, 1); // use a semaphore to wait for the SRQ events
 
+        /// <summary>
+        /// Initializes a new instance of the HP 53131A device and establishes GPIB communication.
+        /// </summary>
+        /// <param name="GPIBAddress">The GPIB address in the format "GPIB0::XX::INSTR" where XX is the device address.</param>
+        /// <remarks>
+        /// Upon initialization, the device is reset and all status registers are cleared.
+        /// The timeout is set to 20 seconds to accommodate measurements with 1 Hz resolution.
+        /// </remarks>
         public Device(string GPIBAddress)
         {
             resManager = new ResourceManager();
@@ -32,6 +51,16 @@ namespace HPDevices.HP53131A
             SendCommand(":STAT:PRES");
         }
 
+        /// <summary>
+        /// Measures the frequency on the specified input channel.
+        /// </summary>
+        /// <param name="channel">The input channel number (1, 2, or 3).</param>
+        /// <returns>The measured frequency in Hz, or 0 if a timeout occurs.</returns>
+        /// <remarks>
+        /// This method configures the counter for frequency measurement on the specified channel,
+        /// triggers a measurement, and waits for completion using SRQ. If the signal is too low
+        /// or missing, the method may timeout and return 0.
+        /// </remarks>
         public double MeasureFrequency(int channel)
         {
             double result;
@@ -73,6 +102,14 @@ namespace HPDevices.HP53131A
             return result;
         }
 
+        /// <summary>
+        /// Sets the input impedance for the counter.
+        /// </summary>
+        /// <param name="set50Ohm">True to set 50 ohm impedance; false to set 1 Mohm (high impedance). Default is true.</param>
+        /// <remarks>
+        /// Use 50 ohm impedance when measuring signals from 50 ohm sources (typical for RF applications).
+        /// Use 1 Mohm (high impedance) when measuring signals from high-impedance sources or to minimize loading.
+        /// </remarks>
         public void Set50OhmImpedance(bool set50Ohm = true)
         {
             if (set50Ohm)
