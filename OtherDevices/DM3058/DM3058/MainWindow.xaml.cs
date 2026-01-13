@@ -37,6 +37,7 @@ namespace DM3058
         private static readonly Regex VisaAddressRegex = new Regex(@"TCPIP\d+::([^:]+)::.*");
         
         private readonly string _dmmAddress;
+        private readonly string _deviceIPAddress;
         private readonly ResourceManager _resMgr = new ResourceManager();
         private DispatcherTimer _readTimer;
         private Mode _currentMode;
@@ -49,11 +50,18 @@ namespace DM3058
         private DateTime _lastSuccessfulUpdate = DateTime.MinValue;
         private bool _isConnected = false;
         
-        // Cache brushes to avoid repeated allocation
-        private static readonly SolidColorBrush GrayBrush = new SolidColorBrush(Colors.Gray);
-        private static readonly SolidColorBrush YellowBrush = new SolidColorBrush(Colors.Yellow);
-        private static readonly SolidColorBrush GreenBrush = new SolidColorBrush(Colors.Green);
-        private static readonly SolidColorBrush RedBrush = new SolidColorBrush(Colors.Red);
+        // Cache brushes to avoid repeated allocation and freeze for WPF optimization
+        private static readonly SolidColorBrush GrayBrush = CreateFrozenBrush(Colors.Gray);
+        private static readonly SolidColorBrush YellowBrush = CreateFrozenBrush(Colors.Yellow);
+        private static readonly SolidColorBrush GreenBrush = CreateFrozenBrush(Colors.Green);
+        private static readonly SolidColorBrush RedBrush = CreateFrozenBrush(Colors.Red);
+
+        private static SolidColorBrush CreateFrozenBrush(Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brush;
+        }
 
         public MainWindow()
         {
@@ -70,6 +78,7 @@ namespace DM3058
             }
 
             _dmmAddress = BuildVISAAddress(Properties.Settings.Default.TCPIPAddress);
+            _deviceIPAddress = ExtractIPFromVISA(_dmmAddress);
 
             InitializeDMM();
             SetMode(ModeConstants.DCV);
@@ -106,8 +115,7 @@ namespace DM3058
                 }
                 
                 _isConnected = true;
-                string ipAddress = ExtractIPFromVISA(_dmmAddress);
-                UpdateStatus($"Connected to {ipAddress}", GreenBrush);
+                UpdateStatus($"Connected to {_deviceIPAddress}", GreenBrush);
             }
             catch (Exception ex)
             {
@@ -277,8 +285,7 @@ namespace DM3058
                 // Update status on successful reading
                 _lastSuccessfulUpdate = DateTime.Now;
                 _isConnected = true;
-                string ipAddress = ExtractIPFromVISA(_dmmAddress);
-                UpdateStatus($"Connected to {ipAddress}", GreenBrush);
+                UpdateStatus($"Connected to {_deviceIPAddress}", GreenBrush);
                 UpdateLastUpdateTime();
             }
             catch (Exception ex)
@@ -309,13 +316,9 @@ namespace DM3058
         private void UpdateStatus(string message, SolidColorBrush brush)
         {
             if (statusIndicator != null)
-            {
                 statusIndicator.Fill = brush;
-            }
             if (statusText != null)
-            {
                 statusText.Text = message;
-            }
         }
 
         /// <summary>
@@ -323,9 +326,11 @@ namespace DM3058
         /// </summary>
         private void UpdateLastUpdateTime()
         {
-            if (lastUpdateText != null && _lastSuccessfulUpdate != DateTime.MinValue)
+            if (lastUpdateText != null)
             {
-                lastUpdateText.Text = $"Last update: {_lastSuccessfulUpdate:HH:mm:ss}";
+                lastUpdateText.Text = _lastSuccessfulUpdate != DateTime.MinValue 
+                    ? $"Last update: {_lastSuccessfulUpdate:HH:mm:ss}" 
+                    : "Last update: --";
             }
         }
 
@@ -351,13 +356,12 @@ namespace DM3058
                 if (!string.IsNullOrWhiteSpace(response))
                 {
                     _isConnected = true;
-                    string ipAddress = ExtractIPFromVISA(_dmmAddress);
-                    UpdateStatus($"Connected to {ipAddress}", GreenBrush);
+                    UpdateStatus($"Connected to {_deviceIPAddress}", GreenBrush);
                     
                     MessageBox.Show(
                         $"Connection test successful!\n\n" +
                         $"Device: {response.Trim()}\n" +
-                        $"Address: {ipAddress}",
+                        $"Address: {_deviceIPAddress}",
                         "Connection Test",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
