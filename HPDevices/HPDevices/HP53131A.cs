@@ -1,4 +1,5 @@
 ﻿using NationalInstruments.Visa;
+using System;
 using System.Threading;
 
 namespace HPDevices.HP53131A
