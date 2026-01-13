@@ -15,7 +15,32 @@ using System.Globalization;
 
 namespace DM3058
 {
-    enum Mode {DCV, ACV, DCI, ACI, OHM };
+    /// <summary>
+    /// Measurement modes for the DM3058 Digital Multimeter.
+    /// </summary>
+    enum Mode 
+    {
+        /// <summary>
+        /// DC Voltage measurement mode.
+        /// </summary>
+        DCV, 
+        /// <summary>
+        /// AC Voltage measurement mode.
+        /// </summary>
+        ACV, 
+        /// <summary>
+        /// DC Current measurement mode.
+        /// </summary>
+        DCI, 
+        /// <summary>
+        /// AC Current measurement mode.
+        /// </summary>
+        ACI, 
+        /// <summary>
+        /// Resistance (Ohms) measurement mode.
+        /// </summary>
+        OHM 
+    };
 
     /// <summary>
     /// Constants for DMM measurement modes used in UI bindings and command routing

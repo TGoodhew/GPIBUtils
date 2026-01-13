@@ -11,6 +11,13 @@ using System.Diagnostics;
 
 namespace HPDevices.HP8673B
 {
+    /// <summary>
+    /// Service Request (SRQ) mask flags for the HP 8673B Synthesized Signal Generator.
+    /// </summary>
+    /// <remarks>
+    /// These flags control which conditions generate a Service Request on the GPIB bus.
+    /// Multiple flags can be combined using bitwise OR operations.
+    /// </remarks>
     [Flags]
     public enum SRQMaskFlags : short
     {
@@ -23,18 +30,54 @@ namespace HPDevices.HP8673B
          * Bit 1 - Front Panel Entry Complete
          * Bit 0 - Front Panel Key Pressed
         */
+        /// <summary>
+        /// Indicates that a front panel key was pressed.
+        /// </summary>
         FrontPanelKeyPressed = 0x01,
+        /// <summary>
+        /// Indicates that a front panel entry is complete.
+        /// </summary>
         FrontPanelEntryComplete = 0x02,
+        /// <summary>
+        /// Indicates a change in the Extended Status Byte.
+        /// </summary>
         ChangeInESB = 0x04,
+        /// <summary>
+        /// Indicates that the RF source has settled to the commanded frequency.
+        /// </summary>
         SourceSettled = 0x08,
+        /// <summary>
+        /// Indicates that a sweep has completed.
+        /// </summary>
         EndOfSweep = 0x10,
+        /// <summary>
+        /// Indicates that an entry error occurred.
+        /// </summary>
         EntryError = 0x20,
+        /// <summary>
+        /// Asserted whenever a Service Request occurs.
+        /// </summary>
         SRQAssert = 0x40,
+        /// <summary>
+        /// Indicates that sweep parameters have changed.
+        /// </summary>
         ChangedSweepParameters = 0x80
     }
 
+    /// <summary>
+    /// Represents an HP 8673B Synthesized Signal Generator that provides precise RF signal generation
+    /// with frequency and power control.
+    /// </summary>
+    /// <remarks>
+    /// The HP 8673B is a high-performance synthesized signal generator with frequency range from
+    /// 2 to 18 GHz. This class provides methods to set CW frequency, power level, and RF output state
+    /// via GPIB communication. It uses SRQ-based synchronization for frequency settling.
+    /// </remarks>
     public class Device
     {
+        /// <summary>
+        /// Gets the GPIB address for this device in the format "GPIB0::XX::INSTR".
+        /// </summary>
         public string gpibAddress { get; }
 
         private GpibSession gpibSession;
@@ -43,6 +86,15 @@ namespace HPDevices.HP8673B
 
         private string lastCommand;
 
+        /// <summary>
+        /// Initializes a new instance of the HP 8673B device and establishes GPIB communication.
+        /// </summary>
+        /// <param name="GPIBAddress">The GPIB address in the format "GPIB0::XX::INSTR" where XX is the device address.</param>
+        /// <remarks>
+        /// Upon initialization, the SRQ mask is cleared and the device is preset to a known state using
+        /// the IP (Instrument Preset) command. The timeout is set to 20 seconds to accommodate
+        /// measurements with 1 Hz resolution.
+        /// </remarks>
         public Device(string GPIBAddress)
         {
             resManager = new ResourceManager();
@@ -63,6 +115,17 @@ namespace HPDevices.HP8673B
             SendCommand("IP");
         }
 
+        /// <summary>
+        /// Sets the continuous wave (CW) output frequency and waits for the source to settle.
+        /// </summary>
+        /// <param name="frequency">The desired frequency in Hertz (Hz).</param>
+        /// <returns>The actual locked frequency in Hz, which may differ slightly from the requested frequency above 6.6 GHz.</returns>
+        /// <remarks>
+        /// The method sets the frequency using the FR command, waits for the source to settle using SRQ,
+        /// and then reads back the actual locked frequency. For frequencies above 6.6 GHz, the exact
+        /// frequency may not be achievable due to baseband frequency multiplication, so the actual
+        /// locked frequency is returned.
+        /// </remarks>
         public double SetCWFrequency(double frequency)
         {
             // Setup the SRQ to wait for source to be settled (RM)
@@ -94,12 +157,26 @@ namespace HPDevices.HP8673B
             return double.Parse(result);
         }
 
+        /// <summary>
+        /// Sets the output power level.
+        /// </summary>
+        /// <param name="power">The desired power level in dBm (decibels relative to 1 milliwatt).</param>
+        /// <remarks>
+        /// The power level is set using the LE command followed by the power value in dBm.
+        /// </remarks>
         public void SetPowerLevel(double power)
         {
             // Set the power level (LE)
             SendCommand(String.Format("LE{0}DM", power));
         }
 
+        /// <summary>
+        /// Enables or disables the RF output.
+        /// </summary>
+        /// <param name="output">True to enable RF output; false to disable it.</param>
+        /// <remarks>
+        /// This method uses the RF command to control the output state. RF0 disables output, RF1 enables it.
+        /// </remarks>
         public void EnableRFOutput(bool output)
         {
             if (!output)
