@@ -138,12 +138,14 @@ The application uses standard SCPI commands to communicate with the DM3058:
 
 ### Measurement Configuration
 ```
-:MEAS:VOLT:DC?      # Measure DC voltage
-:MEAS:VOLT:AC?      # Measure AC voltage
-:MEAS:CURR:DC?      # Measure DC current
-:MEAS:CURR:AC?      # Measure AC current
-:MEAS:RES?          # Measure resistance
+MEAS:VOLT:DC?       # Measure DC voltage
+MEAS:VOLT:AC?       # Measure AC voltage
+MEAS:CURR:DC?       # Measure DC current
+MEAS:CURR:AC?       # Measure AC current
+MEAS:RES?           # Measure resistance
 ```
+
+**Note:** The leading colon (`:`) is optional in SCPI commands. The application uses commands without the leading colon as shown above.
 
 ### Command Structure
 All measurement commands follow the SCPI query format with a question mark (`?`) to request a reading. The multimeter responds with a numeric value that the application parses and formats for display.

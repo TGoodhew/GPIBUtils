@@ -8,6 +8,13 @@ This library provides a high-level interface to control and measure with HP/Agil
 
 ## Supported Devices
 
+### HP 5351A - Microwave Frequency Counter
+- **Oven status monitoring** for time-base stability
+- **Reference status checking** for external reference detection
+- **Sample hold/fast modes** for measurement control
+- Advanced SRQ features for measurement status
+- Optimized for microwave frequency measurements
+
 ### HP 53131A - Universal Counter
 - **Frequency measurements** up to 225 MHz (Channel 1) or 3 GHz (Channel 3)
 - Configurable input impedance (50Ω or 1MΩ)
@@ -109,6 +116,14 @@ Each device on the GPIB bus must have a unique address (0-30). Configure address
 - Verify addresses using NI MAX (National Instruments Measurement & Automation Explorer)
 
 ## Device Features
+
+### HP 5351A Microwave Frequency Counter
+- `GetOvenStatus()` - Query time-base oven status for stability indication
+- `GetReferenceStatus()` - Check external reference lock status
+- `SetSampleHold()` - Set measurement mode to sample hold
+- `SetSampleFast()` - Set measurement mode to fast sampling
+- Advanced SRQ mask control for measurement events
+- Optimized for microwave frequency counter applications
 
 ### HP 53131A Universal Counter
 - `MeasureFrequency(int channel)` - Measure frequency on specified channel (1, 2, or 3)

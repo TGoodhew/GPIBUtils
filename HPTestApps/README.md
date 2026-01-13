@@ -76,12 +76,15 @@ Interactive tests for the HP 8902A measuring receiver.
 Common functionality used across test applications.
 
 **Contents:**
-- `ToEngineeringFormat` class - Converts numeric values to engineering notation with SI prefixes
-  - Example: `1500000` → `"1.50 MHz"`
-  - Example: `0.000234` → `"234 µV"`
-  - Supports prefixes from yocto (10⁻²⁴) to tera (10¹²)
+- `Output` class - Console output formatting utilities
+  - `SetupConsole()` - Configure console buffer and colors
+  - `Prompt()` - Display prompts with beep and wait for user input
+  - `Heading()` - Display section headings in blue
+  - `Information()` - Display informational messages
 
-**Usage:** Reference this project from test applications to use shared formatting utilities.
+**Usage:** Reference this project from test applications to use shared console utilities.
+
+**Note:** Each test application includes its own implementation of `ToEngineeringFormat` for engineering notation formatting (e.g., `1500000` → `"1.50 MHz"`).
 
 ## Requirements
 
