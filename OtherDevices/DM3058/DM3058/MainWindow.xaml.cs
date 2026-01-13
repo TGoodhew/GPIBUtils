@@ -122,7 +122,7 @@ namespace DM3058
                 _isConnected = false;
                 UpdateStatus("Connection failed", RedBrush);
                 
-                // Dispose of session if it was opened but device didn't respond properly
+                // Dispose of session and ResourceManager if opened but device didn't respond properly
                 try
                 {
                     _tcpipSession?.Dispose();
@@ -355,6 +355,18 @@ namespace DM3058
         /// </summary>
         private void btnTestConnection_Click(object sender, RoutedEventArgs e)
         {
+            // Prevent testing while measurements are running to avoid concurrent access
+            if (_readTimer?.IsEnabled == true || _isReading)
+            {
+                MessageBox.Show(
+                    "Cannot test connection while measurements are running.\n\n" +
+                    "Please stop the measurements first by clicking the Stop button.",
+                    "Test Connection",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+            
             UpdateStatus("Testing connection...", YellowBrush);
             
             try
