@@ -356,7 +356,7 @@ namespace DM3058
                 return;
                 
             if (cmbInterval.SelectedItem is ComboBoxItem selectedItem && 
-                double.TryParse(selectedItem.Tag.ToString(), out double interval))
+                double.TryParse(selectedItem.Tag?.ToString(), out double interval))
             {
                 _isUpdatingInterval = true;
                 try
@@ -378,7 +378,7 @@ namespace DM3058
         private void IntervalMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem menuItem && 
-                double.TryParse(menuItem.Tag.ToString(), out double interval))
+                double.TryParse(menuItem.Tag?.ToString(), out double interval))
             {
                 _isUpdatingInterval = true;
                 try
@@ -425,8 +425,8 @@ namespace DM3058
                 
             foreach (var subItem in menuUpdateInterval.Items)
             {
-                if (subItem is MenuItem menuItem && menuItem.Tag != null && 
-                    double.TryParse(menuItem.Tag.ToString(), out double itemInterval))
+                if (subItem is MenuItem menuItem && 
+                    double.TryParse(menuItem.Tag?.ToString(), out double itemInterval))
                 {
                     menuItem.IsChecked = Math.Abs(itemInterval - interval) < IntervalComparisonTolerance;
                 }
@@ -444,7 +444,7 @@ namespace DM3058
             for (int i = 0; i < cmbInterval.Items.Count; i++)
             {
                 if (cmbInterval.Items[i] is ComboBoxItem item && 
-                    double.TryParse(item.Tag.ToString(), out double itemInterval) &&
+                    double.TryParse(item.Tag?.ToString(), out double itemInterval) &&
                     Math.Abs(itemInterval - interval) < IntervalComparisonTolerance)
                 {
                     cmbInterval.SelectedIndex = i;
