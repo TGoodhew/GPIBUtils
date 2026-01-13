@@ -48,6 +48,12 @@ namespace DM3058
         private bool _isUpdatingInterval = false;
         private DateTime _lastSuccessfulUpdate = DateTime.MinValue;
         private bool _isConnected = false;
+        
+        // Cache brushes to avoid repeated allocation
+        private static readonly SolidColorBrush GrayBrush = new SolidColorBrush(Colors.Gray);
+        private static readonly SolidColorBrush YellowBrush = new SolidColorBrush(Colors.Yellow);
+        private static readonly SolidColorBrush GreenBrush = new SolidColorBrush(Colors.Green);
+        private static readonly SolidColorBrush RedBrush = new SolidColorBrush(Colors.Red);
 
         public MainWindow()
         {
@@ -82,7 +88,7 @@ namespace DM3058
 
         private void InitializeDMM()
         {
-            UpdateStatus("Connecting...", Colors.Yellow);
+            UpdateStatus("Connecting...", YellowBrush);
             try
             {
                 _tcpipSession = (TcpipSession)_resMgr.Open(_dmmAddress);
@@ -90,14 +96,23 @@ namespace DM3058
                 _tcpipSession.TimeoutMilliseconds = 20000;
                 _tcpipSession.Clear();
                 
+                // Verify device responds before marking as connected
+                _tcpipSession.FormattedIO.WriteLine("*IDN?");
+                string response = _tcpipSession.FormattedIO.ReadString();
+                
+                if (string.IsNullOrWhiteSpace(response))
+                {
+                    throw new InvalidOperationException("Device did not respond to identification query");
+                }
+                
                 _isConnected = true;
                 string ipAddress = ExtractIPFromVISA(_dmmAddress);
-                UpdateStatus($"Connected to {ipAddress}", Colors.Green);
+                UpdateStatus($"Connected to {ipAddress}", GreenBrush);
             }
             catch (Exception ex)
             {
                 _isConnected = false;
-                UpdateStatus("Connection failed", Colors.Red);
+                UpdateStatus("Connection failed", RedBrush);
                 MessageBox.Show(
                     $"Failed to connect to DMM at {_dmmAddress}\n\n" +
                     $"Error: {ex.Message}\n\n" +
@@ -244,7 +259,7 @@ namespace DM3058
                     txtReading.Text = "Error: No Response";
                     btnRun.IsChecked = false;
                     _isConnected = false;
-                    UpdateStatus("Error: Device not responding", Colors.Red);
+                    UpdateStatus("Error: Device not responding", RedBrush);
                     return;
                 }
                 
@@ -253,7 +268,7 @@ namespace DM3058
                     txtReading.Text = $"Error: Invalid Data ({response})";
                     btnRun.IsChecked = false;
                     _isConnected = false;
-                    UpdateStatus("Error: Invalid data from device", Colors.Red);
+                    UpdateStatus("Error: Invalid data from device", RedBrush);
                     return;
                 }
                 
@@ -263,7 +278,7 @@ namespace DM3058
                 _lastSuccessfulUpdate = DateTime.Now;
                 _isConnected = true;
                 string ipAddress = ExtractIPFromVISA(_dmmAddress);
-                UpdateStatus($"Connected to {ipAddress}", Colors.Green);
+                UpdateStatus($"Connected to {ipAddress}", GreenBrush);
                 UpdateLastUpdateTime();
             }
             catch (Exception ex)
@@ -271,7 +286,7 @@ namespace DM3058
                 txtReading.Text = "Error: Communication Failed";
                 btnRun.IsChecked = false;
                 _isConnected = false;
-                UpdateStatus("Error: Communication failed", Colors.Red);
+                UpdateStatus("Error: Communication failed", RedBrush);
                 MessageBox.Show(
                     $"Communication error during measurement.\n\n" +
                     $"Error: {ex.Message}\n\n" +
@@ -290,12 +305,12 @@ namespace DM3058
         /// Updates the status indicator and status text in the status bar.
         /// </summary>
         /// <param name="message">The status message to display.</param>
-        /// <param name="color">The color of the status indicator.</param>
-        private void UpdateStatus(string message, Color color)
+        /// <param name="brush">The brush for the status indicator.</param>
+        private void UpdateStatus(string message, SolidColorBrush brush)
         {
             if (statusIndicator != null)
             {
-                statusIndicator.Fill = new SolidColorBrush(color);
+                statusIndicator.Fill = brush;
             }
             if (statusText != null)
             {
@@ -320,13 +335,13 @@ namespace DM3058
         /// </summary>
         private void btnTestConnection_Click(object sender, RoutedEventArgs e)
         {
-            UpdateStatus("Testing connection...", Colors.Yellow);
+            UpdateStatus("Testing connection...", YellowBrush);
             
             try
             {
-                if (_tcpipSession?.FormattedIO == null)
+                if (_tcpipSession == null || _tcpipSession.FormattedIO == null)
                 {
-                    throw new InvalidOperationException("VISA session not initialized");
+                    throw new InvalidOperationException("VISA session not initialized. Please restart the application.");
                 }
                 
                 // Send *IDN? query to test connection
@@ -337,7 +352,7 @@ namespace DM3058
                 {
                     _isConnected = true;
                     string ipAddress = ExtractIPFromVISA(_dmmAddress);
-                    UpdateStatus($"Connected to {ipAddress}", Colors.Green);
+                    UpdateStatus($"Connected to {ipAddress}", GreenBrush);
                     
                     MessageBox.Show(
                         $"Connection test successful!\n\n" +
@@ -355,7 +370,7 @@ namespace DM3058
             catch (Exception ex)
             {
                 _isConnected = false;
-                UpdateStatus("Connection test failed", Colors.Red);
+                UpdateStatus("Connection test failed", RedBrush);
                 
                 MessageBox.Show(
                     $"Connection test failed.\n\n" +
