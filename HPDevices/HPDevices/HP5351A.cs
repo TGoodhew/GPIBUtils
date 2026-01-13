@@ -11,6 +11,13 @@ using System.Diagnostics;
 
 namespace HPDevices.HP5351A
 {
+    /// <summary>
+    /// Service Request (SRQ) mask flags for the HP 5351A Frequency Counter.
+    /// </summary>
+    /// <remarks>
+    /// These flags control which conditions generate a Service Request on the GPIB bus.
+    /// Multiple flags can be combined using bitwise OR operations.
+    /// </remarks>
     [Flags]
     public enum SRQMaskFlags : short
     {
@@ -23,18 +30,53 @@ namespace HPDevices.HP5351A
          * Bit 1 - Measurement Complete
          * Bit 0 - Data Ready
         */
+        /// <summary>
+        /// Indicates that measurement data is ready to be read.
+        /// </summary>
         DataReady = 0x01,
+        /// <summary>
+        /// Indicates that a measurement has completed.
+        /// </summary>
         MeasurementComplete = 0x02,
+        /// <summary>
+        /// Indicates that an error has occurred.
+        /// </summary>
         Error = 0x04,
+        /// <summary>
+        /// Indicates that an input overload condition exists.
+        /// </summary>
         Overload = 0x08,
+        /// <summary>
+        /// Indicates that the instrument is in local mode.
+        /// </summary>
         Local = 0x10,
+        /// <summary>
+        /// Indicates that the instrument has been powered on.
+        /// </summary>
         PowerOne = 0x20,
+        /// <summary>
+        /// Asserted whenever a Service Request occurs.
+        /// </summary>
         SRQAssert = 0x40,
+        /// <summary>
+        /// Always zero (reserved bit).
+        /// </summary>
         AlwaysZero = 0x80
     }
 
+    /// <summary>
+    /// Represents an HP 5351A Microwave Frequency Counter with oven-controlled timebase.
+    /// </summary>
+    /// <remarks>
+    /// The HP 5351A is a high-stability frequency counter with an oven-controlled crystal oscillator
+    /// for improved frequency reference stability. This class provides methods to query oven and
+    /// reference status, and control sampling mode via GPIB communication.
+    /// </remarks>
     public class Device
     {
+        /// <summary>
+        /// Gets the GPIB address for this device in the format "GPIB0::XX::INSTR".
+        /// </summary>
         public string gpibAddress { get; }
 
         private GpibSession gpibSession;
@@ -43,6 +85,14 @@ namespace HPDevices.HP5351A
 
         private string lastCommand;
 
+        /// <summary>
+        /// Initializes a new instance of the HP 5351A device and establishes GPIB communication.
+        /// </summary>
+        /// <param name="GPIBAddress">The GPIB address in the format "GPIB0::XX::INSTR" where XX is the device address.</param>
+        /// <remarks>
+        /// Upon initialization, the SRQ mask is cleared and the device is initialized using the INIT command.
+        /// The timeout is set to 20 seconds to accommodate measurements with 1 Hz resolution.
+        /// </remarks>
         public Device(string GPIBAddress)
         {
             resManager = new ResourceManager();
@@ -63,6 +113,14 @@ namespace HPDevices.HP5351A
             SendCommand("INIT");
         }
 
+        /// <summary>
+        /// Queries the oven status of the internal timebase.
+        /// </summary>
+        /// <returns>A string indicating the oven status (e.g., "WARM", "READY").</returns>
+        /// <remarks>
+        /// The oven-controlled crystal oscillator requires time to warm up and stabilize after power-on.
+        /// This method queries the OVEN? command to determine if the timebase has reached operating temperature.
+        /// </remarks>
         public string GetOvenStatus()
         {
             SendCommand("OVEN?");
@@ -70,6 +128,14 @@ namespace HPDevices.HP5351A
             return ReadStringValue();
         }
 
+        /// <summary>
+        /// Queries the reference source status.
+        /// </summary>
+        /// <returns>A string indicating the reference status (e.g., "INT" for internal, "EXT" for external).</returns>
+        /// <remarks>
+        /// The counter can use either its internal oven-controlled oscillator or an external reference.
+        /// This method queries the REF? command to determine which reference is active.
+        /// </remarks>
         public string GetReferenceStatus()
         {
             SendCommand("REF?");
@@ -77,11 +143,25 @@ namespace HPDevices.HP5351A
             return ReadStringValue();
         }
 
+        /// <summary>
+        /// Sets the sampling mode to HOLD, which holds the current measurement result.
+        /// </summary>
+        /// <remarks>
+        /// In HOLD mode, the counter stops taking new measurements and displays the last result.
+        /// Use this mode when you need a stable reading for recording or analysis.
+        /// </remarks>
         public void SetSampleHold()
         {
             SendCommand("SAMPLE,HOLD");
         }
 
+        /// <summary>
+        /// Sets the sampling mode to FAST, which enables continuous rapid measurements.
+        /// </summary>
+        /// <remarks>
+        /// In FAST mode, the counter takes measurements continuously at the fastest possible rate.
+        /// Use this mode for real-time frequency monitoring or when maximum measurement speed is needed.
+        /// </remarks>
         public void SetSampleFast()
         {
             SendCommand("SAMPLE,FAST");
