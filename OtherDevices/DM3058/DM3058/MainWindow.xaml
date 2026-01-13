@@ -55,7 +55,7 @@
                 <Separator/>
                 <MenuItem Header="E_xit" Click="Exit_Click"/>
             </MenuItem>
-            <MenuItem Header="_Update Interval">
+            <MenuItem Name="menuUpdateInterval" Header="_Update Interval">
                 <MenuItem Header="0.1 seconds" Tag="0.1" Click="IntervalMenuItem_Click"/>
                 <MenuItem Header="0.5 seconds" Tag="0.5" Click="IntervalMenuItem_Click"/>
                 <MenuItem Header="1 second" Tag="1" Click="IntervalMenuItem_Click" IsChecked="True"/>
