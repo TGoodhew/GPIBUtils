@@ -186,7 +186,12 @@ namespace HPDevices.E4418B
                     // Dispose managed resources
                     try
                     {
-                        gpibSession?.Dispose();
+                        if (gpibSession != null)
+                        {
+                            // Unregister ServiceRequest handler before disposing the session
+                            gpibSession.ServiceRequest -= SRQHandler;
+                            gpibSession.Dispose();
+                        }
                     }
                     catch (Exception ex)
                     {
