@@ -117,11 +117,11 @@ namespace DM3058
                 // Clear the input buffer to prevent *IDN? response from being read by first measurement
                 try
                 {
-                    _tcpipSession.FormattedIO.FlushRead();
+                    _tcpipSession.DiscardBuffers();
                 }
                 catch
                 {
-                    // Ignore flush errors
+                    // Ignore discard errors
                 }
                 
                 _isConnected = true;
@@ -401,11 +401,11 @@ namespace DM3058
                     // Clear the input buffer to prevent *IDN? response from being read by next measurement
                     try
                     {
-                        _tcpipSession.FormattedIO.FlushRead();
+                        _tcpipSession.DiscardBuffers();
                     }
                     catch
                     {
-                        // Ignore flush errors
+                        // Ignore discard errors
                     }
                     
                     MessageBox.Show(
