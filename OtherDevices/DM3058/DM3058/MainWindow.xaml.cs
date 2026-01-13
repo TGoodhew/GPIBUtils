@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace DM3058
@@ -45,6 +46,8 @@ namespace DM3058
         private double _timerIntervalSeconds = 1.0;
         private bool _isInitialized = false;
         private bool _isUpdatingInterval = false;
+        private DateTime _lastSuccessfulUpdate = DateTime.MinValue;
+        private bool _isConnected = false;
 
         public MainWindow()
         {
@@ -79,15 +82,22 @@ namespace DM3058
 
         private void InitializeDMM()
         {
+            UpdateStatus("Connecting...", Colors.Yellow);
             try
             {
                 _tcpipSession = (TcpipSession)_resMgr.Open(_dmmAddress);
                 _tcpipSession.TerminationCharacterEnabled = true;
                 _tcpipSession.TimeoutMilliseconds = 20000;
                 _tcpipSession.Clear();
+                
+                _isConnected = true;
+                string ipAddress = ExtractIPFromVISA(_dmmAddress);
+                UpdateStatus($"Connected to {ipAddress}", Colors.Green);
             }
             catch (Exception ex)
             {
+                _isConnected = false;
+                UpdateStatus("Connection failed", Colors.Red);
                 MessageBox.Show(
                     $"Failed to connect to DMM at {_dmmAddress}\n\n" +
                     $"Error: {ex.Message}\n\n" +
@@ -233,6 +243,8 @@ namespace DM3058
                 {
                     txtReading.Text = "Error: No Response";
                     btnRun.IsChecked = false;
+                    _isConnected = false;
+                    UpdateStatus("Error: Device not responding", Colors.Red);
                     return;
                 }
                 
@@ -240,15 +252,26 @@ namespace DM3058
                 {
                     txtReading.Text = $"Error: Invalid Data ({response})";
                     btnRun.IsChecked = false;
+                    _isConnected = false;
+                    UpdateStatus("Error: Invalid data from device", Colors.Red);
                     return;
                 }
                 
                 txtReading.Text = ToEngineeringFormat.Convert(value, 6, Symbol);
+                
+                // Update status on successful reading
+                _lastSuccessfulUpdate = DateTime.Now;
+                _isConnected = true;
+                string ipAddress = ExtractIPFromVISA(_dmmAddress);
+                UpdateStatus($"Connected to {ipAddress}", Colors.Green);
+                UpdateLastUpdateTime();
             }
             catch (Exception ex)
             {
                 txtReading.Text = "Error: Communication Failed";
                 btnRun.IsChecked = false;
+                _isConnected = false;
+                UpdateStatus("Error: Communication failed", Colors.Red);
                 MessageBox.Show(
                     $"Communication error during measurement.\n\n" +
                     $"Error: {ex.Message}\n\n" +
@@ -260,6 +283,90 @@ namespace DM3058
             finally
             {
                 _isReading = false;
+            }
+        }
+
+        /// <summary>
+        /// Updates the status indicator and status text in the status bar.
+        /// </summary>
+        /// <param name="message">The status message to display.</param>
+        /// <param name="color">The color of the status indicator.</param>
+        private void UpdateStatus(string message, Color color)
+        {
+            if (statusIndicator != null)
+            {
+                statusIndicator.Fill = new SolidColorBrush(color);
+            }
+            if (statusText != null)
+            {
+                statusText.Text = message;
+            }
+        }
+
+        /// <summary>
+        /// Updates the last update timestamp display in the status bar.
+        /// </summary>
+        private void UpdateLastUpdateTime()
+        {
+            if (lastUpdateText != null && _lastSuccessfulUpdate != DateTime.MinValue)
+            {
+                lastUpdateText.Text = $"Last update: {_lastSuccessfulUpdate:HH:mm:ss}";
+            }
+        }
+
+        /// <summary>
+        /// Handles the Test Connection button click event.
+        /// Tests the connection to the DMM and updates the status accordingly.
+        /// </summary>
+        private void btnTestConnection_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateStatus("Testing connection...", Colors.Yellow);
+            
+            try
+            {
+                if (_tcpipSession?.FormattedIO == null)
+                {
+                    throw new InvalidOperationException("VISA session not initialized");
+                }
+                
+                // Send *IDN? query to test connection
+                _tcpipSession.FormattedIO.WriteLine("*IDN?");
+                string response = _tcpipSession.FormattedIO.ReadString();
+                
+                if (!string.IsNullOrWhiteSpace(response))
+                {
+                    _isConnected = true;
+                    string ipAddress = ExtractIPFromVISA(_dmmAddress);
+                    UpdateStatus($"Connected to {ipAddress}", Colors.Green);
+                    
+                    MessageBox.Show(
+                        $"Connection test successful!\n\n" +
+                        $"Device: {response.Trim()}\n" +
+                        $"Address: {ipAddress}",
+                        "Connection Test",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Device responded with empty response");
+                }
+            }
+            catch (Exception ex)
+            {
+                _isConnected = false;
+                UpdateStatus("Connection test failed", Colors.Red);
+                
+                MessageBox.Show(
+                    $"Connection test failed.\n\n" +
+                    $"Error: {ex.Message}\n\n" +
+                    "Please check:\n" +
+                    "- Device is powered on and connected to network\n" +
+                    "- IP address is correct (File → Settings)\n" +
+                    "- NI-VISA is installed",
+                    "Connection Test Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
