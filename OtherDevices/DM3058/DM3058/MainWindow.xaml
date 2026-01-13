@@ -52,6 +52,7 @@
         <Menu Name="menuBar" DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem Header="_Settings" Click="Settings_Click"/>
+                <MenuItem Header="_Logging Configuration..." Click="LogConfig_Click"/>
                 <Separator/>
                 <MenuItem Header="E_xit" Click="Exit_Click"/>
             </MenuItem>
@@ -72,6 +73,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
@@ -83,9 +85,15 @@
                 </StackPanel>
             </StatusBarItem>
             <StatusBarItem Grid.Column="2">
-                <TextBlock Name="lastUpdateText" Text="Last update: --" FontSize="14" VerticalAlignment="Center" Margin="10,0,10,0"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Name="loggingStatusText" Text="Logging: Off" FontSize="14" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                    <Ellipse Name="loggingIndicator" Width="12" Height="12" Fill="Gray" Margin="0,0,10,0"/>
+                </StackPanel>
             </StatusBarItem>
             <StatusBarItem Grid.Column="3">
+                <TextBlock Name="lastUpdateText" Text="Last update: --" FontSize="14" VerticalAlignment="Center" Margin="10,0,10,0"/>
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="4">
                 <Button Name="btnTestConnection" Content="Test Connection" Click="btnTestConnection_Click" FontSize="14" Padding="10,2,10,2" Margin="5,0,5,0"/>
             </StatusBarItem>
         </StatusBar>
@@ -104,6 +112,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <RadioButton Content="DCV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="{x:Static local:ModeConstants.DCV}" GroupName="mode" IsChecked="True" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
@@ -112,8 +121,9 @@
                     <RadioButton Content="ACI" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="{x:Static local:ModeConstants.ACI}" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
                     <RadioButton Content="OHM" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="{x:Static local:ModeConstants.OHM}" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
                 </StackPanel>
-                <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="400" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0">
+                <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="300" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
+                <ToggleButton Grid.Column="2" Name="btnLogging" Content="Log" MinWidth="100" Margin="10,0,0,0" Checked="btnLogging_Checked" Unchecked="btnLogging_Unchecked" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="10,0,0,0">
                     <TextBlock Text="Update Interval:" VerticalAlignment="Center" FontSize="20" Margin="0,0,10,0"/>
                     <ComboBox Name="cmbInterval" SelectedIndex="2" SelectionChanged="cmbInterval_SelectionChanged" FontSize="20" Width="100">
                         <ComboBoxItem Content="0.1 s" Tag="0.1"/>

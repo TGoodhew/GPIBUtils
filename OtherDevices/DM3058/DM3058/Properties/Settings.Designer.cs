@@ -34,5 +34,29 @@ namespace DM3058.Properties {
                 this["TCPIPAddress"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LogFilePath {
+            get {
+                return ((string)(this["LogFilePath"]));
+            }
+            set {
+                this["LogFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CSV")]
+        public string LogFormat {
+            get {
+                return ((string)(this["LogFormat"]));
+            }
+            set {
+                this["LogFormat"] = value;
+            }
+        }
     }
 }
