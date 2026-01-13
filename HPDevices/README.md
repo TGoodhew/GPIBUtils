@@ -1,52 +1,58 @@
-# HPDevices Class Library
+# HPDevices - GPIB/VISA Device Library
 
-A .NET Framework class library containing device driver classes for various HP/Agilent test equipment. This library enables GPIB automation and control of HP test instruments using the NationalInstruments.Visa interface.
+A C# class library for automating HP/Agilent test equipment via GPIB (General Purpose Interface Bus) using the National Instruments VISA interface.
 
 ## Overview
 
-HPDevices provides high-level .NET interfaces for controlling HP/Agilent test equipment via GPIB (General Purpose Interface Bus). Each device class encapsulates the low-level GPIB commands and provides intuitive methods for instrument control and measurement.
+This library provides a high-level interface to control and measure with HP/Agilent test equipment through GPIB communication. Each device class encapsulates the specific command set and functionality for its instrument, making it easy to integrate test equipment into automated test systems.
 
-### Supported Devices
+## Supported Devices
 
-The library currently supports the following HP/Agilent test equipment:
+### HP 5351A - Microwave Frequency Counter
+- **Oven status monitoring** for time-base stability
+- **Reference status checking** for external reference detection
+- **Sample hold/fast modes** for measurement control
+- Advanced SRQ features for measurement status
+- Optimized for microwave frequency measurements
 
-- **HP53131A** - Universal Counter
-  - High-resolution frequency measurements
-  - Dual-channel input
-  - SRQ (Service Request) support for asynchronous measurements
+### HP 53131A - Universal Counter
+- **Frequency measurements** up to 225 MHz (Channel 1) or 3 GHz (Channel 3)
+- Configurable input impedance (50Ω or 1MΩ)
+- High-resolution measurements with automatic ranging
+- Service Request (SRQ) support for measurement complete signaling
 
-- **HP8350B** - Sweep Oscillator Mainframe
-  - CW (Continuous Wave) frequency generation
-  - Power level control
-  - Frequency sweep capabilities
+### HP 8350B - Sweep Oscillator
+- **CW frequency control** (continuous wave operation)
+- **Power level control** in dBm
+- Frequency range dependent on installed plug-in modules
+- Simple command interface for signal generation
 
-- **HP8673B** - Synthesized Signal Generator
-  - Wide frequency range signal generation
-  - Precision power control
-  - Modulation capabilities
+### HP 8673B - Synthesized Signal Generator
+- **Frequency range:** 2-18 GHz
+- **CW frequency control** with high stability
+- **Power level control** in dBm
+- **RF output enable/disable** control
+- Advanced SRQ features for sweep and source settling detection
 
-- **HP8902A** - Measuring Receiver
-  - AM/FM/Phase modulation measurements
-  - Frequency measurements
-  - RF power measurements
-  - Calibration factor support for accurate power readings
-  - SRQ support for async measurement operations
+### HP 8902A - Measuring Receiver
+- **AM/FM/Phase modulation measurements**
+- **Frequency measurements** with high accuracy
+- **Power sensor calibration** support with JSON-based calibration factor storage
+- Comprehensive measurement capabilities for communications testing
+- SRQ support for data ready and error conditions
 
-- **HPE4418B** - Power Meter
-  - RF power measurements
-  - Multiple sensor support
-  - Calibration factor management
-
-- **HP5351A** - Frequency Counter
-  - Precision frequency measurements
-  - Compatible with HP53131A interface
+### HP E4418B - Power Meter
+- **Power measurements** with calibration support
+- **Automatic sensor zeroing and calibration** routines
+- Frequency-dependent power measurements
+- High accuracy for RF power testing
 
 ## Requirements
 
 ### Hardware
-- HP/Agilent test equipment (one or more of the supported devices listed above)
-- GPIB interface card or USB-GPIB adapter
-- GPIB cables for device connection
+- HP/Agilent test equipment (one or more of the supported devices)
+- GPIB interface hardware (e.g., National Instruments GPIB-USB-HS adapter)
+- Properly configured GPIB bus with correct addressing
 
 ### Software
 - .NET Framework 4.7.2 or later
@@ -73,129 +79,142 @@ The library uses the following NuGet packages:
 msbuild HPDevices.sln /p:Configuration=Release
 ```
 
-The compiled library will be output to `HPDevices/bin/Release/HPDevices.dll`
-
 ## Usage
 
-### Referencing the Library
+### Basic Device Instantiation
 
-Add a reference to the `HPDevices.dll` assembly in your project, or reference the HPDevices project directly in your solution.
-
-### Basic Example - HP8350B Sweep Oscillator
+Devices are instantiated using their GPIB address in the format `GPIB0::XX::INSTR` where `XX` is the device's GPIB address (typically 0-30).
 
 ```csharp
 using HPDevices.HP8350B;
-
-// Create device instance with GPIB address
-Device sweepOsc = new Device("GPIB0::19::INSTR");
-
-// Set CW frequency to 1 GHz (frequency in Hz)
-sweepOsc.SetCWFrequency(1e9);
-
-// Set power level to -10 dBm
-sweepOsc.SetPowerLevel(-10.0);
-```
-
-### Basic Example - HP8902A Measuring Receiver
-
-```csharp
-using HPDevices.HP8902A;
-
-// Create device instance with GPIB address
-Device receiver = new Device("GPIB0::8::INSTR");
-
-// Measure frequency
-double frequency = receiver.MeasureFrequency();
-Console.WriteLine($"Measured Frequency: {frequency} Hz");
-
-// Measure AM modulation depth
-double amDepth = receiver.MeasureAMModulationPercent();
-Console.WriteLine($"AM Modulation Depth: {amDepth}%");
-```
-
-### Basic Example - HP53131A Universal Counter
-
-```csharp
 using HPDevices.HP53131A;
+using HPDevices.E4418B;
 
-// Create device instance with GPIB address
-Device counter = new Device("GPIB0::10::INSTR");
+// Create device instances with their GPIB addresses
+var signalGenerator = new HPDevices.HP8350B.Device("GPIB0::19::INSTR");
+var frequencyCounter = new HPDevices.HP53131A.Device("GPIB0::23::INSTR");
+var powerMeter = new HPDevices.E4418B.Device("GPIB0::13::INSTR");
+
+// Set signal generator frequency to 100 MHz
+signalGenerator.SetCWFrequency(100e6); // Frequency in Hz
+
+// Set output power to 0 dBm
+signalGenerator.SetPowerLevel(0);
 
 // Measure frequency on channel 1
-double freq = counter.MeasureFrequency(1);
-Console.WriteLine($"Frequency (CH1): {freq} Hz");
+double measuredFreq = frequencyCounter.MeasureFrequency(1);
+
+// Measure power at 100 MHz
+double measuredPower = powerMeter.MeasurePower(100); // Frequency in MHz
 ```
 
-### GPIB Address Format
+### GPIB Address Configuration
 
-All device classes accept GPIB addresses in the NI-VISA format:
-```
-GPIB[board]::primary_address::INSTR
-```
+Each device on the GPIB bus must have a unique address (0-30). Configure addresses on the instruments:
+- Typically found in the instrument's **System** or **GPIB** settings menu
+- Common addresses: 10-30 (0-9 often reserved for controllers and special functions)
+- Verify addresses using NI MAX (National Instruments Measurement & Automation Explorer)
 
-Examples:
-- `GPIB0::8::INSTR` - Device at primary address 8 on board 0
-- `GPIB0::19::INSTR` - Device at primary address 19 on board 0
+## Device Features
 
-Use NI MAX (National Instruments Measurement & Automation Explorer) to discover connected GPIB devices and their addresses.
+### HP 5351A Microwave Frequency Counter
+- `GetOvenStatus()` - Query time-base oven status for stability indication
+- `GetReferenceStatus()` - Check external reference lock status
+- `SetSampleHold()` - Set measurement mode to sample hold
+- `SetSampleFast()` - Set measurement mode to fast sampling
+- Advanced SRQ mask control for measurement events
+- Optimized for microwave frequency counter applications
 
-## Architecture
+### HP 53131A Universal Counter
+- `MeasureFrequency(int channel)` - Measure frequency on specified channel (1, 2, or 3)
+- `Set50OhmImpedance(bool enable)` - Configure input impedance
+- Automatic SRQ-based measurement completion
+- Configurable timeout for low-frequency measurements (default: 20 seconds)
 
-### Common Patterns
+### HP 8350B Sweep Oscillator
+- `SetCWFrequency(double frequency)` - Set CW frequency in Hz
+- `SetPowerLevel(double power)` - Set output power in dBm
+- Simple, reliable command interface
+- Instrument preset on initialization
+
+### HP 8673B Synthesized Signal Generator
+- `SetCWFrequency(double frequency)` - Set frequency in Hz (2-18 GHz range)
+- `SetPowerLevel(double power)` - Set power level in dBm
+- `SetRFOutputOn(bool enable)` - Enable/disable RF output
+- SRQ mask control for advanced sweep operations
+- Source settling detection
+
+### HP 8902A Measuring Receiver
+- `MeasureMWFrequency()` - Measure RF carrier frequency
+- `MeasureAMModulation()` - Measure AM modulation depth
+- `MeasureFMModulation()` - Measure FM deviation
+- `MeasurePhaseModulation()` - Measure phase deviation
+- `LoadCalibrationFactors(string filename)` - Load sensor calibration from JSON
+- `SaveCalibrationFactors(string filename)` - Save sensor calibration to JSON
+- Comprehensive error detection via SRQ
+
+### HP E4418B Power Meter
+- `MeasurePower(int frequency)` - Measure power at specified frequency (MHz)
+- `ZeroAndCalibrateSensor()` - Perform automatic zero and calibration sequence
+- Waits for calibration completion using SRQ
+- Accurate measurements across wide frequency range
+
+## Communication Details
 
 All device classes follow a consistent pattern:
+- **Initialization:** Open GPIB session, set timeout (20 seconds default), enable termination characters
+- **Clearing:** Send device clear command on startup
+- **SRQ Handling:** Use SemaphoreSlim for asynchronous Service Request waiting
+- **Command Methods:** Simple, descriptive method names for all device operations
+- **Error Handling:** Automatic timeout and communication error detection
 
-1. **Constructor**: Accepts GPIB address, initializes VISA resources, configures timeouts and termination
-2. **Public Methods**: High-level device functionality (measurements, configuration)
-3. **Private Methods**: Low-level GPIB communication helpers
-4. **Resource Management**: Proper cleanup of VISA resources
-5. **SRQ Handling**: Asynchronous Service Request support using `SemaphoreSlim` for non-blocking measurements
+### Typical Command Flow
+1. Instantiate device with GPIB address
+2. Device automatically initializes and clears
+3. Call methods to configure and control device
+4. Methods with measurements use SRQ to wait for completion
+5. Results returned directly from measurement methods
 
-### Threading and Async Operations
+## Thread Safety
 
-The library uses async/await patterns with SRQ (Service Request) handling for operations that may take time to complete:
-- Measurements are initiated with appropriate setup commands
-- SRQ is configured to signal measurement completion
-- SemaphoreSlim provides efficient async waiting for SRQ events
-- Prevents blocking the calling thread during long measurements
-
-## Test Applications
-
-For usage examples and testing, see the **HPTestApps** solution which contains console test applications for each device class.
+Device classes use SemaphoreSlim for SRQ event handling, providing:
+- Asynchronous wait for measurement completion
+- Thread-safe operation
+- Proper event synchronization
 
 ## Known Limitations
 
-- **Hardware required**: All device classes require physical GPIB hardware and instruments to function
-- **Single connection**: Each device instance maintains one GPIB connection; create separate instances for multiple devices
-- **Thread safety**: Device classes are not thread-safe; use appropriate synchronization if accessing from multiple threads
-- **VISA dependency**: Requires NI-VISA runtime to be installed on the system
+- **Single connection per device:** Each device instance maintains one GPIB session
+- **Blocking operations:** Measurement methods block until completion or timeout
+- **No automatic retry:** Communication errors require re-initialization
+- **Fixed timeouts:** 20-second timeout suitable for most operations but may need adjustment for very low frequency measurements
 
 ## Troubleshooting
 
 ### GPIB Connection Issues
-- **"Resource not found"**: 
-  - Verify GPIB address using NI MAX
-  - Ensure instrument is powered on and connected
-  - Check GPIB interface card is properly installed
-- **Timeout errors**: 
-  - Increase timeout values for slow operations (some are pre-configured for 20+ seconds)
-  - Check GPIB cable connections
-  - Verify instrument is responding (test with NI MAX)
+- **"Resource not found"**: Verify GPIB address matches instrument configuration
+- **Timeout errors**: Check GPIB cable connections and termination
+- **Communication failures**: Ensure NI-VISA drivers are properly installed
+- **Device not responding**: Verify instrument is powered on and not in local mode
+
+### Measurement Issues
+- **Zero readings**: Check for timeout - may need longer timeout for low-frequency measurements
+- **Inconsistent results**: Ensure proper settling time between measurements
+- **SRQ not firing**: Verify instrument supports and is configured for SRQ operation
 
 ### Build Issues
-- **Missing NI-VISA references**: Install NI-VISA runtime from [National Instruments website](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
-- **NuGet package restore failures**: Ensure you have internet connectivity and NuGet package sources are configured correctly
+- **Missing NI-VISA references**: Install NI-VISA runtime from National Instruments
+- **Missing NuGet packages**: Restore packages in Visual Studio or use `nuget restore`
 
 ## Additional Resources
 
-- [NI-VISA Documentation](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
-- [GPIB Tutorial](https://www.ni.com/en-us/support/documentation/supplemental/06/gpib-instrument-control-tutorial.html)
-- HP/Agilent Instrument Programming Manuals (device-specific, available from Keysight/Agilent)
+- [National Instruments VISA Documentation](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
+- [GPIB Tutorial and Basics](https://www.ni.com/en-us/support/documentation/gpib-tutorial.html)
+- HP/Agilent instrument programming manuals (available from Keysight Technologies)
 
-## Related Projects
+## Test Applications
 
-- **HPTestApps**: Console test applications for each device class (see `../HPTestApps/`)
-- **OtherDevices**: Similar device libraries for non-HP equipment (see `../OtherDevices/`)
+See the `HPTestApps` folder for example console applications demonstrating usage of each device class.
 
 ## License
 

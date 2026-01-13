@@ -1,19 +1,19 @@
-# DM3058 Digital Multimeter Application
+# DM3058 - Rigol Digital Multimeter Interface
 
-A WPF application for monitoring and controlling the Rigol DM3058 Digital Multimeter via GPIB/LXI interface. Provides real-time measurement display with engineering notation formatting.
+A WPF application for real-time monitoring and control of the Rigol DM3058 digital multimeter via SCPI commands over TCP/IP or GPIB.
 
 ## Overview
 
-This application provides a graphical interface to remotely monitor measurements from a Rigol DM3058 digital multimeter. It communicates with the instrument using SCPI (Standard Commands for Programmable Instruments) commands over GPIB or LXI (LAN eXtensions for Instrumentation).
+This application provides a graphical interface to remotely control and monitor measurements from a Rigol DM3058 digital multimeter. It communicates with the instrument using SCPI (Standard Commands for Programmable Instruments) commands, supporting various measurement modes including DC/AC voltage, DC/AC current, and resistance.
 
 ### Features
 
-- **Real-time measurement display** with automatic updates
-- **Multiple measurement modes**: DC/AC Voltage, DC/AC Current, Resistance, Continuity, Diode, Capacitance, Frequency
-- **Engineering notation formatting**: Automatic unit scaling (e.g., 1.23 kΩ, 5.67 mV)
-- **High precision**: Displays measurements with full instrument precision
-- **Flexible connectivity**: Supports GPIB and LXI/VXI-11 connections
-- **Simple interface**: Clean, easy-to-read display with minimal controls
+- **Multiple measurement modes**: DCV, ACV, DCI, ACI, and Ohms (Ω)
+- **Real-time readings**: Continuous measurement updates with configurable refresh rate
+- **Mode selection buttons**: Quick switching between measurement functions
+- **Engineering notation formatting**: Automatic unit scaling (e.g., mV, µA, kΩ)
+- **Simple interface**: Clean, intuitive UI for instrument control
+- **TCP/IP or GPIB connectivity**: Flexible connection options
 
 ## Requirements
 
@@ -76,187 +76,168 @@ This application provides a graphical interface to remotely monitor measurements
 msbuild DM3058.sln /p:Configuration=Release
 ```
 
-The compiled application will be output to `DM3058/bin/Release/DM3058.exe`
-
 ## Usage
 
-1. **Connect the multimeter**
-   - Power on the DM3058
-   - Connect via GPIB cable or network
+### Starting the Application
 
-2. **Start the application**
-   - Launch DM3058.exe
-   - Application will attempt to connect using configured address
+1. **Launch the application** - The application will automatically attempt to connect to the multimeter
+2. **Connection verification** - If connection fails, verify the IP address and network connectivity
+3. **Default mode** - Application starts in DC Voltage (DCV) measurement mode
 
-3. **View measurements**
-   - Application automatically polls the multimeter for current measurement
-   - Display updates in real-time with engineering notation
-   - Measurement mode is detected automatically from instrument
+### Measurement Modes
 
-4. **Control the multimeter**
-   - Use the multimeter's front panel to change measurement modes
-   - Use the multimeter's front panel to change ranges and settings
-   - Application reflects current measurement mode and value
+Click the appropriate button to switch measurement modes:
+
+- **DCV** - DC Voltage measurement
+- **ACV** - AC Voltage measurement  
+- **DCI** - DC Current measurement
+- **ACI** - AC Current measurement
+- **OHM** - Resistance (Ohms) measurement
+
+### Reading Measurements
+
+- Measurements update automatically at 1-second intervals (configurable in code)
+- Values are displayed with automatic unit scaling using engineering notation
+- Examples: `1.234 V`, `123.4 mV`, `12.34 µA`, `1.234 kΩ`
+
+### Making Connections
+
+Before taking measurements:
+1. **DC/AC Voltage:** Connect test leads to the multimeter's V/Ω and COM inputs
+2. **DC/AC Current:** Connect test leads to the appropriate current input (A or mA) and COM
+3. **Resistance:** Connect test leads to the V/Ω and COM inputs
+4. Select the appropriate measurement mode in the application
+5. Connect the test leads to the circuit or component being measured
 
 ## Architecture
 
 ### Core Components
 
 #### `MainWindow.xaml`
-Main application window providing:
-- Large, easy-to-read measurement display
-- Status indicators
-- Connection information
-- Minimal UI for distraction-free monitoring
+WPF window defining the user interface:
+- Mode selection buttons (DCV, ACV, DCI, ACI, OHM)
+- Measurement display area
+- Command bindings for mode switching
 
 #### `MainWindow.xaml.cs`
-Application logic:
-- **VISA session management**: Initializes and maintains GPIB/LXI connection
-- **Background polling**: Continuously queries multimeter for measurements
-- **SCPI communication**: Sends and receives SCPI commands
-- **Data formatting**: Converts raw measurements to engineering notation
-- **Error handling**: Manages connection errors and instrument faults
+Main application logic:
+- **VISA session management**: Initializes TCP/IP or GPIB connection
+- **Measurement timer**: Polls the multimeter at regular intervals
+- **Mode control**: Sends appropriate SCPI commands for each measurement mode
+- **Data formatting**: Converts readings to engineering notation
 
 #### `ToEngineeringFormat.cs`
-Utility class for engineering notation formatting:
-- Converts numeric values with appropriate metric prefixes
-- Supports full range from yocto (10^-24) to yotta (10^24)
-- Examples: 0.001234 V → "1.234 mV", 12345 Ω → "12.345 kΩ"
+Utility for formatting numeric values with engineering notation and SI prefixes:
+- Converts values like `0.00123` to `"1.23 mV"`
+- Supports common metric prefixes from nano to tera
+- Shared utility also used in HPDevices test applications
 
-## SCPI Commands Reference
+## SCPI Commands
 
-The application uses standard SCPI commands compatible with the Rigol DM3058:
+The application uses standard SCPI commands to communicate with the DM3058:
 
-### Basic Queries
+### Measurement Configuration
 ```
-*IDN?                          # Query instrument identification
-SYSTem:ERRor?                  # Query error queue
-```
-
-### Measurement Queries
-```
-MEASure[:VOLTage][:DC]?        # Measure DC voltage
-MEASure:VOLTage:AC?            # Measure AC voltage
-MEASure[:CURRent][:DC]?        # Measure DC current
-MEASure:CURRent:AC?            # Measure AC current
-MEASure:RESistance?            # Measure resistance
-MEASure:FRESistance?           # Measure 4-wire resistance
-MEASure:CONTinuity?            # Continuity test
-MEASure:DIODe?                 # Diode test
-MEASure:CAPacitance?           # Measure capacitance
-MEASure:FREQuency?             # Measure frequency
+MEAS:VOLT:DC?       # Measure DC voltage
+MEAS:VOLT:AC?       # Measure AC voltage
+MEAS:CURR:DC?       # Measure DC current
+MEAS:CURR:AC?       # Measure AC current
+MEAS:RES?           # Measure resistance
 ```
 
-### Configuration Commands
+**Note:** The leading colon (`:`) is optional in SCPI commands. The application uses commands without the leading colon as shown above.
+
+### Command Structure
+All measurement commands follow the SCPI query format with a question mark (`?`) to request a reading. The multimeter responds with a numeric value that the application parses and formats for display.
+
+## Timer Configuration
+
+The measurement update rate is controlled by a DispatcherTimer:
+```csharp
+_readTimer.Interval = TimeSpan.FromSeconds(1); // 1 second updates
 ```
-CONFigure[:VOLTage][:DC]       # Configure DC voltage mode
-CONFigure:VOLTage:AC           # Configure AC voltage mode
-CONFigure[:CURRent][:DC]       # Configure DC current mode
-CONFigure:CURRent:AC           # Configure AC current mode
-SENSe:VOLTage:RANGe <value>    # Set voltage range
-```
 
-## Measurement Modes
+To change the update rate:
+1. Edit the interval in `InitializeTimer()` method
+2. Rebuild the application
+3. Shorter intervals provide faster updates but increase bus traffic
 
-The DM3058 supports the following measurement modes, all of which are displayed by the application:
+## Engineering Notation Format
 
-- **DC Voltage**: Up to 1000V, resolution down to 0.1 µV
-- **AC Voltage**: Up to 750V, 20 Hz to 100 kHz
-- **DC Current**: Up to 10A, resolution down to 0.1 nA
-- **AC Current**: Up to 10A, 20 Hz to 5 kHz
-- **2-Wire Resistance**: Up to 100 MΩ
-- **4-Wire Resistance**: Up to 100 MΩ (eliminates lead resistance)
-- **Continuity**: Audio and visual indication
-- **Diode**: Forward voltage measurement
-- **Capacitance**: Up to 10 mF
-- **Frequency**: 20 Hz to 1 MHz
+The ToEngineeringFormat utility automatically scales values with SI prefixes:
 
-## Performance
-
-- **Update Rate**: Configurable polling interval (typically 100-500ms)
-- **Precision**: Full instrument precision preserved in display
-- **Latency**: Minimal delay between instrument measurement and display update
-- **CPU Usage**: Low CPU usage during normal operation
+| Range | Prefix | Example |
+|-------|--------|---------|
+| ≥1e12 | T (tera) | 1.5e12 → "1.50 T" |
+| ≥1e9 | G (giga) | 2.4e9 → "2.40 G" |
+| ≥1e6 | M (mega) | 3.3e6 → "3.30 M" |
+| ≥1e3 | k (kilo) | 4.7e3 → "4.70 k" |
+| ≥1 | (base) | 5.0 → "5.00" |
+| ≥1e-3 | m (milli) | 6e-3 → "6.00 m" |
+| ≥1e-6 | µ (micro) | 7e-6 → "7.00 µ" |
+| <1e-6 | n (nano) and smaller | 8e-9 → "8.00 n" |
 
 ## Known Limitations
 
-- **Single instrument**: Only supports one multimeter connection at a time
-- **No configuration**: Measurement mode and range must be set on instrument front panel
-- **No logging**: Does not include data logging features (measurements are displayed but not recorded)
-- **No graphs**: Displays current value only, no trend plotting
-- **Manual reconnection**: Connection errors require application restart
+- **Single multimeter support**: Application connects to one multimeter at a time
+- **No data logging**: Measurements are not automatically saved (display only)
+- **Limited error handling**: Communication errors may require application restart
+- **Manual address configuration**: IP address changes require code modification and rebuild
+- **Fixed update rate**: Timer interval requires code change to adjust
 
 ## Troubleshooting
 
 ### Connection Issues
-- **"Unable to connect"**:
-  - Verify instrument address (GPIB or TCPIP)
-  - Check that multimeter is powered on
-  - For GPIB: Ensure GPIB interface card is installed, cables connected
-  - For LXI: Verify network connectivity with ping, check firewall settings
-  - Test connection independently using NI MAX
-
-- **Timeout errors**:
-  - Check instrument is not in remote lockout mode
-  - Verify NI-VISA drivers are properly installed
-  - Try increasing timeout values in code
-  - Ensure instrument is not busy with long measurement
+- **"Unable to connect"**: 
+  - Verify multimeter IP address in code matches actual device address
+  - Check network connectivity with `ping` command
+  - Ensure multimeter is powered on and network interface is active
+  - Verify NI-VISA is properly installed
+- **Timeout errors**: 
+  - Check firewall settings - VISA may be blocked
+  - Ensure no other applications are connected to the multimeter
+  - Verify VISA address format is correct
 
 ### Measurement Issues
-- **No display or zero values**:
-  - Check instrument measurement mode
-  - Verify test leads are properly connected
-  - Ensure instrument is not showing error on front panel
-  - Check instrument range settings
-
-- **Incorrect values**:
-  - Verify instrument calibration
-  - Check test lead connections and quality
-  - Ensure appropriate range is selected
-  - Review instrument accuracy specifications
+- **No readings or zero values**: 
+  - Verify correct measurement mode is selected
+  - Check test lead connections to multimeter
+  - Ensure signal is within multimeter's measurement range
+- **Erratic readings**:
+  - Check for loose connections
+  - Verify proper test lead connection to COM terminal
+  - Allow multimeter to warm up (typically 30 minutes)
 
 ### Build Issues
 - **Missing NI-VISA references**: 
-  - Install NI-VISA runtime from [National Instruments website](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
-  - Rebuild solution after installing NI-VISA
-
-- **NuGet package errors**: 
-  - Restore NuGet packages in Visual Studio
-  - Clear NuGet cache if packages fail to restore
-
-## Device Information
-
-### Rigol DM3058 Specifications
-
-- **Display**: 5½ digit (20,000 count)
-- **Dual Display**: Main and auxiliary measurements simultaneously
-- **Measurement Speed**: Up to 50 readings/second
-- **Interfaces**: USB, RS-232, GPIB (optional), LXI (LAN)
-- **SCPI Compatible**: Standard SCPI command set
-- **Accuracy**: Up to 0.015% for DC voltage
-
-### Why "OtherDevices"?
-
-This application is located in the `OtherDevices` folder because the DM3058 is manufactured by Rigol, not HP/Agilent. The `HPDevices` library and test apps are specifically for HP/Agilent equipment, while `OtherDevices` contains drivers and applications for test equipment from other manufacturers.
+  - Install NI-VISA runtime from National Instruments website
+  - Or install NI Measurement & Automation Explorer (NI MAX)
+- **Missing WPF dependencies**: 
+  - Ensure .NET Framework 4.8.1 SDK is installed
+  - Verify Visual Studio has WPF workload installed
+- **NuGet restore fails**:
+  - Check internet connection
+  - Clear NuGet cache: `nuget locals all -clear`
+  - Restore manually from Package Manager Console
 
 ## Additional Resources
 
-- [Rigol DM3058 Product Page](https://www.rigolna.com/products/digital-multimeters/dm3000/)
-- [Rigol DM3058 Programming Guide](https://www.rigolna.com/products/digital-multimeters/dm3000/) (check Downloads section)
+- [Rigol DM3058/DM3058E Programming Guide](https://www.rigolna.com/products/digital-multimeters/dm3000/)
 - [NI-VISA Documentation](https://www.ni.com/en-us/support/downloads/drivers/download.ni-visa.html)
-- [SCPI Standard](https://www.ivifoundation.org/specifications/default.aspx)
-- [LXI Consortium](https://www.lxistandard.org/)
-
-## Engineering Notation Credits
-
-Engineering notation formatting by Steve Hageman: http://analoghome.blogspot.com/2012/01/how-to-format-numbers-in-engineering.html
+- [SCPI Standard Commands](https://www.ivifoundation.org/specifications/default.aspx)
+- [National Instruments VISA Tutorial](https://www.ni.com/en-us/support/documentation/supplemental/visa-tutorial.html)
 
 ## Related Projects
 
-- **DS1054Z**: Oscilloscope viewer application for Rigol DS1054Z (see `../DS1054Z/`)
-- **HPDevices**: Class library for HP/Agilent test equipment (see `../../HPDevices/`)
-- **HPTestApps**: Test applications for HP devices (see `../../HPTestApps/`)
+This application is part of the GPIBUtils repository, which also includes:
+- **HPDevices** - Library for HP/Agilent test equipment
+- **HPTestApps** - Test applications for HP devices
+- **DS1054Z** - Oscilloscope viewer application
 
 ## License
 
 This application is part of the GPIBUtils repository. Refer to the repository's main license for usage terms.
+
+## Credits
+
+Engineering notation formatting by Steve Hageman: http://analoghome.blogspot.com/2012/01/how-to-format-numbers-in-engineering.html

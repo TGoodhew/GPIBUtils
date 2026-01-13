@@ -1,74 +1,98 @@
-# HPTestApps - Test Applications
+# HPTestApps - Device Library Test Applications
 
-Console test applications for testing and demonstrating the HPDevices library classes. Each test application corresponds to a specific HP/Agilent test instrument and provides examples of how to use the device driver classes.
+Console applications for testing and demonstrating the functionality of the HPDevices library. These applications provide interactive examples of device control and automated measurement routines.
 
 ## Overview
 
-HPTestApps is a collection of .NET console applications that serve multiple purposes:
-- **Testing**: Validate functionality of HPDevices library classes
-- **Examples**: Demonstrate proper usage patterns for each device class
-- **Diagnostics**: Help troubleshoot GPIB communication and instrument issues
-- **Development**: Aid in developing and debugging new device features
+This solution contains test applications for each supported HP/Agilent device, plus common utilities. Each test application demonstrates typical usage patterns and measurement workflows for its corresponding device class.
 
-## Projects in Solution
+## Test Applications
 
-### HP8350BTestApp
-Test application for the HP8350B Sweep Oscillator Mainframe.
+### HP5351ATestApp - HP 5351A Frequency Counter Tests
+Interactive console application for testing the HP 5351A microwave frequency counter.
 
 **Features:**
-- Set CW (Continuous Wave) frequencies
-- Control output power levels
-- Test sweep functionality
-- Verify GPIB communication
+- Frequency measurement demonstrations
+- Channel selection testing
+- Input impedance configuration
+- Measurement accuracy verification
 
-### HP8673BTestApp
-Test application for the HP8673B Synthesized Signal Generator.
+**Usage:** Run the application and follow the interactive prompts.
+
+### HP8350BTestApp - Comprehensive Frequency and Power Test
+Automated test suite using multiple instruments for signal generation and measurement validation.
+
+**Instruments Used:**
+- HP 8350B - Signal generator (GPIB address 19)
+- HP 53131A - Frequency counter (GPIB address 23)
+- HP E4418B - Power meter (GPIB address 13)
+
+**Test Sequence:**
+1. Initializes all three instruments
+2. Prompts user to connect power sensor to reference output for calibration
+3. Performs automatic power sensor zeroing and calibration
+4. Prompts user to connect test setup (power sensor to DUT, counter to Channel 1)
+5. Sweeps 10-220 MHz in 5 MHz steps on Channel 1
+6. Prompts user to reconnect to Channel 3
+7. Sweeps 225-2400 MHz in 5 MHz steps on Channel 3
+8. Records set frequency, measured frequency, and measured power for each point
+9. Saves results to `Results.csv` for analysis
+
+**Output Format:**
+The test generates a CSV file with three columns:
+- Set Frequency (Hz)
+- Measured Frequency (Hz)
+- Measured Power (dBm)
+
+**Example Output:**
+```
+Set Frequency is 10.0000 MHz      Actual frequency is 10.0001 MHz      Power is -0.234 dBm
+Set Frequency is 15.0000 MHz      Actual frequency is 15.0002 MHz      Power is -0.187 dBm
+```
+
+### HP8673BTestApp - HP 8673B Signal Generator Tests
+Tests for the HP 8673B synthesized signal generator (2-18 GHz).
 
 **Features:**
-- Frequency generation tests
-- Power level control verification
-- Modulation testing
-- Command response validation
+- Frequency setting and verification
+- Power level control testing
+- RF output enable/disable control
+- CW mode operation demonstrations
 
-### HP8902ATestApp
-Test application for the HP8902A Measuring Receiver.
+**Usage:** Run the application and follow the interactive prompts to test various signal generator functions.
 
-**Features:**
-- Frequency measurement tests
-- AM modulation depth measurements
-- FM deviation measurements
-- Phase modulation measurements
-- Power measurement validation
-- Calibration factor testing
-- SRQ (Service Request) functionality verification
-
-### HP5351ATestApp
-Test application for the HP5351A/HP53131A Frequency Counter.
+### HP8902ATestApp - HP 8902A Measuring Receiver Tests
+Interactive tests for the HP 8902A measuring receiver.
 
 **Features:**
-- Frequency measurement on both channels
-- Resolution and accuracy testing
-- SRQ measurement mode verification
-- Timeout handling validation
+- Frequency measurement testing
+- AM/FM/Phase modulation measurements
+- Power sensor calibration factor management (JSON-based)
+- Comprehensive receiver functionality demonstrations
 
-**Note:** This test app is compatible with both HP5351A and HP53131A counters, which share similar command sets.
+**Usage:** Run the application and follow the prompts to exercise different measurement modes.
 
-### TestAppCommon
-Shared utilities and common functionality used across multiple test applications.
+### TestAppCommon - Shared Utilities
+Common functionality used across test applications.
 
-**Provides:**
-- Common helper functions
-- Shared GPIB utilities
-- Configuration management
-- Error handling utilities
+**Contents:**
+- `Output` class - Console output formatting utilities
+  - `SetupConsole()` - Configure console buffer and colors
+  - `Prompt()` - Display prompts with beep and wait for user input
+  - `Heading()` - Display section headings in blue
+  - `Information()` - Display informational messages
+
+**Usage:** Reference this project from test applications to use shared console utilities.
+
+**Note:** Each test application includes its own implementation of `ToEngineeringFormat` for engineering notation formatting (e.g., `1500000` → `"1.50 MHz"`).
 
 ## Requirements
 
 ### Hardware
-- One or more HP/Agilent test instruments (devices being tested)
-- GPIB interface card or USB-GPIB adapter
-- GPIB cables connecting PC to test equipment
-- **Physical test equipment is required** - these applications cannot run without connected hardware
+- HP/Agilent test equipment as required by each test application
+- GPIB interface hardware (e.g., National Instruments GPIB-USB-HS adapter)
+- Proper GPIB cables and connections
+- For HP8350BTestApp: Signal routing hardware (cables, adapters, splitters as needed)
 
 ### Software
 - .NET Framework 4.7.2 or later
@@ -95,147 +119,157 @@ Shared utilities and common functionality used across multiple test applications
 msbuild HPTestApps.sln /p:Configuration=Release
 ```
 
-### Build Output
-Each test application compiles to a standalone console executable:
-- `HP8350BTestApp.exe`
-- `HP8673BTestApp.exe`
-- `HP8902ATestApp.exe`
-- `HP5351ATestApp.exe`
-
 ## Usage
 
 ### Running Test Applications
 
-1. **Connect your GPIB hardware**
-   - Ensure test equipment is powered on
-   - Connect GPIB cables from PC interface to instruments
-   - Note the GPIB address of each device (use NI MAX to discover addresses)
+All test applications are **interactive console applications** that:
+- Provide step-by-step instructions
+- Wait for user input at key points (e.g., cable connections)
+- Display real-time measurement results
+- Use color-coded output (green for prompts, white for results, red for errors)
+- Generate audible beeps to alert user when action is required
 
-2. **Configure GPIB addresses**
-   - Most test apps prompt for GPIB address at startup, or
-   - Edit the GPIB address in the source code before building, or
-   - Pass as command-line argument (if supported by specific test app)
+### General Workflow
 
-3. **Run the test application**
-   ```bash
-   # Example: Run from command line
-   cd HPTestApps\HP8902ATestApp\bin\Release
-   HP8902ATestApp.exe
-   ```
+1. **Build the application** using Visual Studio or MSBuild
+2. **Connect test equipment** to GPIB interface
+3. **Power on instruments** and verify GPIB communication
+4. **Run the executable** from the command line or Visual Studio
+5. **Follow on-screen prompts** for cable connections and user actions
+6. **Review results** in console output or generated CSV files
 
-4. **Follow on-screen prompts**
-   - Test apps typically provide menu-driven interfaces
-   - Enter GPIB address when prompted (e.g., `GPIB0::8::INSTR`)
-   - Select test operations from the menu
-   - View measurement results and status messages
+### HP8350BTestApp Detailed Example
 
-### GPIB Address Format
+This is the most comprehensive test application, demonstrating a complete automated measurement routine.
 
-When prompted for a GPIB address, use the NI-VISA format:
+**Setup:**
+1. Connect all three instruments (HP 8350B, HP 53131A, HP E4418B) to GPIB interface
+2. Verify GPIB addresses match those in the code
+3. Have test cables ready for connections
+4. Run the application
+
+**Execution Steps:**
+1. Application initializes all instruments
+2. **First Prompt:** "Connect the power sensor to the reference output. Press any key to continue"
+   - Connect the power sensor to the HP 8350B's reference output
+   - Press any key to start calibration
+   - Calibration runs automatically (zeroing and calibration)
+3. **Second Prompt:** "Connect the power sensor to the DUT and the counter to Channel 1. Press any key to continue"
+   - Connect power sensor to device under test
+   - Connect frequency counter probe to Channel 1 input
+   - Press any key to begin measurements
+4. **Measurement Phase 1:** 10-220 MHz sweep runs automatically
+   - Real-time results displayed in console
+   - Data saved to Results.csv
+5. **Third Prompt:** "Connect the signal generator to channel 3. Press any key to continue"
+   - Reconnect to frequency counter Channel 3
+   - Press any key to continue
+6. **Measurement Phase 2:** 225-2400 MHz sweep runs automatically
+7. **Completion:** "Test completed. Press any key to exit."
+
+**Output Files:**
+- `Results.csv` - Contains all measurement data in CSV format for import into Excel or analysis tools
+
+### Tips for Running Tests
+
+- **Warm-up time:** Allow instruments to warm up for accurate measurements (typically 30+ minutes)
+- **Check connections:** Verify all cables are properly connected before proceeding at each prompt
+- **Monitor results:** Watch for red-colored frequency readings indicating timeout errors
+- **Cable quality:** Use high-quality, properly terminated cables for best results
+- **Ambient conditions:** Perform measurements in stable temperature environment
+
+## Example Code Patterns
+
+### Basic Device Instantiation and Control
+```csharp
+// Create device instance
+var signalGen = new HPDevices.HP8350B.Device("GPIB0::19::INSTR");
+
+// Set frequency and power
+signalGen.SetCWFrequency(100e6); // 100 MHz in Hz
+signalGen.SetPowerLevel(0);      // 0 dBm
+
+// Perform measurement
+var counter = new HPDevices.HP53131A.Device("GPIB0::23::INSTR");
+double freq = counter.MeasureFrequency(1);
+
+// Format and display results
+Console.WriteLine("Frequency: {0}", 
+    ToEngineeringFormat.Convert(freq, 3, "Hz", true));
 ```
-GPIB[board]::primary_address::INSTR
+
+### Engineering Format Conversion
+```csharp
+using TestAppCommon;
+
+// Format various values with engineering notation
+string voltage = ToEngineeringFormat.Convert(0.00234, 3, "V", true);   // "2.34 mV"
+string power = ToEngineeringFormat.Convert(0.001, 3, "W", true);       // "1.00 mW"
+string freq = ToEngineeringFormat.Convert(1500000, 4, "Hz", true);     // "1.5000 MHz"
 ```
 
-Examples:
-- `GPIB0::8::INSTR` - Device at address 8 on board 0
-- `GPIB0::19::INSTR` - Device at address 19 on board 0
-
-**Tip:** Use NI MAX (Measurement & Automation Explorer) to scan for and identify connected GPIB devices.
-
-### Example Session
-
+### Saving Measurements to CSV
+```csharp
+// Append measurement data to CSV file
+using (StreamWriter sw = File.AppendText("results.csv"))
+{
+    sw.WriteLine("{0},{1},{2}", setFrequency, measuredFreq, measuredPower);
+}
 ```
-HP8902A Test Application
-========================
 
-Enter GPIB Address (e.g., GPIB0::8::INSTR): GPIB0::8::INSTR
-Connected to HP8902A at GPIB0::8::INSTR
+## Output Data Analysis
 
-Select operation:
-1. Measure Frequency
-2. Measure AM Depth
-3. Measure FM Deviation
-4. Exit
-
-Enter selection: 1
-Measuring frequency...
-Result: 1.000000000 GHz
-
-Select operation:
+### Results.csv Format
+The HP8350BTestApp generates a CSV file with comma-separated values:
+```
+10000000,10000123.45,-0.234
+15000000,15000234.56,-0.187
 ...
 ```
 
-## Development and Customization
+**Columns:**
+1. Set Frequency (Hz)
+2. Measured Frequency (Hz)
+3. Measured Power (dBm)
 
-### Adding New Tests
-
-To add new test functionality to an existing test app:
-
-1. Open the test app project in Visual Studio
-2. Locate the `Program.cs` file
-3. Add new menu options and test methods
-4. Use the HPDevices library methods to interact with instruments
-5. Follow existing patterns for error handling and user interaction
-
-### Creating a New Test App
-
-To create a test app for a new device:
-
-1. Add a new Console Application project to the solution
-2. Reference the HPDevices project
-3. Reference TestAppCommon for shared utilities
-4. Implement menu-driven interface following existing patterns
-5. Add comprehensive tests for all device functionality
+**Analysis Suggestions:**
+- Import into Excel or MATLAB for plotting and analysis
+- Calculate frequency error: `(Measured - Set) / Set * 100%`
+- Plot power vs. frequency to verify flatness
+- Identify problematic frequency bands
 
 ## Troubleshooting
 
-### Connection Issues
-- **"Resource not found" errors**:
-  - Verify GPIB address using NI MAX
-  - Check that instrument is powered on
-  - Ensure GPIB interface card is installed and drivers are loaded
-  - Test connection in NI MAX before running test app
+### Application Won't Start
+- **GPIB device not found:** Verify instruments are powered on and GPIB addresses are correct
+- **NI-VISA not installed:** Download and install NI-VISA runtime
+- **Missing HPDevices.dll:** Build the HPDevices project first
 
-- **Timeout errors**:
-  - Some measurements take time; timeouts are pre-configured in device classes
-  - Check GPIB cable connections
-  - Verify instrument is not in local lockout mode
-  - Try resetting the instrument
+### Measurement Errors
+- **Timeout on frequency measurements (red text):** 
+  - Signal level too low - increase source power
+  - Wrong channel selected - verify cable connections
+  - Counter settings incorrect - verify impedance settings
+- **Inconsistent power readings:**
+  - Power sensor needs calibration - re-run calibration sequence
+  - Connections loose - verify all RF connections
+  - Ambient temperature change - allow re-stabilization
 
-### Build Issues
-- **Missing HPDevices reference**: Ensure HPDevices project builds successfully first
-- **NuGet package errors**: Restore NuGet packages before building
-- **Missing NI-VISA**: Install NI-VISA runtime from National Instruments
+### Communication Issues
+- **GPIB errors:** Check GPIB cables and termination
+- **Slow response:** Instruments may need warm-up time
+- **Intermittent failures:** Verify GPIB bus is not overloaded
 
-### Runtime Issues
-- **Application crashes on startup**:
-  - Verify NI-VISA runtime is installed
-  - Check that GPIB hardware is connected
-  - Try running NI MAX to test GPIB communication independently
+## Extending Test Applications
 
-- **Incorrect measurements**:
-  - Verify instrument is properly configured
-  - Check calibration of test equipment
-  - Ensure signal levels are within instrument range
-  - Review instrument manual for measurement requirements
-
-## Testing Without Hardware
-
-**Note:** These test applications **require physical GPIB hardware** to function. They cannot be run in CI/CD environments or systems without connected test equipment.
-
-For development without hardware:
-- Focus on code review and structure validation
-- Use NI MAX simulation mode (limited functionality)
-- Refer to instrument programming manuals for command validation
-- Build the projects to verify compilation and dependencies
-
-## Continuous Integration
-
-Due to hardware dependencies:
-- Build verification: ✓ Can be automated
-- Unit tests: ✗ Require physical instruments
-- Integration tests: ✗ Require physical instruments
-- Runtime testing: ✗ Requires GPIB hardware setup
+To create a new test application:
+1. Add new Console Application project to the solution
+2. Reference the HPDevices project
+3. Reference TestAppCommon for engineering format utilities
+4. Instantiate device objects with appropriate GPIB addresses
+5. Implement test sequence with user prompts and measurements
+6. Build and test with actual hardware
 
 ## Additional Resources
 
