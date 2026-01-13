@@ -245,7 +245,11 @@ namespace HPDevices.HP5351A
                     // Dispose managed resources
                     try
                     {
-                        gpibSession?.Dispose();
+                        if (gpibSession != null)
+                        {
+                            gpibSession.ServiceRequest -= SRQHandler;
+                            gpibSession.Dispose();
+                        }
                     }
                     catch (Exception ex)
                     {
