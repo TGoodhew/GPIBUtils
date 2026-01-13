@@ -12,6 +12,7 @@ This application provides a graphical interface to remotely control and monitor 
 - **Real-time readings**: Continuous measurement updates with configurable refresh rate
 - **Mode selection buttons**: Quick switching between measurement functions
 - **Engineering notation formatting**: Automatic unit scaling (e.g., mV, µA, kΩ)
+- **Data logging**: Record measurements to CSV or XML files for analysis
 - **Simple interface**: Clean, intuitive UI for instrument control
 - **TCP/IP or GPIB connectivity**: Flexible connection options
 
@@ -99,6 +100,41 @@ Click the appropriate button to switch measurement modes:
 - Measurements update automatically at 1-second intervals (configurable in code)
 - Values are displayed with automatic unit scaling using engineering notation
 - Examples: `1.234 V`, `123.4 mV`, `12.34 µA`, `1.234 kΩ`
+
+### Data Logging
+
+The application includes comprehensive data logging capabilities:
+
+#### Setting Up Logging
+1. **Configure logging settings:**
+   - Click **File → Logging Configuration...**
+   - Click **Browse...** to select a log file location
+   - Choose between **CSV** or **XML** format
+   - Click **OK** to save settings
+
+2. **Start logging:**
+   - Click the **Log** toggle button (bottom of window)
+   - The button turns red and status bar shows "Logging: CSV" or "Logging: XML"
+   - All measurements are now being saved to the log file
+
+3. **Stop logging:**
+   - Click the **Log** button again to stop logging
+   - Log file is closed and saved
+   - Measurements continue but are no longer logged
+
+#### Logging Features
+- **Independent operation**: Logging can be started/stopped while measurements continue
+- **CSV format**: Simple comma-separated values for Excel, MATLAB, Python
+- **XML format**: Structured data with session tracking
+- **Timestamped data**: Every reading includes millisecond-precision timestamp
+- **Appending**: New data is added to existing files
+- **Session tracking** (XML): Each logging session has start/end times
+
+For detailed logging documentation, see [LOGGING_FEATURE.md](LOGGING_FEATURE.md).
+
+Example log files are provided:
+- [example_measurements.csv](example_measurements.csv)
+- [example_measurements.xml](example_measurements.xml)
 
 ### Making Connections
 

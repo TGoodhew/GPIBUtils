@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MeasurementLog>
+  <Session StartTime="2026-01-13 10:15:30" EndTime="2026-01-13 10:15:45">
+    <Reading Timestamp="2026-01-13 10:15:30.125" Mode="DCV" Value="3.14159" Unit="V" />
+    <Reading Timestamp="2026-01-13 10:15:31.250" Mode="DCV" Value="3.14155" Unit="V" />
+    <Reading Timestamp="2026-01-13 10:15:32.375" Mode="DCV" Value="3.14162" Unit="V" />
+    <Reading Timestamp="2026-01-13 10:15:33.500" Mode="DCV" Value="3.14158" Unit="V" />
+    <Reading Timestamp="2026-01-13 10:15:34.625" Mode="DCV" Value="3.14160" Unit="V" />
+  </Session>
+  <Session StartTime="2026-01-13 10:20:15" EndTime="2026-01-13 10:20:30">
+    <Reading Timestamp="2026-01-13 10:20:15.100" Mode="ACV" Value="230.5" Unit="V" />
+    <Reading Timestamp="2026-01-13 10:20:16.225" Mode="ACV" Value="230.6" Unit="V" />
+    <Reading Timestamp="2026-01-13 10:20:17.350" Mode="ACV" Value="230.4" Unit="V" />
+    <Reading Timestamp="2026-01-13 10:20:18.475" Mode="ACV" Value="230.5" Unit="V" />
+  </Session>
+</MeasurementLog>
