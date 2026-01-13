@@ -70,6 +70,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <RadioButton Content="DCV" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="{x:Static local:ModeConstants.DCV}" GroupName="mode" IsChecked="True" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
@@ -79,6 +80,16 @@
                     <RadioButton Content="OHM" Command="{x:Static local:MainWindow.SetModeCommand}" CommandParameter="{x:Static local:ModeConstants.OHM}" GroupName="mode" Style="{DynamicResource RadioButtonStyle}" FontSize="36" />
                 </StackPanel>
                 <ToggleButton Grid.Column="1" Name="btnRun" Content="Run" MinWidth="400" Checked="btnRun_Checked" Unchecked="btnRun_Unchecked" Style="{DynamicResource ToggleButtonStyle}" FontSize="36"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0">
+                    <TextBlock Text="Update Interval:" VerticalAlignment="Center" FontSize="20" Margin="0,0,10,0"/>
+                    <ComboBox Name="cmbInterval" SelectedIndex="2" SelectionChanged="cmbInterval_SelectionChanged" FontSize="20" Width="100">
+                        <ComboBoxItem Content="0.1 s" Tag="0.1"/>
+                        <ComboBoxItem Content="0.5 s" Tag="0.5"/>
+                        <ComboBoxItem Content="1 s" Tag="1"/>
+                        <ComboBoxItem Content="2 s" Tag="2"/>
+                        <ComboBoxItem Content="5 s" Tag="5"/>
+                    </ComboBox>
+                </StackPanel>
             </Grid>
         </Grid>
     </DockPanel>
