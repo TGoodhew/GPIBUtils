@@ -16,7 +16,7 @@ namespace HPDevices.HPE4418B
     /// This class provides methods to zero and calibrate the sensor, and measure RF power at specified
     /// frequencies. Communication is via GPIB with SRQ-based synchronization for operation completion.
     /// </remarks>
-    public class Device
+    public class Device : IDisposable
     {
         /// <summary>
         /// Gets the GPIB address for this device in the format "GPIB0::XX::INSTR".
@@ -26,6 +26,7 @@ namespace HPDevices.HPE4418B
         private GpibSession gpibSession;
         private ResourceManager resManager;
         private SemaphoreSlim srqWait = new SemaphoreSlim(0, 1); // use a semaphore to wait for the SRQ events
+        private bool disposed = false;
 
         /// <summary>
         /// Initializes a new instance of the E4418B device and establishes GPIB communication.
@@ -163,9 +164,56 @@ namespace HPDevices.HPE4418B
             srqWait.Release();
         }
 
-        ~Device()
+        /// <summary>
+        /// Releases all resources used by the Device.
+        /// </summary>
+        public void Dispose()
         {
-            resManager.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the Device and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">True to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    try
+                    {
+                        gpibSession?.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error disposing GPIB session: {ex.Message}");
+                    }
+
+                    try
+                    {
+                        resManager?.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error disposing Resource Manager: {ex.Message}");
+                    }
+
+                    try
+                    {
+                        srqWait?.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error disposing SRQ semaphore: {ex.Message}");
+                    }
+                }
+
+                disposed = true;
+            }
         }
     }
 }

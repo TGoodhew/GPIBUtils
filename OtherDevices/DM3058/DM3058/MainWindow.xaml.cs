@@ -163,9 +163,10 @@ namespace DM3058
                 {
                     _tcpipSession.FormattedIO.DiscardBuffers();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore discard errors
+                    // Ignore discard errors - not critical for operation
+                    System.Diagnostics.Debug.WriteLine($"Warning: Unable to discard buffers: {ex.Message}");
                 }
                 
                 _isConnected = true;
@@ -460,9 +461,10 @@ namespace DM3058
                     {
                         _tcpipSession.FormattedIO.DiscardBuffers();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Ignore discard errors
+                        // Ignore discard errors - not critical for operation
+                        System.Diagnostics.Debug.WriteLine($"Warning: Unable to discard buffers: {ex.Message}");
                     }
                     
                     MessageBox.Show(
@@ -879,9 +881,10 @@ namespace DM3058
                 {
                     _xmlLog = XDocument.Load(_currentLogPath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // If file is corrupted, create new
+                    // If file is corrupted, log the error and create new
+                    System.Diagnostics.Debug.WriteLine($"Warning: Unable to load existing XML log file '{_currentLogPath}': {ex.Message}. Creating new log file.");
                     _xmlLog = new XDocument(
                         new XDeclaration("1.0", "utf-8", "yes"),
                         new XElement("MeasurementLog")
